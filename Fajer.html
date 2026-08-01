@@ -431,7 +431,6 @@
   <div class="brand" ondblclick="openAdminModal()">
     <div class="nova-wordmark"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
     <div class="brand-divider"></div>
-    <div class="brand-copy"><h1 class="brand-title">FAJER AL SALAMEEN</h1><p class="brand-tagline" id="brandSub">Customer Service Scripts — Support Team</p></div>
   </div>
   <div class="project-seal"><span class="eyebrow"> PROJECT</span><span class="name">FAJER AL SALAMEEN</span></div>
 </header>
@@ -447,13 +446,13 @@
 </div>
 
 <main>
-  <div class="workspace-head"><div><h1 id="workspaceTitle">مكتبة الردود الجاهزة</h1><p id="workspaceSub">ابحث، راجع، وانسخ الرد المناسب أثناء خدمة العميل</p></div><div class="library-count"><strong id="scriptCount">0</strong><span id="scriptCountLabel">سكريبت متاح</span></div></div>
+  <div class="workspace-head"><div><h1 id="workspaceTitle">تصعيد التذكرة</h1></div><div class="library-count"><strong id="scriptCount">0</strong><span id="scriptCountLabel">سكريبت متاح</span></div></div>
   <div id="content"></div>
   <div id="followupGrid" class="grid" style="margin-top:30px;"></div>
 </main>
 
 <footer>
-  <span id="footBrand">FAJER AL SALAMEEN — Script Library</span> 
+  <span id="footBrand"></span> 
   <button class="admin-trigger" onclick="openAdminModal()" id="footAdmin">🔐 Admin Portal</button>
   <span>•</span>
   <button class="theme-btn" onclick="toggleTheme()" id="footTheme">🌙 Toggle Dark Mode</button>
@@ -557,10 +556,8 @@
     document.documentElement.lang = currentLang;
 
     document.getElementById('langBtnText').textContent = isAr ? 'English' : 'العربية';
-    document.getElementById('brandSub').textContent = isAr ? 'سكريبتات خدمة العملاء — فريق الدعم' : 'Customer Service Scripts — Support Team';
     document.getElementById('searchInput').placeholder = isAr ? 'البحث بالعنوان أو محتوى الرد...' : 'Search by title or response content...';
-    document.getElementById('workspaceTitle').textContent = isAr ? 'مكتبة الردود الجاهزة' : 'Response library';
-    document.getElementById('workspaceSub').textContent = isAr ? 'ابحث، راجع، وانسخ الرد المناسب أثناء خدمة العميل' : 'Find, review, and copy the right response while supporting customers';
+    document.getElementById('workspaceTitle').textContent = isAr ? 'تصعيد التذكرة' : 'Escalation Ticket';
     document.getElementById('scriptCountLabel').textContent = isAr ? 'سكريبت متاح' : 'available scripts';
     
     document.getElementById('lblSideGen').textContent = isAr ? 'معلومات عامة' : 'GENERAL INFO';
@@ -580,7 +577,6 @@
     document.getElementById('btnTab2').textContent = isAr ? '🏷️ التبويبات' : '🏷️ Categories';
     document.getElementById('btnTab3').textContent = isAr ? '📌 القوائم الجانبية' : '📌 Side Panels';
 
-    document.getElementById('footBrand').textContent = isAr ? 'فجر السالمين — مكتبة السكريبتات' : 'FAJER AL SALAMEEN — Script Library';
     document.getElementById('footAdmin').textContent = isAr ? '🔐 بوابة الأدمن' : '🔐 Admin Portal';
     document.getElementById('footTheme').textContent = isAr ? '🌙 الوضع الداكن' : '🌙 Toggle Dark Mode';
     document.getElementById('footLang').textContent = isAr ? '🌐 English / عربية' : '🌐 English / عربية';
