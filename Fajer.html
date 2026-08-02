@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23146b61%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2352b788%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   
   <style>
     :root {
@@ -38,10 +40,10 @@
     header {
       background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-teal) 100%);
       padding: 20px clamp(16px, 4vw, 52px);
-      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; position: relative; overflow: visible; z-index: 20;
     }
-    .brand { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; cursor: pointer; }
-    .nova-wordmark { background: #fff; border-radius: 12px; padding: 8px 18px 9px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); display: flex; flex-direction: column; align-items: center; line-height: 1; }
+    .brand { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
+    .nova-wordmark { cursor: pointer; background: #fff; border-radius: 12px; padding: 8px 18px 9px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); display: flex; flex-direction: column; align-items: center; line-height: 1; }
     .nova-text { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px; background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-blue) 40%, var(--brand-teal) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .nova-sub { font-size: 7px; font-weight: 700; letter-spacing: 0.14em; color: #4B5A70; margin-top: 2px; }
     .brand-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.3); display: none; }
@@ -73,36 +75,52 @@
     .section-head h2 { font-size: 15px; margin: 0; font-weight: 700; color: var(--text-main); }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; border-inline-start: 4px solid var(--card-accent, var(--navy)); display: flex; flex-direction: column; position: relative; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; inset-inline-start: 0; top: 0; width: 100%; height: 4px; background: var(--card-accent, var(--navy)); }
     
     .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--card-accent, var(--navy)); background: color-mix(in srgb, var(--card-accent, var(--navy)) 15%, transparent); padding: 3px 9px; border-radius: 5px; width: fit-content; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--card-accent, var(--navy)); background: color-mix(in srgb, var(--card-accent, var(--navy)) 14%, transparent); padding: 3px 10px 3px 8px; border-radius: 999px; width: fit-content; }
+    .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--card-accent, var(--navy)); flex-shrink: 0; }
     
     /* Usage badge shown only in Admin Mode */
-    .usage-badge { font-size: 10.5px; font-weight: 700; color: #D97706; background: rgba(217, 119, 6, 0.12); padding: 3px 8px; border-radius: 5px; display: none; }
-    .admin-mode .usage-badge { display: inline-block; }
+    .usage-badge { font-size: 10.5px; font-weight: 700; color: #D97706; background: rgba(217, 119, 6, 0.12); padding: 3px 8px; border-radius: 5px; display: none; align-items: center; gap: 4px; }
+    .admin-mode .usage-badge { display: inline-flex; }
 
     .card-title { font-weight: 700; font-size: 14.5px; margin: 0 0 8px; color: var(--text-main); }
     .card-text { font-size: 13px; line-height: 1.65; color: var(--slate); margin: 0 0 14px; flex: 1; white-space: pre-line; }
     
     .copy-btn { display: flex; align-items: center; gap: 6px; background: var(--card); color: var(--text-main); border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 13px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-icon { width: 14px; height: 14px; flex-shrink: 0; }
     .copy-btn.copied { background: #0D9488; border-color: #0D9488; color: #fff; }
-    .delete-btn, .edit-btn { border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; margin-inline-start: 6px; }
+    .delete-btn, .edit-btn { border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; align-items: center; gap: 5px; margin-inline-start: 6px; }
     .delete-btn { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
     .edit-btn { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-    .admin-mode .delete-btn, .admin-mode .edit-btn { display: inline-block; }
+    .admin-mode .delete-btn, .admin-mode .edit-btn { display: inline-flex; }
+    .admin-limited .delete-btn, .admin-limited .danger-btn { display: none !important; }
 
     footer { text-align: center; padding: 20px; color: var(--slate-soft); font-size: 11.5px; border-top: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .admin-trigger, .theme-btn, .lang-btn-foot { background: none; border: none; color: var(--slate-soft); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; }
+    .admin-trigger, .lang-btn-foot { background: none; border: none; color: var(--slate-soft); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; }
+
+    /* Theme toggle, placed right next to the nova logo, slightly to its left */
+    .theme-toggle-fixed {
+      position: relative; z-index: 5; flex-shrink: 0; margin-inline-start: -4px;
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--card); box-shadow: 0 3px 10px rgba(0,0,0,0.16);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; padding: 0;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .theme-toggle-fixed:hover { transform: scale(1.08); }
+    .theme-toggle-fixed svg { width: 18px; height: 18px; display: block; }
+    .theme-toggle-fixed .icon-sun { color: #F59E0B; }
+    .theme-toggle-fixed .icon-moon { color: #64748B; }
+    body.dark-mode .theme-toggle-fixed .icon-moon { color: #CBD5E1; }
+    @media (max-width: 640px) {
+      .theme-toggle-fixed { width: 32px; height: 32px; }
+      .theme-toggle-fixed svg { width: 16px; height: 16px; }
+    }
 
     /* Side Panels */
-    .critical-tab, .etiquette-tab, .general-tab { position: fixed; left: 0; color: #fff; z-index: 40; cursor: pointer; border: none; border-radius: 0 10px 10px 0; padding: 12px 8px; }
-    body[dir="ltr"] .critical-tab, body[dir="ltr"] .etiquette-tab, body[dir="ltr"] .general-tab { left: auto; right: 0; border-radius: 10px 0 0 10px; }
-    
-    .general-tab { top: 28%; background: #D97706; }
-    .critical-tab { top: 48%; background: #B91C1C; }
-    .etiquette-tab { top: 68%; background: linear-gradient(135deg, #0089D6, #00A177); }
-    .critical-tab span, .etiquette-tab span, .general-tab span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; }
     
     .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 60; }
     .panel-overlay.show { display: block; }
@@ -120,6 +138,19 @@
     .info-card { background: var(--bg); border-inline-start: 4px solid #D97706; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12.5px; }
     .info-card .label { font-weight: 700; color: #D97706; margin-bottom: 4px; display: block; }
     .info-card .val { color: var(--text-main); word-break: break-word; }
+
+    .update-card { background: var(--surface-soft, var(--bg)); border-inline-start: 4px solid #5b3fb0; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+    .update-card .update-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .update-card .update-title { font-weight: 700; font-size: 13px; color: #5b3fb0; }
+    .update-card .update-date { font-size: 10px; color: var(--slate-soft); white-space: nowrap; }
+    .update-card .update-text { font-size: 12.5px; line-height: 1.65; color: var(--text-main); white-space: pre-line; }
+    .update-card.is-new .update-top::after { content: ''; }
+    .update-archive { margin-top: 6px; }
+    .update-archive summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--slate); padding: 8px 4px; list-style: none; }
+    .update-archive summary::-webkit-details-marker { display: none; }
+    .update-archive summary::before { content: '▸ '; }
+    .update-archive[open] summary::before { content: '▾ '; }
+    .update-archive .update-card { opacity: 0.75; }
   </style>
   <style>
     /* 2026 workspace redesign */
@@ -159,7 +190,7 @@
 
     header {
       min-height: 84px; padding: 16px clamp(18px,4vw,56px); flex-wrap: nowrap;
-      background: #17212b; border-bottom: 3px solid var(--coral); overflow: visible;
+      background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 32%, #40916c 62%, #52b788 100%); border-bottom: 3px solid var(--coral); overflow: visible;
     }
     .brand { flex-wrap: nowrap; gap: 14px; cursor: default; }
     .nova-wordmark { min-width: 104px; border-radius: 6px; padding: 7px 16px 8px; box-shadow: none; }
@@ -167,9 +198,9 @@
     .brand-divider { height: 34px; display: block; }
     .brand-copy { display: grid; gap: 2px; }
     .brand-title { margin: 0; color: #fff; font-size: 16px; font-weight: 800; line-height: 1.3; }
-    .brand-tagline { font-size: 11px; color: #b8c4ca; }
+    .brand-tagline { font-size: 11px; color: rgba(255,255,255,0.82); }
     .project-seal { padding: 0; border: 0; background: transparent; border-radius: 0; gap: 3px; }
-    .project-seal .eyebrow { color: #8fa0a8; font-size: 9px; }
+    .project-seal .eyebrow { color: rgba(255,255,255,0.65); font-size: 9px; }
     .project-seal .name { font-size: 12px; }
 
     .controls { top: 0; padding: 14px clamp(18px,4vw,56px) 10px; box-shadow: 0 1px 0 var(--border); }
@@ -187,20 +218,43 @@
     .tab.active { background: color-mix(in srgb, var(--brand-blue) 12%, var(--card)); color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); }
     .tab.active .dot { background: var(--brand-blue) !important; }
 
-    .quick-tools { position: fixed; z-index: 40; inset-inline-end: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
-    .critical-tab, .etiquette-tab, .general-tab { position: static; width: 44px; height: 44px; padding: 0; border-radius: 6px !important; display: grid; place-items: center; box-shadow: 0 6px 18px rgba(23,33,43,.2); }
-    .general-tab { background: #bf7a2b; }
-    .critical-tab { background: #b5473d; }
-    .etiquette-tab { background: var(--brand-blue); }
-    .critical-tab span, .etiquette-tab span, .general-tab span { writing-mode: initial; transform: none; font-size: 0; }
-    .critical-tab span::after, .etiquette-tab span::after, .general-tab span::after { font-size: 18px; font-weight: 800; }
-    .general-tab span::after { content: 'i'; font-family: Georgia,serif; }
-    .critical-tab span::after { content: '!'; }
-    .etiquette-tab span::after { content: '\260E'; }
+    /* Premium quick-tools dock */
+    .quick-tools { position: fixed; z-index: 40; inset-inline-end: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 11px; align-items: flex-end; }
+    .qt-btn { position: relative; width: 50px; height: 50px; padding: 0; border: none; cursor: pointer; display: grid; place-items: center; color: #fff; }
+    .qt-icon { width: 21px; height: 21px; position: relative; z-index: 1; }
+    .qt-icon svg { width: 100%; height: 100%; display: block; }
+    .qt-label {
+      position: absolute; top: 50%; inset-inline-end: calc(100% + 13px); transform: translateY(-50%) translateX(6px);
+      background: #17212b; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .01em;
+      white-space: nowrap; padding: 8px 13px; border-radius: 7px; opacity: 0; pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease; box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    }
+    body[dir="ltr"] .qt-label { inset-inline-end: auto; inset-inline-start: calc(100% + 13px); transform: translateY(-50%) translateX(-6px); }
+    .qt-btn:hover .qt-label { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+    .qt-general { background: linear-gradient(150deg, #dc9a45 0%, #bf7a2b 100%); border-radius: 15px; box-shadow: 0 8px 20px rgba(191,122,43,.35); }
+    .qt-critical { background: linear-gradient(150deg, #ce5e50 0%, #a83a2f 100%); border-radius: 50%; box-shadow: 0 8px 20px rgba(168,58,47,.4); }
+    .qt-etiquette { background: linear-gradient(150deg, #1f9686 0%, #146b61 100%); border-radius: 16px 6px 16px 6px; box-shadow: 0 8px 20px rgba(20,107,97,.35); }
+    body[dir="ltr"] .qt-etiquette { border-radius: 6px 16px 6px 16px; }
+    .qt-update { background: linear-gradient(150deg, #8a6ae0 0%, #5b3fb0 100%); border-radius: 50%; box-shadow: 0 8px 20px rgba(91,63,176,.4); }
+    .qt-suggest { background: linear-gradient(150deg, #e0578a 0%, #be185d 100%); border-radius: 50% 50% 50% 6px; box-shadow: 0 8px 20px rgba(190,24,93,.4); }
+    body[dir="ltr"] .qt-suggest { border-radius: 50% 50% 6px 50%; }
+
+    .qt-badge {
+      position: absolute; top: -3px; inset-inline-end: -3px; min-width: 17px; height: 17px; padding: 0 4px;
+      border-radius: 999px; background: #e5484d; color: #fff; font-size: 9.5px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg); z-index: 2;
+      animation: qtBadgePop .32s cubic-bezier(.3,1.4,.4,1), qtBadgeGlow 1.8s ease-in-out .32s infinite;
+    }
+    @keyframes qtBadgePop { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes qtBadgeGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(229,72,77,.55); }
+      50% { box-shadow: 0 0 0 5px rgba(229,72,77,0); }
+    }
 
     main { max-width: 1352px; padding: 28px clamp(18px,4vw,56px) 64px; }
     .workspace-head { max-width: 1240px; margin: 0 auto 22px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
-    .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; }
+    .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; letter-spacing: -0.01em; font-weight: 800; }
     .workspace-head p { margin: 0; color: var(--slate); font-size: 12.5px; }
     .library-count { flex: none; border-inline-start: 3px solid var(--coral); padding-inline-start: 12px; }
     .library-count strong { display: block; font-size: 20px; line-height: 1; }
@@ -212,13 +266,14 @@
     .section-head h2 { font-size: 14px; }
     .section-count { margin-inline-start: auto; font-size: 10.5px; color: var(--slate-soft); }
     .grid { grid-template-columns: repeat(auto-fill,minmax(315px,1fr)); gap: 12px; }
-    .card { border-radius: 6px; padding: 16px; border-inline-start-width: 3px; box-shadow: 0 1px 2px rgba(23,33,43,.03); transition: border-color .18s, box-shadow .18s, transform .18s; min-height: 222px; }
-    .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-    .card-top { margin-bottom: 10px; }
-    .badge, .usage-badge { border-radius: 4px; font-size: 9.5px; padding: 3px 7px; }
+    .card { border-radius: 14px; padding: 18px 18px 16px; box-shadow: 0 1px 2px rgba(23,33,43,.03); transition: border-color .2s, box-shadow .2s, transform .2s; min-height: 222px; }
+    .card:hover { box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--card-accent, var(--navy)) 40%, transparent), var(--shadow); transform: translateY(-3px); border-color: color-mix(in srgb, var(--card-accent, var(--navy)) 35%, var(--border)); }
+    .card-top { margin-bottom: 11px; }
+    .badge { font-size: 10px; padding: 3px 10px 3px 8px; }
+    .usage-badge { border-radius: 999px; font-size: 9.5px; padding: 3px 8px; }
     .card-title { font-size: 14px; margin-bottom: 8px; }
     .card-text { font-size: 12.5px; line-height: 1.75; margin-bottom: 16px; }
-    .card-actions { display: flex; align-items: center; gap: 6px; padding-top: 11px; border-top: 1px solid var(--border); }
+    .card-actions { display: flex; align-items: center; gap: 6px; padding-top: 12px; border-top: 1px dashed var(--border); }
     .copy-btn { border-radius: 5px; padding: 7px 11px; background: var(--text-main); border-color: var(--text-main); color: var(--card); }
     .copy-btn:hover { opacity: .88; }
     .copy-btn.copied { background: var(--brand-blue); border-color: var(--brand-blue); }
@@ -260,7 +315,6 @@
     }
     .section { animation: sectionEnter .42s both; }
     .card { animation: cardEnter .48s cubic-bezier(.2,.75,.25,1) both; animation-delay: var(--enter-delay, 0ms); }
-    .card:hover { transform: translateY(-4px); }
     .card:hover .badge { transform: translateY(-1px); }
     .badge { transition: transform .2s ease, background-color .2s ease; }
     .copy-btn, .edit-btn, .delete-btn, .action-pill, .admin-tab-btn, .panel-close { transition: transform .16s ease, background-color .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
@@ -274,17 +328,17 @@
     .search-shell:focus-within { transform: translateY(-1px); }
     #searchInput { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
     #searchInput:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-blue) 11%, transparent); }
-    .quick-tools button { transition: transform .22s cubic-bezier(.2,.8,.2,1), filter .2s ease; }
-    .quick-tools button:hover { transform: translateX(3px) scale(1.08); filter: brightness(1.06); }
-    body[dir="ltr"] .quick-tools button:hover { transform: translateX(-3px) scale(1.08); }
-    .etiquette-tab { animation: toolBreathe 3.2s ease-in-out infinite; }
+    .qt-btn { transition: transform .22s cubic-bezier(.2,.8,.2,1), filter .2s ease, box-shadow .22s ease; }
+    .qt-btn:hover { transform: translateY(-3px) scale(1.06); filter: brightness(1.08); }
+    .qt-btn:active { transform: translateY(0) scale(.95); }
+    .qt-critical { animation: toolBreathe 3.2s ease-in-out infinite; }
     .panel-overlay { opacity: 0; transition: opacity .25s ease; }
     .panel-overlay.show { opacity: 1; }
     .side-panel { transition: transform .34s cubic-bezier(.22,.8,.25,1); }
-    .side-panel.open .info-card, .side-panel.open #criticalList p, .side-panel.open #etiquetteList p { animation: cardEnter .36s both; }
-    .side-panel.open .info-card:nth-child(2), .side-panel.open #criticalList p:nth-child(2), .side-panel.open #etiquetteList p:nth-child(2) { animation-delay: 45ms; }
-    .side-panel.open .info-card:nth-child(3), .side-panel.open #criticalList p:nth-child(3), .side-panel.open #etiquetteList p:nth-child(3) { animation-delay: 90ms; }
-    .side-panel.open .info-card:nth-child(n+4), .side-panel.open #criticalList p:nth-child(n+4), .side-panel.open #etiquetteList p:nth-child(n+4) { animation-delay: 130ms; }
+    .side-panel.open .info-card, .side-panel.open #criticalList p, .side-panel.open #etiquetteList p, .side-panel.open .update-card { animation: cardEnter .36s both; }
+    .side-panel.open .info-card:nth-child(2), .side-panel.open #criticalList p:nth-child(2), .side-panel.open #etiquetteList p:nth-child(2), .side-panel.open .update-card:nth-child(2) { animation-delay: 45ms; }
+    .side-panel.open .info-card:nth-child(3), .side-panel.open #criticalList p:nth-child(3), .side-panel.open #etiquetteList p:nth-child(3), .side-panel.open .update-card:nth-child(3) { animation-delay: 90ms; }
+    .side-panel.open .info-card:nth-child(n+4), .side-panel.open #criticalList p:nth-child(n+4), .side-panel.open #etiquetteList p:nth-child(n+4), .side-panel.open .update-card:nth-child(n+4) { animation-delay: 130ms; }
     .modal-overlay { opacity: 0; transition: opacity .22s ease; }
     .modal-overlay.active { opacity: 1; }
     .modal-overlay.active .modal-card { animation: modalEnter .3s cubic-bezier(.2,.8,.25,1) both; }
@@ -295,6 +349,52 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
+
+    /* Custom scrollbar in brand colors */
+    * { scrollbar-width: thin; scrollbar-color: var(--brand-teal) var(--bg); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--brand-blue), var(--brand-teal)); border-radius: 10px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--brand-teal); }
+
+    /* First-visit-of-the-day splash */
+    .splash-overlay {
+      position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 32%, #40916c 62%, #52b788 100%);
+      opacity: 1; transition: opacity .5s ease;
+    }
+    .splash-overlay.hide { opacity: 0; pointer-events: none; }
+    .splash-logo { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 52px; color: #fff; opacity: 0; animation: splashIn 1s ease forwards; letter-spacing: .01em; }
+    .splash-sub { display: block; text-align: center; margin-top: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .16em; color: rgba(255,255,255,.75); opacity: 0; animation: splashIn 1s ease .15s forwards; }
+    @keyframes splashIn { 0% { opacity: 0; transform: scale(.85); } 60% { opacity: 1; transform: scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Toast notifications (replaces alert()) */
+    .toast-container { position: fixed; top: 16px; inset-inline-end: 16px; z-index: 250; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: min(360px, 92vw); }
+    .toast {
+      background: var(--card); color: var(--text-main); border: 1px solid var(--border); border-inline-start: 4px solid var(--brand-teal);
+      border-radius: 8px; padding: 12px 14px; box-shadow: 0 12px 30px rgba(0,0,0,.16); font-size: 12.5px; font-weight: 600;
+      display: flex; align-items: flex-start; gap: 8px; opacity: 0; transform: translateY(-10px); pointer-events: auto;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-inline-start-color: #0D9488; }
+    .toast.error { border-inline-start-color: #B91C1C; }
+    .toast-icon { flex-shrink: 0; font-size: 15px; line-height: 1.3; }
+
+    /* Skeleton loading state */
+    .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(315px, 1fr)); gap: 12px; }
+    .skeleton-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-height: 190px; }
+    .skeleton-line { height: 11px; border-radius: 6px; margin-bottom: 12px; position: relative; overflow: hidden; background: var(--border); }
+    .skeleton-line::after {
+      content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 70%, #fff), transparent);
+      animation: skeletonShimmer 1.3s infinite;
+    }
+    .skeleton-line.w-40 { width: 40%; } .skeleton-line.w-70 { width: 70%; } .skeleton-line.w-90 { width: 90%; } .skeleton-line.w-60 { width: 60%; }
+    @keyframes skeletonShimmer { 100% { transform: translateX(100%); } }
+
+    /* Friendlier empty search state */
+    .empty-state .empty-icon { font-size: 30px; display: block; margin-bottom: 10px; opacity: .8; }
 
     @media (max-width: 620px) {
       header { min-height: 74px; padding: 12px 16px; }
@@ -307,9 +407,6 @@
       .controls { padding: 10px 14px 7px; }
       .search-row { gap: 7px; }
       .action-pill { width: 43px; padding: 0; justify-content: center; }
-      #langBtnText { font-size: 0; }
-      #langBtnText::after { content: 'AR'; font-size: 11px; }
-      html[lang='ar'] #langBtnText::after { content: 'EN'; }
       main { padding: 22px 14px 78px; }
       .workspace-head { align-items: center; }
       .workspace-head h1 { font-size: 18px; }
@@ -317,17 +414,302 @@
       .grid { grid-template-columns: 1fr; }
       .card { min-height: 0; }
       .quick-tools { inset-inline-end: 12px; bottom: 12px; flex-direction: row; }
-      .critical-tab, .etiquette-tab, .general-tab { width: 42px; height: 42px; }
+      .qt-btn { width: 44px; height: 44px; }
+      .qt-label { display: none; }
       footer { padding: 18px 14px 72px; }
     }
+  </style>
+  <style>
+    /* Decor enhancements */
+    body {
+      background-image: radial-gradient(color-mix(in srgb, var(--navy) 6%, transparent) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    body.dark-mode {
+      background-image: radial-gradient(color-mix(in srgb, var(--text-main) 5%, transparent) 1px, transparent 1px);
+    }
+
+    .section-head { border-bottom: none; position: relative; }
+    .section-head::after {
+      content: ''; position: absolute; inset-inline-start: 0; bottom: 0; width: 100%; height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 85%);
+    }
+    body[dir="ltr"] .section-head::after { background: linear-gradient(270deg, var(--border) 0%, transparent 85%); }
+
+    .card { background: linear-gradient(180deg, color-mix(in srgb, var(--card-accent, var(--navy)) 5%, var(--card)) 0%, var(--card) 60%); }
+
+    body.dark-mode { --border: #33424a; --slate: #b7c2c8; }
+    body.dark-mode .card-text { color: var(--slate); }
+    body.dark-mode .action-pill:hover { color: var(--brand-blue); }
+
+    .login-gate {
+      position: fixed; inset: 0; z-index: 10000;
+      display: flex; background: var(--card);
+    }
+    .login-gate.hide { display: none; }
+    .login-image-panel {
+      flex: 1 1 55%; min-width: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgOTAwIDE0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwQTFFMzMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI0NSUiIHN0b3AtY29sb3I9IiMwRjI3NDMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI3NSUiIHN0b3AtY29sb3I9IiMxMjRBNUUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEU1RjYzIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93MSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwQTE3NyIgc3RvcC1vcGFjaXR5PSIwLjM1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzAwQTE3NyIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93MiIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwODlENiIgc3RvcC1vcGFjaXR5PSIwLjMwIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzAwODlENiIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHBhdHRlcm4gaWQ9ImRvdHMiIHdpZHRoPSIzNCIgaGVpZ2h0PSIzNCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxjaXJjbGUgY3g9IjIiIGN5PSIyIiByPSIxLjYiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNyIvPgogICAgPC9wYXR0ZXJuPgogIDwvZGVmcz4KCiAgPHJlY3Qgd2lkdGg9IjkwMCIgaGVpZ2h0PSIxNDAwIiBmaWxsPSJ1cmwoI2JnR3JhZCkiLz4KICA8cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjE0MDAiIGZpbGw9InVybCgjZG90cykiLz4KCiAgPGNpcmNsZSBjeD0iMTIwIiBjeT0iMTYwIiByPSIzMjAiIGZpbGw9InVybCgjZ2xvdzIpIi8+CiAgPGNpcmNsZSBjeD0iNzgwIiBjeT0iMTI1MCIgcj0iMzgwIiBmaWxsPSJ1cmwoI2dsb3cxKSIvPgoKICA8cGF0aCBkPSJNMCwxMDgwIEMyMjAsMTAzMCAzODAsMTE0MCA2MjAsMTEwMCBDNzYwLDEwNzUgODQwLDExMzAgOTAwLDExMDAgTDkwMCwxNDAwIEwwLDE0MDAgWiIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjAzNSIvPgoKICA8IS0tIGNvbm5lY3RpbmcgZGFzaGVkIGxpbmVzIGxpbmtpbmcgdGhlIGljb25zIGxpa2UgYSBzdXBwb3J0IG5ldHdvcmsgLS0+CiAgPGcgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4xNiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjMgOSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIj4KICAgIDxwYXRoIGQ9Ik00NTAsNDcwIEw2NDAsNzYwIi8+CiAgICA8cGF0aCBkPSJNNDUwLDQ3MCBMMjgwLDg4MCIvPgogICAgPHBhdGggZD0iTTY0MCw3NjAgTDU5MCwxMDEwIi8+CiAgPC9nPgoKICA8IS0tIGFnZW50IHNpbGhvdWV0dGU6IHJvdW5kZWQgaGVhZCArIHNob3VsZGVycyAtLT4KICA8ZyBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDYiPgogICAgPGNpcmNsZSBjeD0iNDUwIiBjeT0iMzYwIiByPSIxMzAiLz4KICAgIDxwYXRoIGQ9Ik0yNDAsNzYwIEMyNDAsNTYwIDMzMCw0NjAgNDUwLDQ2MCBDNTcwLDQ2MCA2NjAsNTYwIDY2MCw3NjAgTDY2MCw4MDAgTDI0MCw4MDAgWiIvPgogIDwvZz4KCiAgPCEtLSBjaGF0IGJ1YmJsZSBpY29uIC0tIGdyZWVuIC0tPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU2MCw3MDApIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMEM4NTMiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMCwyMiBhMjIsMjIgMCAwIDEgMjIsLTIyIGgyNTAgYTIyLDIyIDAgMCAxIDIyLDIyIHYxNDAgYTIyLDIyIDAgMCAxIC0yMiwyMiBoLTE3MiBsLTU0LDU0IHYtNTQgaC0yMiBhMjIsMjIgMCAwIDEgLTIyLC0yMiBaIi8+CiAgICA8Y2lyY2xlIGN4PSI3NiIgY3k9IjkyIiByPSIxMCIgZmlsbD0iIzAwQzg1MyIgc3Ryb2tlPSJub25lIi8+CiAgICA8Y2lyY2xlIGN4PSIxNDciIGN5PSI5MiIgcj0iMTAiIGZpbGw9IiMwMEM4NTMiIHN0cm9rZT0ibm9uZSIvPgogICAgPGNpcmNsZSBjeD0iMjE4IiBjeT0iOTIiIHI9IjEwIiBmaWxsPSIjMDBDODUzIiBzdHJva2U9Im5vbmUiLz4KICA8L2c+CgogIDwhLS0gc2hpZWxkIC8gdHJ1c3QgY2hlY2sgaWNvbiAtLSBibHVlIC0tPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5MCw5MjApIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc0RkYiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMTAwLDAgTDIwMCwzNiBWMTIyIEMyMDAsMTg4IDE1NiwyMjggMTAwLDI1MCBDNDQsMjI4IDAsMTg4IDAsMTIyIFYzNiBaIi8+CiAgICA8cGF0aCBkPSJNNTYsMTIyIEw5MCwxNTYgTDE1MCw5MCIvPgogIDwvZz4KCiAgPCEtLSBzdGFyIGFjY2VudHMgLS0+CiAgPGcgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjEyIj4KICAgIDxwYXRoIGQ9Ik03MTAsMTgwIEw3MjIsMjEyIEw3NTYsMjEyIEw3MjgsMjMyIEw3MzksMjY1IEw3MTAsMjQ1IEw2ODEsMjY1IEw2OTIsMjMyIEw2NjQsMjEyIEw2OTgsMjEyIFoiLz4KICA8L2c+CiAgPGcgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjEwIj4KICAgIDxjaXJjbGUgY3g9IjEzMCIgY3k9IjExODAiIHI9IjgiLz4KICAgIDxjaXJjbGUgY3g9IjE2NSIgY3k9IjExODAiIHI9IjgiLz4KICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjExODAiIHI9IjgiLz4KICA8L2c+Cjwvc3ZnPgo=') center/cover no-repeat;
+      position: relative;
+    }
+    .login-form-panel {
+      flex: 0 0 460px; max-width: 100%; display: flex; flex-direction: column;
+      justify-content: center; padding: 48px 56px; overflow-y: auto;
+      background: var(--card); position: relative; z-index: 1;
+      animation: modalEnter .4s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .login-card { width: 100%; text-align: center; }
+    .login-brand { display: flex; align-items: center; justify-content: center; margin-bottom: 26px; }
+    .login-wordmark {
+      display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
+    }
+    .login-wordmark .nova-text { font-size: 34px; }
+    .login-wordmark .nova-sub { font-size: 10px; margin-top: 3px; color: var(--slate); }
+    .login-card h2 { margin: 0 0 8px; font-size: 22px; color: var(--text-main); }
+    .login-card p { margin: 0 0 28px; font-size: 13.5px; color: var(--slate); }
+    .login-card form { text-align: start; }
+    .login-card label { display: block; font-size: 12.5px; font-weight: 700; color: var(--slate); margin: 16px 0 7px; }
+    .login-card input {
+      width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: 9px;
+      border: 1px solid var(--border); background: var(--surface-soft); color: var(--text-main);
+      font-size: 14.5px; font-family: inherit;
+    }
+    .login-card input:focus { outline: none; border-color: var(--brand-blue); }
+    .login-card button[type="submit"] {
+      width: 100%; margin-top: 26px; padding: 14px; border: none; border-radius: 9px;
+      background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-teal) 100%);
+      color: #fff; font-weight: 800; font-size: 14.5px; font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s ease, transform .16s ease;
+    }
+    .login-card button[type="submit"]:hover { opacity: .9; }
+    .login-card button[type="submit"]:active { transform: scale(.98); }
+    .login-card button[type="submit"]:disabled { opacity: .6; cursor: not-allowed; }
+    .login-spinner {
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff; animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .login-error {
+      margin-top: 14px; padding: 10px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
+      background: rgba(229,72,77,.12); color: #e5484d; text-align: center;
+    }
+    .login-forgot {
+      display: block; margin: 16px auto 0; background: none; border: none; cursor: pointer;
+      font-size: 11.5px; color: var(--brand-blue); font-family: inherit; text-decoration: underline;
+    }
+    /* Animated typing chat-bubbles overlay on the login image panel */
+    .chat-animation {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      padding: 60px; pointer-events: none; overflow: hidden;
+    }
+    .chat-bubble-track {
+      display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px;
+    }
+    .chat-bubble {
+      align-self: flex-start; max-width: 82%; padding: 12px 17px; border-radius: 16px 16px 16px 4px;
+      background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.7);
+      backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+      color: #0F2743; font-size: 19px; font-weight: 600; line-height: 1.55; font-family: 'Inter', sans-serif;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+      opacity: 0; transform: translateY(10px) scale(0.98);
+      transition: opacity .45s ease, transform .45s ease, background .3s ease, color .3s ease, border-color .3s ease;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    body.dark-mode .chat-bubble {
+      background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.9);
+    }
+    .chat-bubble.from-agent { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: rgba(0,161,119,0.28); border-color: rgba(0,161,119,0.45); }
+    body.dark-mode .chat-bubble.from-agent { background: rgba(0,161,119,0.16); border-color: rgba(0,161,119,0.28); }
+    .chat-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+    .chat-bubble.fade-out { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    .chat-caret {
+      display: inline-block; width: 2px; height: 1em; margin-inline-start: 2px;
+      background: currentColor; vertical-align: -0.15em; animation: caretBlink .85s steps(1) infinite;
+    }
+    @keyframes caretBlink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+    /* Site-wide animated keyboard background */
+    .site-bg-animation {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+    }
+    .site-bg-scene {
+      position: absolute; bottom: 42vh; left: 50%; transform: translateX(-50%);
+      width: min(780px, 72vw); opacity: 1; color: var(--text-main);
+      transition: opacity .3s ease, color .3s ease;
+    }
+    body.dark-mode .site-bg-scene { opacity: 1; }
+    .site-bg-scene svg { width: 100%; height: auto; display: block; }
+    .kb-key {
+      transition: transform .12s ease, stroke-width .12s ease;
+      transform-box: fill-box; transform-origin: center;
+    }
+    .kb-key.pressed { transform: translateY(4px) scale(0.96); stroke-width: 6; }
+
+    .falling-letters {
+      position: absolute; inset: 0; overflow: hidden;
+    }
+    .falling-letter {
+      position: absolute; top: 0; font-family: 'Courier New', monospace; font-weight: 700;
+      color: var(--text-main); opacity: 1; user-select: none;
+      animation-name: letterFall; animation-timing-function: ease-in; animation-fill-mode: forwards;
+    }
+    @keyframes letterFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: var(--fl-opacity, 1); }
+      85% { opacity: var(--fl-opacity, 1); }
+      100% { transform: translateY(110vh) rotate(var(--fl-rot, 220deg)); opacity: 0; }
+    }
+    @media (max-width: 760px) {
+      .site-bg-animation { display: none; }
+    }
+
+    @media (max-width: 860px) {
+      .login-image-panel { display: none; }
+      .login-form-panel { flex: 1 1 100%; padding: 32px 24px; }
+    }
+    @media (max-width: 480px) {
+      .login-wordmark .nova-text { font-size: 28px; }
+      .login-card h2 { font-size: 19px; }
+    }
+
+    .header-right { display: flex; align-items: center; gap: 14px; position: relative; z-index: 5; }
+    .profile-menu { position: relative; }
+    .profile-btn {
+      display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.35);
+      border-radius: 999px; padding: 4px 10px 4px 4px; cursor: pointer; color: #fff; transition: background .2s ease;
+    }
+    body[dir="ltr"] .profile-btn { padding: 4px 4px 4px 10px; }
+    .profile-btn:hover { background: rgba(255,255,255,.24); }
+    .profile-chevron { transition: transform .2s ease; flex-shrink: 0; }
+    .profile-btn[aria-expanded="true"] .profile-chevron { transform: rotate(180deg); }
+    .profile-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #ffffff 0%, #dfe9f5 100%); color: var(--brand-blue);
+      font-weight: 800; font-size: 12.5px; display: flex; align-items: center; justify-content: center;
+      font-family: 'Baloo 2', sans-serif; text-transform: uppercase;
+    }
+    .profile-avatar-lg { width: 42px; height: 42px; font-size: 15px; }
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 10px); inset-inline-end: 0; width: 240px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 18px 44px rgba(0,0,0,.22); padding: 8px; z-index: 50;
+      opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    }
+    .profile-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .profile-dropdown-head { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px; background: var(--surface-soft); border-radius: 8px; }
+    .profile-info { min-width: 0; }
+    .profile-email { font-size: 12px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-role { font-size: 10.5px; color: var(--slate); margin-top: 1px; }
+    .profile-dropdown-label { font-size: 10px; font-weight: 800; color: var(--slate-soft); text-transform: uppercase; letter-spacing: .06em; padding: 6px 8px 4px; }
+    .profile-dropdown-item {
+      display: flex; align-items: center; gap: 9px; width: 100%; box-sizing: border-box; padding: 9px 8px;
+      background: none; border: none; border-radius: 7px; cursor: pointer; text-align: start;
+      font-size: 12.5px; font-weight: 600; color: var(--text-main); font-family: inherit;
+    }
+    .profile-dropdown-item:hover { background: var(--surface-soft); }
+    .profile-dropdown-sep { height: 1px; background: var(--border); margin: 6px 4px; }
+    .profile-dropdown-danger { color: #e5484d; }
+    .profile-dropdown-danger:hover { background: rgba(229,72,77,.1); }
   </style>
 </head>
 <body>
 
+<div class="site-bg-animation" aria-hidden="true">
+  <div class="site-bg-scene">
+    <svg viewBox="0 0 640 274" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="4">
+      <rect class="kb-key" data-letter="Q" x="5" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="W" x="69" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="E" x="133" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="R" x="197" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="T" x="261" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="Y" x="325" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="U" x="389" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="I" x="453" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="O" x="517" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="P" x="581" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="A" x="37" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="S" x="101" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="D" x="165" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="F" x="229" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="G" x="293" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="H" x="357" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="J" x="421" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="K" x="485" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="L" x="549" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="Z" x="101" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="X" x="165" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="C" x="229" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="V" x="293" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="B" x="357" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="N" x="421" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="M" x="485" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key kb-space" x="160" y="206" width="320" height="54" rx="9"/>
+    </svg>
+  </div>
+  <div class="falling-letters" id="fallingLetters"></div>
+</div>
+
+<div class="login-gate" id="loginGate" dir="rtl">
+  <div class="login-form-panel">
+    <div class="login-card">
+    <div class="login-brand">
+      <div class="login-wordmark"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+    </div>
+    <h2 id="loginTitle" dir="ltr" lang="en">Sign In</h2>
+    <p id="loginSub" dir="ltr" lang="en">Enter your details</p>
+    <form id="loginForm" autocomplete="on" dir="ltr" lang="en">
+      <label id="lblLoginEmail" for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" autocomplete="username" required>
+      <label id="lblLoginPass" for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" required>
+      <button type="submit" id="loginSubmitBtn">
+        <span id="loginSubmitText">Sign In</span>
+        <span class="login-spinner" id="loginSpinner" style="display:none;"></span>
+      </button>
+      <div class="login-error" id="loginError" style="display:none;"></div>
+      <button type="button" class="login-forgot" id="loginForgotBtn">Forgot password?</button>
+    </form>
+    </div>
+  </div>
+  <div class="login-image-panel" aria-hidden="true">
+    <div class="chat-animation" aria-hidden="true">
+      <div class="chat-bubble-track" id="chatBubbleTrack" dir="ltr"></div>
+    </div>
+  </div>
+</div>
+
+<div class="splash-overlay" id="splashOverlay">
+  <div style="text-align:center;">
+    <div class="splash-logo">NOVA</div>
+    <span class="splash-sub">AN ENJEZ COMPANY</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
 <div class="quick-tools" aria-label="Quick tools">
-  <button class="general-tab" onclick="openPanel('general')" title="General information"><span id="lblSideGen">GENERAL INFO</span></button>
-  <button class="critical-tab" onclick="openPanel('critical')" title="Critical mistakes"><span id="lblSideCrit">CRITICAL MISTAKES</span></button>
-  <button class="etiquette-tab" onclick="openPanel('etiquette')" title="Call etiquette"><span id="lblSideEtiq">ETIQUETTE CALL</span></button>
+  <button class="qt-btn qt-general" onclick="openPanel('general')" title="General information">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="qt-label" id="lblSideGen">GENERAL INFO</span>
+  </button>
+  <button class="qt-btn qt-critical" onclick="openPanel('critical')" title="Critical mistakes">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2Z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="qt-label" id="lblSideCrit">CRITICAL MISTAKES</span>
+  </button>
+  <button class="qt-btn qt-etiquette" onclick="openPanel('etiquette')" title="Call etiquette">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c0-1 .8-1.5 1.7-1.5H8c.6 0 1.1.4 1.3.9l1 2.9c.2.6 0 1.3-.5 1.7L8.3 9.8c1.1 2.6 3.3 4.8 5.9 5.9l1.3-1.5c.4-.5 1.1-.7 1.7-.5l2.9 1c.5.2.9.7.9 1.3v1.8c0 .9-.5 1.7-1.5 1.7C11.9 19.5 4.5 12.1 4.5 4.5Z"></path></svg></span>
+    <span class="qt-label" id="lblSideEtiq">ETIQUETTE CALL</span>
+  </button>
+  <button class="qt-btn qt-update" onclick="openPanel('newUpdate')" title="New updates">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 1 1 12 0c0 4.2 1.3 5.8 1.3 5.8H4.7S6 13.7 6 9.5Z"></path><path d="M10.3 19a1.9 1.9 0 0 0 3.4 0"></path></svg></span>
+    <span class="qt-badge" id="updateBadge" style="display:none;">0</span>
+    <span class="qt-label" id="lblSideUpdate">NEW UPDATE</span>
+  </button>
+  <button class="qt-btn qt-suggest" onclick="openPanel('suggest')" title="Suggestions">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.7.5 1.1 1.3 1.1 2.2v.7h5.8v-.7c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 2.5Z"></path><line x1="9.6" y1="20" x2="14.4" y2="20"></line><line x1="10.3" y1="22" x2="13.7" y2="22"></line></svg></span>
+    <span class="qt-label" id="lblSideSuggest">SUGGESTIONS</span>
+  </button>
 </div>
 
 <div class="panel-overlay" id="overlay" onclick="closePanels()"></div>
@@ -350,15 +732,31 @@
   <div id="criticalList"></div>
 </div>
 
+<!-- New Update Panel -->
+<div class="side-panel" id="newUpdatePanel">
+  <div class="panel-head"><h2 style="color:#5b3fb0;" id="hNewUpdate">New Updates</h2><button class="panel-close" onclick="closePanels()" aria-label="Close">×</button></div>
+  <div id="newUpdateList"></div>
+</div>
+
+<!-- Suggestion Panel -->
+<div class="side-panel" id="suggestPanel">
+  <div class="panel-head"><h2 style="color:#be185d;" id="hSuggest">💡 اقتراح جديد</h2><button class="panel-close" onclick="closePanels()" aria-label="Close">×</button></div>
+  <p style="font-size:12.5px; color:var(--slate); margin-top:0;" id="lblSuggestDesc">شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.</p>
+  <div id="suggestSenderRow" style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--slate); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+    <span id="lblSuggestAs">سيصل الاقتراح باسم:</span>
+    <span id="suggestSenderEmail" style="font-weight:700; color:var(--text-main);">—</span>
+  </div>
+  <textarea id="suggestText" rows="5" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
+  <button onclick="submitSuggestion()" style="width:100%; background:#be185d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;" id="btnSubmitSuggest">إرسال الاقتراح</button>
+</div>
+
 <!-- Admin Modal -->
 <div class="modal-overlay" id="adminModal">
   <div class="modal-card">
     <h3 style="margin-top:0;" id="hAdminPortal">⚙️ Admin Management Portal</h3>
     
-    <div id="adminAuthSection">
-      <p style="font-size:13px; color:var(--slate);" id="lblAdminPass">Enter Admin Password:</p>
-      <input type="password" id="adminPassInput" placeholder="Password..." style="width:100%; margin-bottom:10px;">
-      <button onclick="loginAdmin()" style="width:100%; background:var(--brand-blue); color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;" id="btnAdminLogin">تسجيل الدخول</button>
+    <div id="adminAuthSection" style="display:none;">
+      <p style="font-size:13px; color:var(--slate);" id="lblAdminPass">ما عندك صلاحية الوصول لهذه اللوحة.</p>
     </div>
 
     <div id="adminEditSection" style="display:none;">
@@ -368,6 +766,8 @@
         <button class="admin-tab-btn active" id="btnTab1" onclick="switchAdminTab('scripts')">+ إدارة السكريبتات</button>
         <button class="admin-tab-btn" id="btnTab2" onclick="switchAdminTab('categories')">🏷️ التبويبات</button>
         <button class="admin-tab-btn" id="btnTab3" onclick="switchAdminTab('panels')">📌 القوائم الجانبية</button>
+        <button class="admin-tab-btn" id="btnTab4" onclick="switchAdminTab('updates')">🔔 نيو ابديت</button>
+        <button class="admin-tab-btn" id="btnTab5" onclick="switchAdminTab('suggestions')">💡 الاقتراحات</button>
       </div>
 
       <!-- Tab 1: Manage Scripts -->
@@ -422,24 +822,69 @@
         <div id="criticalAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px;"></div>
       </div>
 
+      <!-- Tab 4: Manage New Updates -->
+      <div id="adminTabUpdates" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblUpdDesc">أضف تحديثاً جديداً — سيظهر إشعار للفريق تلقائياً:</p>
+        <textarea id="newUpdText" rows="4" placeholder="اكتب نص التحديث هنا..." style="width:100%; margin-bottom:8px;"></textarea>
+        <button onclick="addUpdate()" style="width:100%; background:#5b3fb0; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;" id="btnAddUpd">🔔 نشر التحديث للفريق</button>
+        <div id="updatesAdminList" style="max-height:160px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px; margin-top:12px;"></div>
+      </div>
+
+      <!-- Tab 5: View Employee Suggestions (admin-only) -->
+      <div id="adminTabSuggestions" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblSuggAdminDesc">اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:</p>
+        <div id="suggestionsAdminList" style="max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
       <button onclick="closeAdminModal()" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;" id="btnCloseAdmin">إغلاق الواجهة</button>
     </div>
   </div>
 </div>
 
 <header>
-  <div class="brand" ondblclick="openAdminModal()">
-    <div class="nova-wordmark"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+  <div class="brand">
+    <div class="nova-wordmark" ondblclick="openAdminModal()"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
     <div class="brand-divider"></div>
+    <button class="theme-toggle-fixed" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+      <svg id="themeIconMoon" class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="currentColor"><path d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
+      <svg id="themeIconSun" class="icon-sun" style="display:none" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
   </div>
-  <div class="project-seal"><span class="eyebrow"> PROJECT</span><span class="name">FAJER AL SALAMEEN</span></div>
+  <div class="header-right">
+    <div class="project-seal"><span class="eyebrow"> PROJECT</span><span class="name">FAJER AL SALAMEEN</span></div>
+    <div class="profile-menu" id="profileMenu">
+      <button class="profile-btn" onclick="toggleProfileMenu()" id="profileBtn" aria-haspopup="true" aria-expanded="false" title="Account menu">
+        <span class="profile-avatar" id="profileAvatar">؟</span>
+        <svg class="profile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-dropdown-head">
+          <span class="profile-avatar profile-avatar-lg" id="profileAvatarLg">؟</span>
+          <div class="profile-info">
+            <div class="profile-email" id="profileEmail">—</div>
+            <div class="profile-role" id="profileRoleLabel">موظف</div>
+          </div>
+        </div>
+        <div class="profile-dropdown-label" id="profileDecorLabel">ضبط الديكور</div>
+        <button class="profile-dropdown-item" onclick="toggleTheme()">
+          <span id="profileThemeIcon">🌙</span> <span id="profileThemeText">الوضع الداكن</span>
+        </button>
+        <button class="profile-dropdown-item" onclick="toggleLanguage()">
+          <span>🌐</span> <span id="langBtnText">English</span>
+        </button>
+        <div class="profile-dropdown-sep"></div>
+        <button class="profile-dropdown-item profile-dropdown-danger" onclick="employeeLogout()" id="logoutBtn">
+          <span>🚪</span> <span id="logoutBtnText">تسجيل الخروج</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </header>
 
 <div class="controls">
   <div class="controls-inner">
     <div class="search-row">
       <div class="search-shell"><span class="search-icon">⌕</span><input type="text" id="searchInput" placeholder="البحث في السكريبتات... / Search scripts..." oninput="render()"></div>
-      <button class="action-pill" onclick="toggleLanguage()" title="Switch language"><span id="langBtnText">English</span></button>
     </div>
     <div class="tabs" id="tabs"></div>
   </div>
@@ -452,12 +897,7 @@
 </main>
 
 <footer>
-  <span id="footBrand"></span> 
-  <button class="admin-trigger" onclick="openAdminModal()" id="footAdmin">🔐 Admin Portal</button>
-  <span>•</span>
-  <button class="theme-btn" onclick="toggleTheme()" id="footTheme">🌙 Toggle Dark Mode</button>
-  <span>•</span>
-  <button class="lang-btn-foot" onclick="toggleLanguage()" id="footLang">🌐 English / عربية</button>
+  <span id="footBrand"></span>
 </footer>
 
 <script>
@@ -468,14 +908,312 @@
     }
   });
 
-  // لا تحتفظ بكلمة المرور نفسها داخل الملف المنشور.
-  // ملاحظة: هذا يمنع ظهورها كنص صريح فقط؛ الحماية الفعلية تتطلب التحقق على خادم.
-  const ADMIN_PASS_SHA256 = "56feee9325f7caaca9b18aa83797f24c9f4002387d5ec644e69867c0b0428691";
+  // ====== Role / Permission Map ======
+  // الصلاحيات هلأ بتجي من عمود role بجدول profiles على Supabase، مش من باسورد بالكود.
+  // ضيف/عدّل رتب جديدة هون بس — الكود بياخدها أوتوماتيك.
+  const ROLE_PERMISSIONS = {
+    admin:       { isAdmin: true,  adminRole: 'full',    label: { ar: 'أدمن',       en: 'Admin' } },
+    team_leader: { isAdmin: true,  adminRole: 'limited', label: { ar: 'تيم ليدر',    en: 'Team Leader' } },
+    quality:     { isAdmin: false, adminRole: null,      label: { ar: 'كواليتي',     en: 'Quality' } },
+    agent:       { isAdmin: false, adminRole: null,      label: { ar: 'موظف',       en: 'Agent' } }
+  };
+  const DEFAULT_ROLE = 'agent'; // إذا ما انلقى للمستخدم صف بجدول profiles
+
+  const UPDATE_ARCHIVE_DAYS = 30; // updates older than this are auto-collapsed into the archive
   let isAdmin = false;
+  let adminRole = null; // 'full' | 'limited' | null
+  let currentUserRole = null; // 'admin' | 'team_leader' | 'quality' | 'agent' ...
+  let currentUserEmail = null;
   let activeCat = null;
   let renderSequence = 0;
   let previousVisibleCount = -1;
   let currentLang = localStorage.getItem('fajer_lang_v2') || 'ar';
+
+  // ====== Supabase Authentication ======
+  // ⚠️ عدّل القيمتين التاليتين ببيانات مشروعك من Supabase:
+  // Project Settings > API > Project URL و anon public key
+  const SUPABASE_URL = "https://tyykcgsifuhsvlfwuzkb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5eWtjZ3NpZnVoc3ZsZnd1emtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NzExNDEsImV4cCI6MjEwMTE0NzE0MX0.QJhYVN1-YfVTuodG8VEe6o0BMM3uhKlCsj5ahCXaVnY";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let appBooted = false;
+
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function hideLoginError() {
+    document.getElementById('loginError').style.display = 'none';
+  }
+  function authErrorMessage(msg) {
+    const map = {
+      'Invalid login credentials': 'Incorrect email or password.',
+      'Email not confirmed': 'This account needs email confirmation first.',
+      'Too many requests': 'Too many attempts, try again later.'
+    };
+    return map[msg] || 'Login failed, please try again.';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideLoginError();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginSubmitBtn');
+    const spinner = document.getElementById('loginSpinner');
+    const text = document.getElementById('loginSubmitText');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    text.style.opacity = '0.6';
+    sb.auth.signInWithPassword({ email, password: pass })
+      .then(({ error }) => {
+        if (error) showLoginError(authErrorMessage(error.message));
+      })
+      .finally(() => {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        text.style.opacity = '1';
+      });
+  });
+
+  document.getElementById('loginForgotBtn').addEventListener('click', function () {
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) {
+      showLoginError('Enter your email above first, then click "Forgot password" again.');
+      return;
+    }
+    sb.auth.resetPasswordForEmail(email)
+      .then(({ error }) => {
+        if (error) showLoginError(authErrorMessage(error.message));
+        else showLoginError('✅ A reset link was sent to your email.');
+      });
+  });
+
+  function employeeLogout() {
+    closeProfileMenu();
+    sb.auth.signOut().then(({ error }) => {
+      if (error) console.error('Supabase signOut error:', error);
+      // Force the login gate open immediately — don't rely solely on the
+      // onAuthStateChange event, in case it's delayed or doesn't fire.
+      document.getElementById('loginGate').classList.remove('hide');
+      appBooted = false;
+    });
+  }
+
+  function toggleProfileMenu() {
+    const dd = document.getElementById('profileDropdown');
+    const btn = document.getElementById('profileBtn');
+    const isOpen = dd.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  function closeProfileMenu() {
+    document.getElementById('profileDropdown').classList.remove('open');
+    document.getElementById('profileBtn').setAttribute('aria-expanded', 'false');
+  }
+  document.addEventListener('click', function (e) {
+    const menu = document.getElementById('profileMenu');
+    if (menu && !menu.contains(e.target)) closeProfileMenu();
+  });
+
+  function updateProfileIdentity(email) {
+    currentUserEmail = email || null;
+    const initials = (email || '؟').trim().slice(0, 2).toUpperCase();
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('profileAvatarLg').textContent = initials;
+    document.getElementById('profileEmail').textContent = email || '—';
+    const senderEl = document.getElementById('suggestSenderEmail');
+    if (senderEl) senderEl.textContent = email || '—';
+  }
+
+  // بيجيب البوزيشن (role) الخاصة بالمستخدم من جدول profiles على Supabase
+  async function fetchUserRole(userId) {
+    try {
+      const { data, error } = await sb
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      if (error || !data || !data.role) {
+        console.warn('تعذّر جلب البوزيشن، تم استخدام الافتراضي:', error?.message);
+        return DEFAULT_ROLE;
+      }
+      return data.role;
+    } catch (err) {
+      console.error('خطأ أثناء جلب البوزيشن:', err);
+      return DEFAULT_ROLE;
+    }
+  }
+
+  // بيطبّق الصلاحيات على الواجهة حسب البوزيشن (بدون إعادة رسم — الاستدعاء المسؤول يقرر متى يرسم)
+  function applyUserRole(role) {
+    const perm = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS[DEFAULT_ROLE];
+    currentUserRole = ROLE_PERMISSIONS[role] ? role : DEFAULT_ROLE;
+    isAdmin = perm.isAdmin;
+    adminRole = perm.adminRole;
+
+    const roleLabelEl = document.getElementById('profileRoleLabel');
+    if (roleLabelEl) {
+      const isAr = currentLang === 'ar';
+      roleLabelEl.textContent = isAr ? perm.label.ar : perm.label.en;
+    }
+
+    updateAdminRoleLabel();
+  }
+
+  sb.auth.onAuthStateChange(function (event, session) {
+    const gate = document.getElementById('loginGate');
+    if (session && session.user) {
+      gate.classList.add('hide');
+      document.getElementById('loginForm').reset();
+      hideLoginError();
+      updateProfileIdentity(session.user.email);
+      if (!appBooted) {
+        appBooted = true;
+        bootApp(session.user.id);
+      } else {
+        // الجلسة نفسها اتجدد توكنها مثلاً — حدّث البوزيشن بس بدون إعادة تحميل كل شي
+        fetchUserRole(session.user.id).then(role => {
+          applyUserRole(role);
+          render();
+          if (isAdmin) renderAdminLists();
+        });
+      }
+    } else {
+      gate.classList.remove('hide');
+      closeProfileMenu();
+      document.getElementById('splashOverlay')?.remove();
+      isAdmin = false;
+      adminRole = null;
+      currentUserRole = null;
+    }
+  });
+  // ====== End Supabase Authentication ======
+
+  // ====== Decorative animated "typing" chat bubbles on the login image panel ======
+  (function () {
+    const track = document.getElementById('chatBubbleTrack');
+    if (!track) return;
+
+    const SCRIPT = [
+      { side: 'agent',   text: 'Hi there 👋' },
+      { side: 'client',  text: 'How can I help you today?' },
+      { side: 'agent',   text: 'I have a question about my order' },
+      { side: 'client',  text: 'Your order has been received ✅' },
+      { side: 'agent',   text: 'Thanks for the quick response 🙏' },
+      { side: 'client',  text: 'Our team is always here to help' },
+    ];
+
+    const MAX_VISIBLE = 4;
+    const TYPE_SPEED_MS = 42;
+    const PAUSE_AFTER_TYPE_MS = 1100;
+    const PAUSE_BETWEEN_MS = 450;
+    const LOOP_PAUSE_MS = 1400;
+
+    let cancelled = false;
+    let visibleBubbles = [];
+
+    function sleep(ms) {
+      return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    }
+
+    async function typeIntoBubble(bubbleEl, text) {
+      const textSpan = document.createElement('span');
+      const caret = document.createElement('span');
+      caret.className = 'chat-caret';
+      bubbleEl.appendChild(textSpan);
+      bubbleEl.appendChild(caret);
+
+      requestAnimationFrame(function () { bubbleEl.classList.add('show'); });
+
+      for (let i = 0; i < text.length; i++) {
+        if (cancelled) return;
+        textSpan.textContent += text[i];
+        await sleep(TYPE_SPEED_MS);
+      }
+      caret.remove();
+    }
+
+    async function runLoop() {
+      while (!cancelled) {
+        for (let i = 0; i < SCRIPT.length; i++) {
+          if (cancelled) return;
+          const msg = SCRIPT[i];
+          const bubble = document.createElement('div');
+          bubble.className = 'chat-bubble' + (msg.side === 'agent' ? ' from-agent' : '');
+          track.appendChild(bubble);
+          visibleBubbles.push(bubble);
+
+          if (visibleBubbles.length > MAX_VISIBLE) {
+            const old = visibleBubbles.shift();
+            old.classList.add('fade-out');
+            setTimeout(function () { old.remove(); }, 500);
+          }
+
+          await typeIntoBubble(bubble, msg.text);
+          if (cancelled) return;
+          await sleep(PAUSE_AFTER_TYPE_MS);
+          await sleep(PAUSE_BETWEEN_MS);
+        }
+        if (cancelled) return;
+        await sleep(LOOP_PAUSE_MS);
+        visibleBubbles.forEach(function (b) { b.classList.add('fade-out'); });
+        await sleep(500);
+        track.innerHTML = '';
+        visibleBubbles = [];
+      }
+    }
+
+    runLoop();
+  })();
+  // ====== End chat bubbles animation ======
+
+  // ====== Site-wide keyboard background: random key presses drop matching letters ======
+  (function () {
+    const container = document.getElementById('fallingLetters');
+    const scene = document.querySelector('.site-bg-scene');
+    if (!container || !scene) return;
+
+    function isSceneVisible() {
+      return window.innerWidth > 760;
+    }
+
+    function pressKey(keyEl) {
+      if (!isSceneVisible()) return;
+      const rect = keyEl.getBoundingClientRect();
+      if (!rect.width) return;
+
+      keyEl.classList.add('pressed');
+      setTimeout(function () { keyEl.classList.remove('pressed'); }, 140);
+
+      const letter = keyEl.getAttribute('data-letter');
+      if (!letter) return; // space bar / no-letter keys don't drop a letter
+
+      const el = document.createElement('span');
+      el.className = 'falling-letter';
+      el.textContent = letter;
+      const size = 16 + Math.random() * 14;
+      el.style.fontSize = size + 'px';
+      el.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
+      el.style.top = (rect.top - size * 0.4) + 'px';
+      const duration = 7 + Math.random() * 6;
+      el.style.animationDuration = duration + 's';
+      el.style.setProperty('--fl-rot', (Math.random() > 0.5 ? '' : '-') + (150 + Math.random() * 160) + 'deg');
+      el.style.setProperty('--fl-opacity', 1);
+      container.appendChild(el);
+      setTimeout(function () { el.remove(); }, duration * 1000 + 200);
+    }
+
+    function loop() {
+      const keyEls = scene.querySelectorAll('.kb-key[data-letter]');
+      if (keyEls.length) {
+        const randomKey = keyEls[Math.floor(Math.random() * keyEls.length)];
+        pressKey(randomKey);
+      }
+      setTimeout(loop, 160 + Math.random() * 220);
+    }
+    loop();
+  })();
+  // ====== End falling-letters animation ======
 
   const DEFAULT_CATEGORIES = [
     { key:'delivery', label:'Delivery & Shipping', labelAr:'التوصيل والشحن', color:'#2563EB' },
@@ -524,28 +1262,53 @@
     "🙌 Appreciate (الشكر والتقدير)", "⭐ Evaluation (طلب التقييم)"
   ];
 
+  const DEFAULT_UPDATES = [];
+  const DEFAULT_SUGGESTIONS = [];
+
   const FOLLOWUP = [
     { title:'Any Updates', titleAr:'متابعة التحديثات', text:'Any updates?\n\nCustomer Service Team', textAr:'هل يوجد أي تحديث على هذا الطلب؟\n\nفريق خدمة العملاء', usageCount: 0 },
     { title:'Customer Called Again', titleAr:'معاودة اتصال العميل', text:'The customer has called again.\n\nCustomer Service Team', textAr:'قام العميل بالاتصال مجدداً لمتابعة الطلب.\n\nفريق خدمة العملاء', usageCount: 0 }
   ];
 
-  let CATEGORIES = JSON.parse(localStorage.getItem('fajer_categories_v2')) || DEFAULT_CATEGORIES;
-  let SCRIPTS = JSON.parse(localStorage.getItem('fajer_scripts_v2')) || DEFAULT_SCRIPTS;
-  let GENERAL_INFO = JSON.parse(localStorage.getItem('fajer_general_info_v2')) || DEFAULT_GENERAL_INFO;
-  let CRITICAL_ITEMS = JSON.parse(localStorage.getItem('fajer_critical_v2')) || DEFAULT_CRITICAL_ITEMS;
-  let ETIQUETTE_ITEMS = JSON.parse(localStorage.getItem('fajer_etiquette_v2')) || DEFAULT_ETIQUETTE_ITEMS;
+  // البيانات هلأ مشتركة بين كل الموظفين عبر Supabase — مش محلية بالمتصفح.
+  let CATEGORIES = [];
+  let SCRIPTS = [];
+  let GENERAL_INFO = [];
+  let CRITICAL_ITEMS = [];
+  let ETIQUETTE_ITEMS = [];
+  let UPDATES = [];
+  let SUGGESTIONS = [];
 
-  function saveData() {
-    localStorage.setItem('fajer_categories_v2', JSON.stringify(CATEGORIES));
-    localStorage.setItem('fajer_scripts_v2', JSON.stringify(SCRIPTS));
-    localStorage.setItem('fajer_general_info_v2', JSON.stringify(GENERAL_INFO));
-    localStorage.setItem('fajer_critical_v2', JSON.stringify(CRITICAL_ITEMS));
-    localStorage.setItem('fajer_etiquette_v2', JSON.stringify(ETIQUETTE_ITEMS));
-    localStorage.setItem('fajer_lang_v2', currentLang);
+  // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول
+  async function loadAllData() {
+    const [catRes, scrRes, genRes, critRes, etiqRes, updRes] = await Promise.all([
+      sb.from('categories').select('*').order('created_at', { ascending: true }),
+      sb.from('scripts').select('*').order('id', { ascending: true }),
+      sb.from('general_info').select('*').order('id', { ascending: true }),
+      sb.from('critical_items').select('*').order('id', { ascending: true }),
+      sb.from('etiquette_items').select('*').order('id', { ascending: true }),
+      sb.from('updates').select('*').order('id', { ascending: false })
+    ]);
+
+    CATEGORIES = catRes.error ? DEFAULT_CATEGORIES : (catRes.data || []).map(c => ({ key: c.key, label: c.label, labelAr: c.label_ar, color: c.color }));
+    SCRIPTS = scrRes.error ? DEFAULT_SCRIPTS : (scrRes.data || []).map(s => ({ id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar, usageCount: s.usage_count || 0 }));
+    GENERAL_INFO = genRes.error ? DEFAULT_GENERAL_INFO : (genRes.data || []).map(g => ({ id: g.id, label: g.label, val: g.val }));
+    CRITICAL_ITEMS = critRes.error ? DEFAULT_CRITICAL_ITEMS.map(t => ({ text: t })) : (critRes.data || []).map(c => ({ id: c.id, text: c.text }));
+    ETIQUETTE_ITEMS = etiqRes.error ? DEFAULT_ETIQUETTE_ITEMS.map(t => ({ text: t })) : (etiqRes.data || []).map(e => ({ id: e.id, text: e.text }));
+    UPDATES = updRes.error ? [] : (updRes.data || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
+
+    // الاقتراحات يشوفها بس اللي عندهم صلاحية admin/team_leader
+    if (isAdmin) {
+      const sugRes = await sb.from('suggestions').select('*').order('id', { ascending: false });
+      SUGGESTIONS = sugRes.error ? [] : (sugRes.data || []).map(s => ({ id: s.id, name: s.name, text: s.text, createdAt: new Date(s.created_at).getTime() }));
+    } else {
+      SUGGESTIONS = [];
+    }
   }
 
   function toggleLanguage() {
     currentLang = (currentLang === 'ar') ? 'en' : 'ar';
+    localStorage.setItem('fajer_lang_v2', currentLang);
     applyLanguage();
     render();
   }
@@ -556,6 +1319,9 @@
     document.documentElement.lang = currentLang;
 
     document.getElementById('langBtnText').textContent = isAr ? 'English' : 'العربية';
+    document.getElementById('logoutBtnText').textContent = isAr ? 'خروج' : 'Logout';
+    document.getElementById('profileRoleLabel').textContent = isAr ? 'موظف' : 'Employee';
+    document.getElementById('profileDecorLabel').textContent = isAr ? 'الإعدادات والمظهر' : 'Settings & Appearance';
     document.getElementById('searchInput').placeholder = isAr ? 'البحث بالعنوان أو محتوى الرد...' : 'Search by title or response content...';
     document.getElementById('workspaceTitle').textContent = isAr ? 'تصعيد التذكرة' : 'Escalation Ticket';
     document.getElementById('scriptCountLabel').textContent = isAr ? 'سكريبت متاح' : 'available scripts';
@@ -563,37 +1329,71 @@
     document.getElementById('lblSideGen').textContent = isAr ? 'معلومات عامة' : 'GENERAL INFO';
     document.getElementById('lblSideCrit').textContent = isAr ? 'أخطاء حرجة' : 'CRITICAL MISTAKES';
     document.getElementById('lblSideEtiq').textContent = isAr ? 'بروتوكول المكالمة' : 'ETIQUETTE CALL';
+    document.getElementById('lblSideUpdate').textContent = isAr ? 'تحديثات جديدة' : 'NEW UPDATE';
+    document.getElementById('lblSideSuggest').textContent = isAr ? 'الاقتراحات' : 'SUGGESTIONS';
 
     document.getElementById('hGenInfo').textContent = isAr ? 'ℹ️ معلومات عامة' : 'ℹ️ General Information';
     document.getElementById('hEtiqCall').textContent = isAr ? '📞 بروتوكول المكالمة' : '📞 Etiquette Call';
     document.getElementById('hCritMist').textContent = isAr ? '⚠ الأخطاء الحرجة' : '⚠ Critical Mistakes';
+    document.getElementById('hNewUpdate').textContent = isAr ? '🔔 التحديثات الجديدة' : '🔔 New Updates';
+    document.getElementById('lblUpdDesc').textContent = isAr ? 'أضف تحديثاً جديداً — سيظهر إشعار للفريق تلقائياً:' : 'Add a new update — the team gets a notification automatically:';
+    document.getElementById('btnAddUpd').textContent = isAr ? '🔔 نشر التحديث للفريق' : '🔔 Publish Update to Team';
+
+    document.getElementById('hSuggest').textContent = isAr ? '💡 اقتراح جديد' : '💡 New Suggestion';
+    document.getElementById('lblSuggestDesc').textContent = isAr ? 'شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.' : 'Share your suggestion to improve the work — it goes straight to management only.';
+    document.getElementById('lblSuggestAs').textContent = isAr ? 'سيصل الاقتراح باسم:' : 'Will be sent as:';
+    document.getElementById('suggestText').placeholder = isAr ? 'اكتب اقتراحك هنا...' : 'Write your suggestion here...';
+    document.getElementById('btnSubmitSuggest').textContent = isAr ? 'إرسال الاقتراح' : 'Submit Suggestion';
+    document.getElementById('lblSuggAdminDesc').textContent = isAr ? 'اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:' : "Employee suggestions — visible only here, no one else can see them:";
 
     document.getElementById('hAdminPortal').textContent = isAr ? '⚙️ بوابة إدارة النظام' : '⚙️ Admin Management Portal';
-    document.getElementById('lblAdminPass').textContent = isAr ? 'أدخل كلمة المرور للأدمن:' : 'Enter Admin Password:';
-    document.getElementById('btnAdminLogin').textContent = isAr ? 'تسجيل الدخول' : 'Login';
-    document.getElementById('lblAdminActive').textContent = isAr ? '✅ وضع الأدمن مفعّل (تظهر الإحصائيات الآن)' : '✅ Admin Mode Active (Analytics Visible)';
+    document.getElementById('lblAdminPass').textContent = isAr ? 'ما عندك صلاحية الوصول لهذه اللوحة.' : "You don't have access to this panel.";
+    updateAdminRoleLabel();
 
     document.getElementById('btnTab1').textContent = isAr ? '+ إدارة السكريبتات' : '+ Manage Scripts';
     document.getElementById('btnTab2').textContent = isAr ? '🏷️ التبويبات' : '🏷️ Categories';
     document.getElementById('btnTab3').textContent = isAr ? '📌 القوائم الجانبية' : '📌 Side Panels';
+    document.getElementById('btnTab4').textContent = isAr ? '🔔 نيو ابديت' : '🔔 New Update';
+    document.getElementById('btnTab5').textContent = isAr ? '💡 الاقتراحات' : '💡 Suggestions';
 
-    document.getElementById('footAdmin').textContent = isAr ? '🔐 بوابة الأدمن' : '🔐 Admin Portal';
-    document.getElementById('footTheme').textContent = isAr ? '🌙 الوضع الداكن' : '🌙 Toggle Dark Mode';
-    document.getElementById('footLang').textContent = isAr ? '🌐 English / عربية' : '🌐 English / عربية';
+    updateThemeIcon();
+  }
+
+  function updateThemeIcon() {
+    const isDark = document.body.classList.contains('dark-mode');
+    document.getElementById('themeIconMoon').style.display = isDark ? 'block' : 'none';
+    document.getElementById('themeIconSun').style.display = isDark ? 'none' : 'block';
+    const btn = document.getElementById('themeToggleBtn');
+    const isAr = (typeof currentLang !== 'undefined') && currentLang === 'ar';
+    const label = isDark
+      ? (isAr ? 'التبديل إلى الوضع الفاتح' : 'Switch to Light Mode')
+      : (isAr ? 'التبديل إلى الوضع الداكن' : 'Switch to Dark Mode');
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-label', label);
+    const shortLabel = isDark ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الداكن' : 'Dark Mode');
+    const themeTextEl = document.getElementById('profileThemeText');
+    const themeIconEl = document.getElementById('profileThemeIcon');
+    if (themeTextEl) themeTextEl.textContent = shortLabel;
+    if (themeIconEl) themeIconEl.textContent = isDark ? '☀️' : '🌙';
   }
 
   function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('fajer_dark_mode', document.body.classList.contains('dark-mode'));
+    updateThemeIcon();
   }
 
   if (localStorage.getItem('fajer_dark_mode') === 'true') {
     document.body.classList.add('dark-mode');
   }
+  updateThemeIcon();
 
   function render() {
     if(isAdmin) document.body.classList.add('admin-mode');
     else document.body.classList.remove('admin-mode');
+
+    if(isAdmin && adminRole === 'limited') document.body.classList.add('admin-limited');
+    else document.body.classList.remove('admin-limited');
 
     const isAr = currentLang === 'ar';
     renderSequence = 0;
@@ -665,12 +1465,11 @@
     }
     previousVisibleCount = visibleCount;
     if (!visibleCount) {
-      content.innerHTML = `<div class="empty-state"><strong>${isAr ? 'لا توجد نتائج مطابقة' : 'No matching scripts'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'جرّب كلمة بحث أخرى أو اختر جميع السكريبتات.' : 'Try another search term or select All Scripts.'}</div></div>`;
+      content.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span><strong>${isAr ? 'لا توجد نتائج مطابقة' : 'No matching scripts'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'جرّب كلمة بحث أخرى أو اختر جميع السكريبتات.' : 'Try another search term or select All Scripts.'}</div></div>`;
     }
 
     renderSidePanels();
     updateAdminDropdowns();
-    saveData();
   }
 
   function renderSidePanels() {
@@ -679,12 +1478,182 @@
     ).join('');
 
     document.getElementById('criticalList').innerHTML = CRITICAL_ITEMS.map((m, i) => 
-      `<p style="padding:8px; background:rgba(185,28,28,0.1); border-inline-start:3px solid #B91C1C; margin-bottom:6px; font-size:12.5px;"><b>${i+1}.</b> ${m}</p>`
+      `<p style="padding:8px; background:rgba(185,28,28,0.1); border-inline-start:3px solid #B91C1C; margin-bottom:6px; font-size:12.5px;"><b>${i+1}.</b> ${m.text}</p>`
     ).join('');
 
     document.getElementById('etiquetteList').innerHTML = ETIQUETTE_ITEMS.map(s => 
-      `<p style="padding:8px; background:rgba(0,137,214,0.1); border-inline-start:3px solid #0089D6; margin-bottom:6px; font-size:13px;">${s}</p>`
+      `<p style="padding:8px; background:rgba(0,137,214,0.1); border-inline-start:3px solid #0089D6; margin-bottom:6px; font-size:13px;">${s.text}</p>`
     ).join('');
+
+    const isAr = currentLang === 'ar';
+    const sortedUpdates = [...UPDATES].sort((a, b) => b.id - a.id);
+    const updList = document.getElementById('newUpdateList');
+    if (!sortedUpdates.length) {
+      updList.innerHTML = `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حالياً.' : 'No updates yet.'}</div>`;
+    } else {
+      const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
+      const cutoff = Date.now() - ARCHIVE_MS;
+      const recentUpdates = sortedUpdates.filter(u => u.createdAt >= cutoff);
+      const archivedUpdates = sortedUpdates.filter(u => u.createdAt < cutoff);
+      const renderCard = u => {
+        const dateStr = new Date(u.createdAt).toLocaleString(isAr ? 'ar' : 'en', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+        return `<div class="update-card"><div class="update-top"><span class="update-date">${dateStr}</span></div><div class="update-text">${u.text}</div></div>`;
+      };
+      let html = recentUpdates.length
+        ? recentUpdates.map(renderCard).join('')
+        : `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حديثة.' : 'No recent updates.'}</div>`;
+      if (archivedUpdates.length) {
+        const archiveLabel = isAr ? `📁 أرشيف التحديثات القديمة (${archivedUpdates.length})` : `📁 Archived Updates (${archivedUpdates.length})`;
+        html += `<details class="update-archive"><summary>${archiveLabel}</summary>${archivedUpdates.map(renderCard).join('')}</details>`;
+      }
+      updList.innerHTML = html;
+    }
+    updateNotificationBadge();
+  }
+
+  function updateNotificationBadge() {
+    const badge = document.getElementById('updateBadge');
+    if (!badge) return;
+    const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
+    const unseenCount = UPDATES.filter(u => u.id > lastSeen).length;
+    if (unseenCount > 0) {
+      badge.textContent = unseenCount > 9 ? '9+' : String(unseenCount);
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  async function addUpdate() {
+    const isAr = currentLang === 'ar';
+    const text = document.getElementById('newUpdText').value.trim();
+    if (!text) return;
+    const { data, error } = await sb.from('updates').insert({ text }).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر نشر التحديث.' : 'Could not publish the update.', 'error');
+      return;
+    }
+    UPDATES.push({ id: data.id, text: data.text, createdAt: new Date(data.created_at).getTime() });
+    document.getElementById('newUpdText').value = '';
+    render();
+    renderAdminLists();
+    showToast(isAr ? 'تم نشر التحديث! سيظهر إشعار للفريق.' : 'Update published! The team will see a notification.', 'success');
+  }
+
+  async function deleteUpdate(id) {
+    if (!canDelete()) return;
+    const { error } = await sb.from('updates').delete().eq('id', id);
+    if (error) {
+      showToast(currentLang === 'ar' ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
+    UPDATES = UPDATES.filter(u => u.id !== id);
+    render();
+    renderAdminLists();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  }
+
+  function showToast(message, type) {
+    type = type || 'info';
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const icons = { success: '✅', error: '⚠️', info: '💬' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icons[type] || icons.info}</span><span>${escapeHtml(message)}</span>`;
+    container.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 3200);
+  }
+
+  function checkFirstVisitToday() {
+    const splash = document.getElementById('splashOverlay');
+    if (!splash) return;
+    setTimeout(() => {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 550);
+    }, 1200);
+  }
+
+  function showSkeleton() {
+    const content = document.getElementById('content');
+    if (!content) return;
+    let cards = '';
+    for (let i = 0; i < 6; i++) {
+      cards += `<div class="skeleton-card">
+        <div class="skeleton-line w-40" style="height:16px;"></div>
+        <div class="skeleton-line w-90" style="margin-top:14px;"></div>
+        <div class="skeleton-line w-70"></div>
+        <div class="skeleton-line w-60"></div>
+      </div>`;
+    }
+    content.innerHTML = `<div class="skeleton-grid">${cards}</div>`;
+  }
+
+  function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function (e) {
+      const tag = (e.target && e.target.tagName || '').toLowerCase();
+      const isTyping = tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable);
+      if (e.key === '/' && !isTyping) {
+        e.preventDefault();
+        const input = document.getElementById('searchInput');
+        if (input) input.focus();
+      }
+      if (e.key === 'Escape') {
+        closePanels();
+        closeAdminModal();
+      }
+    });
+  }
+
+  async function submitSuggestion() {
+    const isAr = currentLang === 'ar';
+    const name = currentUserEmail;
+    const text = document.getElementById('suggestText').value.trim();
+    if (!name) {
+      showToast(isAr ? 'تعذّر التعرف على المستخدم، الرجاء تسجيل الدخول مجدداً.' : 'Could not identify the user, please sign in again.', 'error');
+      return;
+    }
+    if (!text) {
+      showToast(isAr ? 'يرجى كتابة الاقتراح.' : 'Please enter your suggestion.', 'error');
+      return;
+    }
+    const { error } = await sb.from('suggestions').insert({ name, text });
+    if (error) {
+      showToast(isAr ? 'تعذّر إرسال الاقتراح.' : 'Could not send the suggestion.', 'error');
+      return;
+    }
+    document.getElementById('suggestText').value = '';
+    if (isAdmin) {
+      const sugRes = await sb.from('suggestions').select('*').order('id', { ascending: false });
+      SUGGESTIONS = sugRes.error ? SUGGESTIONS : (sugRes.data || []).map(s => ({ id: s.id, name: s.name, text: s.text, createdAt: new Date(s.created_at).getTime() }));
+      renderAdminLists();
+    }
+    closePanels();
+    showToast(isAr ? 'شكراً لك! تم إرسال اقتراحك بنجاح.' : 'Thank you! Your suggestion has been sent.', 'success');
+  }
+
+  async function deleteSuggestion(id) {
+    if (!canDelete()) return;
+    const { error } = await sb.from('suggestions').delete().eq('id', id);
+    if (error) {
+      showToast(currentLang === 'ar' ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
+    SUGGESTIONS = SUGGESTIONS.filter(s => s.id !== id);
+    renderAdminLists();
+  }
+
+  function canDelete() {
+    if (adminRole === 'full') return true;
+    showToast(currentLang === 'ar' ? 'ما عندك صلاحية الحذف — راجع المشرف الكامل.' : "You don't have delete permission — contact the full admin.", 'error');
+    return false;
   }
 
   function setCategory(cat) { activeCat = cat; render(); }
@@ -697,22 +1666,26 @@
     card.style.setProperty('--enter-delay', `${Math.min(renderSequence++, 10) * 42}ms`);
 
     const copyTxt = isAr ? 'نسخ النص' : 'Copy Text';
-    const editTxt = isAr ? 'تعديل ✏️' : 'Edit ✏️';
-    const delTxt = isAr ? 'حذف 🗑️' : 'Delete 🗑️';
-    const usageTxt = isAr ? `📋 تم النسخ ${usageCount} مرة` : `📋 Used ${usageCount} times`;
+    const editTxt = isAr ? 'تعديل' : 'Edit';
+    const delTxt = isAr ? 'حذف' : 'Delete';
+    const usageTxt = isAr ? `تم النسخ ${usageCount} مرة` : `Used ${usageCount} times`;
 
+    const iconCopy = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M5.5 15.5H4.8A1.8 1.8 0 0 1 3 13.7V4.8A1.8 1.8 0 0 1 4.8 3h8.9A1.8 1.8 0 0 1 15.5 4.8v.7"></path></svg>`;
+    const iconEdit = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.2L16.6 4.2a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.2 19 4 20Z"></path><path d="M14.5 6.3l3.2 3.2"></path></svg>`;
+    const iconDelete = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"></path><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M7 7l1 12.5A2 2 0 0 0 10 21h4a2 2 0 0 0 2-1.5L17 7"></path><path d="M10 11v6M14 11v6"></path></svg>`;
+    const iconUsage = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none"></path><path d="M9 13l2 2 4-4"></path></svg>`;
     card.innerHTML = `
       <div class="card-top">
         <span class="badge">${badge}</span>
-        <span class="usage-badge">${usageTxt}</span>
+        <span class="usage-badge">${iconUsage}${usageTxt}</span>
       </div>
       <div class="card-title">${title}</div>
       <div class="card-text">${text}</div>
       <div class="card-actions">
-        <button class="copy-btn" type="button">${copyTxt}</button>
+        <button class="copy-btn" type="button">${iconCopy}${copyTxt}</button>
         ${index >= 0 ? `
-          <button class="edit-btn" onclick="editScript(${index})">${editTxt}</button>
-          <button class="delete-btn" onclick="deleteScript(${index})">${delTxt}</button>
+          <button class="edit-btn" onclick="editScript(${index})">${iconEdit}${editTxt}</button>
+          <button class="delete-btn" onclick="deleteScript(${index})">${iconDelete}${delTxt}</button>
         ` : ''}
       </div>
     `;
@@ -724,29 +1697,41 @@
 
   function handleCopy(txt, btn, index) {
     navigator.clipboard.writeText(txt);
-    
+    const iconUsage = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none"></path><path d="M9 13l2 2 4-4"></path></svg>`;
+    const iconCopy = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M5.5 15.5H4.8A1.8 1.8 0 0 1 3 13.7V4.8A1.8 1.8 0 0 1 4.8 3h8.9A1.8 1.8 0 0 1 15.5 4.8v.7"></path></svg>`;
+    const iconCheck = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"></path></svg>`;
+
     // Count analytics silently
     if(index >= 0 && SCRIPTS[index]) {
       SCRIPTS[index].usageCount = (SCRIPTS[index].usageCount || 0) + 1;
       const usageBadge = btn.closest('.card').querySelector('.usage-badge');
       const count = SCRIPTS[index].usageCount;
-      usageBadge.textContent = currentLang === 'ar' ? `تم النسخ ${count} مرة` : `Used ${count} times`;
-      saveData();
+      const usageTxt = currentLang === 'ar' ? `تم النسخ ${count} مرة` : `Used ${count} times`;
+      usageBadge.innerHTML = iconUsage + usageTxt;
+      sb.rpc('increment_script_usage', { script_id: SCRIPTS[index].id })
+        .then(({ error }) => { if (error) console.error('تعذّر تحديث عداد الاستخدام:', error.message); });
     }
     
     const isAr = currentLang === 'ar';
-    btn.textContent = isAr ? 'تم النسخ!' : 'Copied!';
+    btn.innerHTML = iconCheck + (isAr ? 'تم النسخ!' : 'Copied!');
     btn.classList.add('copied');
     setTimeout(() => { 
-      btn.textContent = isAr ? 'نسخ النص' : 'Copy Text'; 
+      btn.innerHTML = iconCopy + (isAr ? 'نسخ النص' : 'Copy Text'); 
       btn.classList.remove('copied'); 
     }, 1200);
 
   }
 
-  function deleteScript(index) {
+  async function deleteScript(index) {
+    if (!canDelete()) return;
     const isAr = currentLang === 'ar';
+    const script = SCRIPTS[index];
     if(confirm(isAr ? 'هل أنت تأكد من الحذف؟' : 'Are you sure you want to delete this script?')) {
+      const { error } = await sb.from('scripts').delete().eq('id', script.id);
+      if (error) {
+        showToast(isAr ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+        return;
+      }
       SCRIPTS.splice(index, 1);
       render();
     }
@@ -765,29 +1750,30 @@
     document.getElementById('saveScriptBtn').textContent = '💾 حفظ التعديلات / Save Changes';
   }
 
-  function openAdminModal() { document.getElementById('adminModal').classList.add('active'); }
+  // فتح لوحة الإدارة بيصير مسموح بس إذا البوزيشن تبع المستخدم (من جدول profiles) بتسمح.
+  function openAdminModal() {
+    const isAr = currentLang === 'ar';
+    if (!isAdmin) {
+      showToast(isAr ? 'ما عندك صلاحية الوصول لهذه اللوحة.' : "You don't have access to this panel.", 'error');
+      return;
+    }
+    document.getElementById('adminAuthSection').style.display = 'none';
+    document.getElementById('adminEditSection').style.display = 'block';
+    document.getElementById('adminModal').classList.add('active');
+    renderAdminLists();
+  }
   function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
 
-  async function sha256(value) {
-    const bytes = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
-  }
-
-  async function loginAdmin() {
+  function updateAdminRoleLabel() {
     const isAr = currentLang === 'ar';
-    const passwordInput = document.getElementById('adminPassInput');
-    const passwordHash = await sha256(passwordInput.value);
-    passwordInput.value = '';
-
-    if(passwordHash === ADMIN_PASS_SHA256) {
-      isAdmin = true;
-      document.getElementById('adminAuthSection').style.display = 'none';
-      document.getElementById('adminEditSection').style.display = 'block';
-      render();
-      renderAdminLists();
-    } else {
-      alert(isAr ? 'كلمة السر خاطئة!' : 'Incorrect password!');
+    const el = document.getElementById('lblAdminActive');
+    if (!el) return;
+    const perm = ROLE_PERMISSIONS[currentUserRole];
+    const roleName = perm ? (isAr ? perm.label.ar : perm.label.en) : '';
+    if (adminRole === 'limited') {
+      el.textContent = isAr ? `✅ وضع مشرف محدود مفعّل (${roleName} — إضافة فقط، بدون حذف)` : `✅ Limited Admin Mode Active (${roleName} — Add only, no delete)`;
+    } else if (adminRole === 'full') {
+      el.textContent = isAr ? `✅ وضع الأدمن مفعّل (${roleName})` : `✅ Admin Mode Active (${roleName})`;
     }
   }
 
@@ -795,10 +1781,14 @@
     document.getElementById('adminTabScripts').style.display = type === 'scripts' ? 'block' : 'none';
     document.getElementById('adminTabCategories').style.display = type === 'categories' ? 'block' : 'none';
     document.getElementById('adminTabPanels').style.display = type === 'panels' ? 'block' : 'none';
+    document.getElementById('adminTabUpdates').style.display = type === 'updates' ? 'block' : 'none';
+    document.getElementById('adminTabSuggestions').style.display = type === 'suggestions' ? 'block' : 'none';
     
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
     document.getElementById('btnTab3').classList.toggle('active', type === 'panels');
+    document.getElementById('btnTab4').classList.toggle('active', type === 'updates');
+    document.getElementById('btnTab5').classList.toggle('active', type === 'suggestions');
   }
 
   function updateAdminDropdowns() {
@@ -809,58 +1799,79 @@
     }
   }
 
-  function saveScript() {
+  async function saveScript() {
+    const isAr = currentLang === 'ar';
     const idx = parseInt(document.getElementById('editScriptIndex').value);
     const cat = document.getElementById('newScriptCat').value;
     const title = document.getElementById('newScriptTitle').value.trim();
     const titleAr = document.getElementById('newScriptTitleAr').value.trim();
     const text = document.getElementById('newScriptText').value.trim();
     const textAr = document.getElementById('newScriptTextAr').value.trim();
-    
-    if((title || titleAr) && (text || textAr)) {
-      if (idx >= 0) {
-        SCRIPTS[idx].cat = cat;
-        SCRIPTS[idx].title = title || titleAr;
-        SCRIPTS[idx].titleAr = titleAr || title;
-        SCRIPTS[idx].text = text || textAr;
-        SCRIPTS[idx].textAr = textAr || text;
-        document.getElementById('editScriptIndex').value = "-1";
-        document.getElementById('saveScriptBtn').textContent = '+ إضافة السكريبت';
-      } else {
-        SCRIPTS.push({ 
-          cat, 
-          title: title || titleAr, 
-          titleAr: titleAr || title, 
-          text: text || textAr, 
-          textAr: textAr || text, 
-          usageCount: 0 
-        });
+
+    if(!((title || titleAr) && (text || textAr))) return;
+
+    const payload = {
+      cat,
+      title: title || titleAr,
+      title_ar: titleAr || title,
+      text: text || textAr,
+      text_ar: textAr || text
+    };
+
+    if (idx >= 0) {
+      const scriptId = SCRIPTS[idx].id;
+      const { error } = await sb.from('scripts').update(payload).eq('id', scriptId);
+      if (error) {
+        showToast(isAr ? 'تعذّر حفظ التعديل.' : 'Could not save the changes.', 'error');
+        return;
       }
-      document.getElementById('newScriptTitle').value = '';
-      document.getElementById('newScriptTitleAr').value = '';
-      document.getElementById('newScriptText').value = '';
-      document.getElementById('newScriptTextAr').value = '';
-      render();
-      alert('تم حفظ السكريبت بنجاح!');
+      Object.assign(SCRIPTS[idx], { cat, title: payload.title, titleAr: payload.title_ar, text: payload.text, textAr: payload.text_ar });
+      document.getElementById('editScriptIndex').value = "-1";
+      document.getElementById('saveScriptBtn').textContent = '+ إضافة السكريبت';
+    } else {
+      const { data, error } = await sb.from('scripts').insert({ ...payload, usage_count: 0 }).select().single();
+      if (error) {
+        showToast(isAr ? 'تعذّر إضافة السكريبت.' : 'Could not add the script.', 'error');
+        return;
+      }
+      SCRIPTS.push({ id: data.id, cat: data.cat, title: data.title, titleAr: data.title_ar, text: data.text, textAr: data.text_ar, usageCount: 0 });
     }
+    document.getElementById('newScriptTitle').value = '';
+    document.getElementById('newScriptTitleAr').value = '';
+    document.getElementById('newScriptText').value = '';
+    document.getElementById('newScriptTextAr').value = '';
+    render();
+    showToast(isAr ? 'تم حفظ السكريبت بنجاح!' : 'Script saved successfully!', 'success');
   }
 
-  function addCategory() {
+  async function addCategory() {
+    const isAr = currentLang === 'ar';
     const label = document.getElementById('newCatLabel').value.trim();
     const labelAr = document.getElementById('newCatLabelAr').value.trim();
     const color = document.getElementById('newCatColor').value;
-    if(label || labelAr) {
-      const key = (label || labelAr).toLowerCase().replace(/[^a-z0-9]/g, '');
-      CATEGORIES.push({ key, label: label || labelAr, labelAr: labelAr || label, color });
-      document.getElementById('newCatLabel').value = '';
-      document.getElementById('newCatLabelAr').value = '';
-      render();
-      renderAdminLists();
+    if(!(label || labelAr)) return;
+    const key = (label || labelAr).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const { error } = await sb.from('categories').insert({ key, label: label || labelAr, label_ar: labelAr || label, color });
+    if (error) {
+      showToast(isAr ? 'تعذّر إضافة التبويب (ربما الاسم مستخدم مسبقاً).' : 'Could not add the category (name may already exist).', 'error');
+      return;
     }
+    CATEGORIES.push({ key, label: label || labelAr, labelAr: labelAr || label, color });
+    document.getElementById('newCatLabel').value = '';
+    document.getElementById('newCatLabelAr').value = '';
+    render();
+    renderAdminLists();
   }
 
-  function deleteCategory(key) {
+  async function deleteCategory(key) {
+    if (!canDelete()) return;
+    const isAr = currentLang === 'ar';
     if(confirm('حذف التبويب سيؤدي لحذف السكريبتات التابعة له، هل أنت تأكد؟')) {
+      const { error } = await sb.from('categories').delete().eq('key', key);
+      if (error) {
+        showToast(isAr ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+        return;
+      }
       CATEGORIES = CATEGORIES.filter(c => c.key !== key);
       SCRIPTS = SCRIPTS.filter(s => s.cat !== key);
       render();
@@ -868,51 +1879,90 @@
     }
   }
 
-  function addGeneralInfo() {
+  async function addGeneralInfo() {
+    const isAr = currentLang === 'ar';
     const label = document.getElementById('newInfoLabel').value.trim();
     const val = document.getElementById('newInfoVal').value.trim();
-    if(label && val) {
-      GENERAL_INFO.push({ label, val });
-      document.getElementById('newInfoLabel').value = '';
-      document.getElementById('newInfoVal').value = '';
-      render();
-      renderAdminLists();
+    if(!(label && val)) return;
+    const { data, error } = await sb.from('general_info').insert({ label, val }).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
+      return;
     }
+    GENERAL_INFO.push({ id: data.id, label: data.label, val: data.val });
+    document.getElementById('newInfoLabel').value = '';
+    document.getElementById('newInfoVal').value = '';
+    render();
+    renderAdminLists();
   }
 
-  function deleteGeneralInfo(idx) {
+  async function deleteGeneralInfo(idx) {
+    if (!canDelete()) return;
+    const isAr = currentLang === 'ar';
+    const item = GENERAL_INFO[idx];
+    const { error } = await sb.from('general_info').delete().eq('id', item.id);
+    if (error) {
+      showToast(isAr ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
     GENERAL_INFO.splice(idx, 1);
     render();
     renderAdminLists();
   }
 
-  function addEtiquette() {
+  async function addEtiquette() {
+    const isAr = currentLang === 'ar';
     const val = document.getElementById('newEtiquetteInput').value.trim();
-    if(val) {
-      ETIQUETTE_ITEMS.push(val);
-      document.getElementById('newEtiquetteInput').value = '';
-      render();
-      renderAdminLists();
+    if(!val) return;
+    const { data, error } = await sb.from('etiquette_items').insert({ text: val }).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
+      return;
     }
+    ETIQUETTE_ITEMS.push({ id: data.id, text: data.text });
+    document.getElementById('newEtiquetteInput').value = '';
+    render();
+    renderAdminLists();
   }
 
-  function deleteEtiquette(idx) {
+  async function deleteEtiquette(idx) {
+    if (!canDelete()) return;
+    const isAr = currentLang === 'ar';
+    const item = ETIQUETTE_ITEMS[idx];
+    const { error } = await sb.from('etiquette_items').delete().eq('id', item.id);
+    if (error) {
+      showToast(isAr ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
     ETIQUETTE_ITEMS.splice(idx, 1);
     render();
     renderAdminLists();
   }
 
-  function addCritical() {
+  async function addCritical() {
+    const isAr = currentLang === 'ar';
     const val = document.getElementById('newCriticalInput').value.trim();
-    if(val) {
-      CRITICAL_ITEMS.push(val);
-      document.getElementById('newCriticalInput').value = '';
-      render();
-      renderAdminLists();
+    if(!val) return;
+    const { data, error } = await sb.from('critical_items').insert({ text: val }).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
+      return;
     }
+    CRITICAL_ITEMS.push({ id: data.id, text: data.text });
+    document.getElementById('newCriticalInput').value = '';
+    render();
+    renderAdminLists();
   }
 
-  function deleteCritical(idx) {
+  async function deleteCritical(idx) {
+    if (!canDelete()) return;
+    const isAr = currentLang === 'ar';
+    const item = CRITICAL_ITEMS[idx];
+    const { error } = await sb.from('critical_items').delete().eq('id', item.id);
+    if (error) {
+      showToast(isAr ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
     CRITICAL_ITEMS.splice(idx, 1);
     render();
     renderAdminLists();
@@ -922,35 +1972,63 @@
     document.getElementById('generalAdminList').innerHTML = GENERAL_INFO.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
         <span><b>${item.label}:</b> ${item.val}</span>
-        <button onclick="deleteGeneralInfo(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteGeneralInfo(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('categoriesAdminList').innerHTML = CATEGORIES.map(c => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:4px;">
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${c.color}; margin-inline-end:5px;"></span>${c.labelAr || c.label} / ${c.label}</span>
-        <button onclick="deleteCategory('${c.key}')" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteCategory('${c.key}')" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('etiquetteAdminList').innerHTML = ETIQUETTE_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
-        <span>${item}</span>
-        <button onclick="deleteEtiquette(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <span>${item.text}</span>
+        <button class="danger-btn" onclick="deleteEtiquette(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('criticalAdminList').innerHTML = CRITICAL_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
-        <span>${item}</span>
-        <button onclick="deleteCritical(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <span>${item.text}</span>
+        <button class="danger-btn" onclick="deleteCritical(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
+
+    const sortedUpdates = [...UPDATES].sort((a, b) => b.id - a.id);
+    document.getElementById('updatesAdminList').innerHTML = sortedUpdates.length ? sortedUpdates.map(u => 
+      `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:11.5px; margin-bottom:5px;">
+        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.text}</span>
+        <button class="danger-btn" onclick="deleteUpdate(${u.id})" style="background:none; border:none; color:#B91C1C; cursor:pointer; flex-shrink:0;">🗑️</button>
+      </div>`
+    ).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد تحديثات بعد.</div>`;
+
+    const sortedSuggestions = [...SUGGESTIONS].sort((a, b) => b.id - a.id);
+    document.getElementById('suggestionsAdminList').innerHTML = sortedSuggestions.length ? sortedSuggestions.map(s => {
+      const dateStr = new Date(s.createdAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+      return `<div style="border-bottom:1px solid var(--border); padding:8px 0; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <span style="font-weight:700; font-size:12px; color:#be185d;">${escapeHtml(s.name)}</span>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <span style="font-size:10px; color:var(--slate-soft);">${dateStr}</span>
+            <button class="danger-btn" onclick="deleteSuggestion(${s.id})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+          </div>
+        </div>
+        <div style="font-size:12px; color:var(--text-main); margin-top:4px; white-space:pre-line;">${escapeHtml(s.text)}</div>
+      </div>`;
+    }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد اقتراحات بعد.</div>`;
   }
 
   function openPanel(type) {
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
+    if (type === 'newUpdate') {
+      const latestId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
+      localStorage.setItem('fajer_updates_seen_v2', String(latestId));
+      updateNotificationBadge();
+    }
   }
   function closePanels() {
     document.getElementById('overlay').classList.remove('show');
@@ -958,7 +2036,17 @@
   }
 
   applyLanguage();
-  render();
+  setupKeyboardShortcuts();
+
+  async function bootApp(userId) {
+    checkFirstVisitToday();
+    showSkeleton();
+    const role = await fetchUserRole(userId);
+    applyUserRole(role);
+    await loadAllData();
+    render();
+    if (isAdmin) renderAdminLists();
+  }
 </script>
 </body>
 </html>
