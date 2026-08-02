@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23146b61%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2352b788%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23145b8c%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234fa8d8%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Cairo:wght@400;600;700;800&family=Amiri:wght@700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   
   <style>
@@ -18,8 +18,8 @@
       --bg: #F4F6F9;
       --card: #FFFFFF;
       --border: #E2E7EE;
-      --brand-blue: #0089D6;
-      --brand-teal: #00A177;
+      --brand-blue: #145b8c;
+      --brand-teal: #2b86c4;
       --text-main: #0F2743;
     }
 
@@ -44,7 +44,9 @@
     }
     .brand { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
     .nova-wordmark { cursor: pointer; background: #fff; border-radius: 12px; padding: 8px 18px 9px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); display: flex; flex-direction: column; align-items: center; line-height: 1; }
-    .nova-text { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px; background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-blue) 40%, var(--brand-teal) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .nova-text { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px; }
+    .nova-text .nv-n { color: #1E88E5; }
+    .nova-text .nv-ova { color: #14A15E; }
     .nova-sub { font-size: 7px; font-weight: 700; letter-spacing: 0.14em; color: #4B5A70; margin-top: 2px; }
     .brand-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.3); display: none; }
     .brand-tagline { color: rgba(255,255,255,0.9); margin: 0; font-size: 13px; font-weight: 600; }
@@ -162,10 +164,12 @@
       --bg: #f3f5f6;
       --card: #ffffff;
       --border: #dfe4e7;
-      --brand-blue: #146b61;
-      --brand-teal: #1f8a70;
+      --brand-blue: #145b8c;
+      --brand-teal: #2b86c4;
       --text-main: #17212b;
       --coral: #e36f51;
+      --gold: #b8912c;
+      --gold-soft: #d9b65b;
       --surface-soft: #f8f9f9;
       --shadow: 0 8px 24px rgba(23,33,43,.07);
     }
@@ -177,9 +181,11 @@
       --bg: #111719;
       --card: #1a2225;
       --border: #2c383d;
-      --brand-blue: #50b5a1;
-      --brand-teal: #67c3ad;
+      --brand-blue: #5aa9e6;
+      --brand-teal: #7cc0ee;
       --text-main: #f3f6f6;
+      --gold: #e0c468;
+      --gold-soft: #eeda9a;
       --surface-soft: #202a2d;
       --shadow: 0 8px 24px rgba(0,0,0,.2);
     }
@@ -190,7 +196,7 @@
 
     header {
       min-height: 84px; padding: 16px clamp(18px,4vw,56px); flex-wrap: nowrap;
-      background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 32%, #40916c 62%, #52b788 100%); border-bottom: 3px solid var(--coral); overflow: visible;
+      background: linear-gradient(120deg, #0b2f4f 0%, #145b8c 32%, #1f7fb0 62%, #4fa8d8 100%); border-bottom: 3px solid var(--coral); overflow: visible;
     }
     .brand { flex-wrap: nowrap; gap: 14px; cursor: default; }
     .nova-wordmark { min-width: 104px; border-radius: 6px; padding: 7px 16px 8px; box-shadow: none; }
@@ -234,7 +240,7 @@
 
     .qt-general { background: linear-gradient(150deg, #dc9a45 0%, #bf7a2b 100%); border-radius: 15px; box-shadow: 0 8px 20px rgba(191,122,43,.35); }
     .qt-critical { background: linear-gradient(150deg, #ce5e50 0%, #a83a2f 100%); border-radius: 50%; box-shadow: 0 8px 20px rgba(168,58,47,.4); }
-    .qt-etiquette { background: linear-gradient(150deg, #1f9686 0%, #146b61 100%); border-radius: 16px 6px 16px 6px; box-shadow: 0 8px 20px rgba(20,107,97,.35); }
+    .qt-etiquette { background: linear-gradient(150deg, #2b86c4 0%, #145b8c 100%); border-radius: 16px 6px 16px 6px; box-shadow: 0 8px 20px rgba(20,91,140,.35); }
     body[dir="ltr"] .qt-etiquette { border-radius: 6px 16px 6px 16px; }
     .qt-update { background: linear-gradient(150deg, #8a6ae0 0%, #5b3fb0 100%); border-radius: 50%; box-shadow: 0 8px 20px rgba(91,63,176,.4); }
     .qt-suggest { background: linear-gradient(150deg, #e0578a 0%, #be185d 100%); border-radius: 50% 50% 50% 6px; box-shadow: 0 8px 20px rgba(190,24,93,.4); }
@@ -360,7 +366,7 @@
     /* First-visit-of-the-day splash */
     .splash-overlay {
       position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 32%, #40916c 62%, #52b788 100%);
+      background: linear-gradient(120deg, #0b2f4f 0%, #145b8c 32%, #1f7fb0 62%, #4fa8d8 100%);
       opacity: 1; transition: opacity .5s ease;
     }
     .splash-overlay.hide { opacity: 0; pointer-events: none; }
@@ -519,8 +525,8 @@
     body.dark-mode .chat-bubble {
       background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.9);
     }
-    .chat-bubble.from-agent { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: rgba(0,161,119,0.28); border-color: rgba(0,161,119,0.45); }
-    body.dark-mode .chat-bubble.from-agent { background: rgba(0,161,119,0.16); border-color: rgba(0,161,119,0.28); }
+    .chat-bubble.from-agent { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: rgba(31,127,176,0.28); border-color: rgba(31,127,176,0.45); }
+    body.dark-mode .chat-bubble.from-agent { background: rgba(31,127,176,0.16); border-color: rgba(31,127,176,0.28); }
     .chat-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
     .chat-bubble.fade-out { opacity: 0; transform: translateY(-8px) scale(0.98); }
     .chat-caret {
@@ -612,6 +618,147 @@
     .profile-dropdown-danger { color: #e5484d; }
     .profile-dropdown-danger:hover { background: rgba(229,72,77,.1); }
   </style>
+  <style>
+    /* ===== Premium touches: gold accents, glass, elegant type, refined motion ===== */
+
+    /* Elegant Arabic display face for headings, used sparingly */
+    .workspace-head h1, .section-head h2, .brand-title, .login-card h2, .panel-head h2 {
+      font-family: 'Amiri', 'Cairo', serif; font-weight: 700; letter-spacing: 0;
+    }
+    .workspace-head h1 { font-size: 24px; }
+    .section-head h2 { font-size: 15.5px; }
+
+    /* Gold hairline signature under primary headings */
+    .workspace-head { position: relative; padding-bottom: 14px; }
+    .workspace-head::after {
+      content: ''; position: absolute; inset-inline-start: 0; bottom: 0; width: 74px; height: 2px;
+      background: linear-gradient(90deg, var(--gold) 0%, color-mix(in srgb, var(--gold) 10%, transparent) 100%);
+    }
+    body[dir="ltr"] .workspace-head::after { background: linear-gradient(270deg, var(--gold) 0%, color-mix(in srgb, var(--gold) 10%, transparent) 100%); }
+    .section-head::after {
+      background: linear-gradient(90deg, var(--gold-soft) 0%, var(--border) 18%, transparent 85%) !important;
+    }
+    body[dir="ltr"] .section-head::after { background: linear-gradient(270deg, var(--gold-soft) 0%, var(--border) 18%, transparent 85%) !important; }
+
+    /* Header: soft ambient glow + gentle entrance */
+    header { animation: headerEnter .6s cubic-bezier(.2,.8,.2,1) both; }
+    header::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(420px 220px at 12% -20%, rgba(224,196,104,.16), transparent 70%),
+                  radial-gradient(360px 200px at 92% 120%, rgba(224,196,104,.10), transparent 70%);
+    }
+    @keyframes headerEnter { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Gold frame around the wordmark */
+    .nova-wordmark { box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+
+    /* Cards: deeper hover lift with a whisper of gold, gradient top accent */
+    .card::before { background: linear-gradient(90deg, var(--card-accent, var(--navy)) 0%, color-mix(in srgb, var(--card-accent, var(--navy)) 55%, var(--gold-soft)) 100%); }
+    .card:hover {
+      box-shadow: 0 18px 36px -14px color-mix(in srgb, var(--card-accent, var(--navy)) 42%, transparent), 0 0 0 1px color-mix(in srgb, var(--gold) 16%, transparent), var(--shadow);
+      transform: translateY(-4px);
+      transition: border-color .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s cubic-bezier(.2,.8,.2,1), transform .3s cubic-bezier(.2,.8,.2,1);
+    }
+
+    /* Glassmorphism for side panels and modal */
+    .side-panel {
+      background: color-mix(in srgb, var(--card) 82%, transparent);
+      backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border-inline-start: 1px solid color-mix(in srgb, var(--gold) 20%, var(--border));
+    }
+    body[dir="ltr"] .side-panel { border-inline-start: none; border-inline-end: 1px solid color-mix(in srgb, var(--gold) 20%, var(--border)); }
+    .modal-card {
+      background: color-mix(in srgb, var(--card) 86%, transparent);
+      backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+      border: 1px solid color-mix(in srgb, var(--gold) 18%, var(--border));
+    }
+
+    /* Admin usage badge gets a refined gold tone instead of plain amber */
+    .usage-badge { color: var(--gold); background: color-mix(in srgb, var(--gold) 14%, transparent); }
+
+    /* Softer, slower easing across interactive elements for a more composed feel */
+    .copy-btn, .edit-btn, .delete-btn, .action-pill, .admin-tab-btn, .panel-close, .tab {
+      transition-duration: .26s; transition-timing-function: cubic-bezier(.2,.8,.2,1);
+    }
+
+    /* Login gate: gold frame, refined pattern glow, slower reveal */
+    .login-form-panel {
+      border-inline-start: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      box-shadow: -18px 0 50px rgba(0,0,0,.05);
+      animation-duration: .6s;
+    }
+    body[dir="ltr"] .login-form-panel { border-inline-start: none; border-inline-end: 1px solid color-mix(in srgb, var(--gold) 30%, transparent); }
+    .login-card { position: relative; }
+    .login-wordmark { background: #fff; border-radius: 12px; padding: 10px 24px 11px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+    .login-card h2::after {
+      content: ''; display: block; width: 46px; height: 2px; margin: 10px auto 0;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .login-card button[type="submit"] {
+      background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-teal) 100%);
+      box-shadow: 0 10px 26px -8px color-mix(in srgb, var(--brand-blue) 55%, transparent);
+    }
+    .login-image-panel::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(520px 320px at 20% 15%, rgba(224,196,104,.10), transparent 70%);
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      header, .card { animation: none !important; }
+    }
+
+    /* ===== Card redesign: glass panel with a raised icon corner ===== */
+    .card {
+      border-radius: 16px;
+      padding: 22px 20px 16px;
+      border: 1px solid color-mix(in srgb, var(--card-accent, var(--navy)) 18%, var(--border));
+      background: color-mix(in srgb, var(--card) 72%, transparent);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      overflow: visible;
+    }
+    .card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+      background: linear-gradient(165deg, color-mix(in srgb, var(--card-accent, var(--navy)) 7%, transparent) 0%, transparent 45%);
+    }
+    body.dark-mode .card::before { box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+    .card::after {
+      content: ''; position: absolute; top: -13px; inset-inline-end: 18px; width: 42px; height: 42px;
+      border-radius: 13px;
+      background:
+        url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") center/19px no-repeat,
+        linear-gradient(135deg, var(--card-accent, var(--navy)) 0%, color-mix(in srgb, var(--card-accent, var(--navy)) 55%, var(--gold-soft)) 100%);
+      box-shadow: 0 10px 20px -6px color-mix(in srgb, var(--card-accent, var(--navy)) 65%, transparent), 0 0 0 4px var(--bg);
+      transform: rotate(-6deg);
+      transition: transform .25s cubic-bezier(.2,.8,.2,1);
+    }
+    .card:hover::after { transform: rotate(0deg) translateY(-2px); }
+    .card-top { margin-bottom: 16px; padding-inline-end: 46px; }
+    .badge { border-radius: 999px; }
+    .card-actions { border-top: 1px solid color-mix(in srgb, var(--card-accent, var(--navy)) 14%, var(--border)); padding-top: 14px; }
+    .copy-btn { border-radius: 999px; padding: 7px 15px; }
+    .edit-btn, .delete-btn { border-radius: 999px; }
+
+    /* ===== Masonry layout: variable-height columns instead of a uniform grid ===== */
+    .grid {
+      display: block;
+      column-width: 320px;
+      column-gap: 14px;
+    }
+    .card {
+      width: 100%;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      margin: 0 0 20px;
+      min-height: 0;
+    }
+    .card-text { flex: initial; }
+    @media (max-width: 620px) {
+      .grid { column-width: auto; columns: 1; }
+    }
+  </style>
 </head>
 <body>
 
@@ -654,7 +801,7 @@
   <div class="login-form-panel">
     <div class="login-card">
     <div class="login-brand">
-      <div class="login-wordmark"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+      <div class="login-wordmark"><span class="nova-text"><span class="nv-n">n</span><span class="nv-ova">ova</span></span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
     </div>
     <h2 id="loginTitle" dir="ltr" lang="en">Sign In</h2>
     <p id="loginSub" dir="ltr" lang="en">Enter your details</p>
@@ -791,7 +938,7 @@
         <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
           <input type="text" id="newCatLabel" placeholder="الاسم بالإنجليزية...">
           <input type="text" id="newCatLabelAr" placeholder="الاسم بالعربية...">
-          <input type="color" id="newCatColor" value="#0089D6" style="width:40px; height:38px; border:none; border-radius:6px; cursor:pointer;">
+          <input type="color" id="newCatColor" value="#145b8c" style="width:40px; height:38px; border:none; border-radius:6px; cursor:pointer;">
           <button onclick="addCategory()" style="background:var(--brand-teal); color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;" id="btnAddCat">إضافة</button>
         </div>
         <div id="categoriesAdminList" style="max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
@@ -843,7 +990,7 @@
 
 <header>
   <div class="brand">
-    <div class="nova-wordmark" ondblclick="openAdminModal()"><span class="nova-text">nova</span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+    <div class="nova-wordmark" ondblclick="openAdminModal()"><span class="nova-text"><span class="nv-n">n</span><span class="nv-ova">ova</span></span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
     <div class="brand-divider"></div>
     <button class="theme-toggle-fixed" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
       <svg id="themeIconMoon" class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="currentColor"><path d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
@@ -1482,7 +1629,7 @@
     ).join('');
 
     document.getElementById('etiquetteList').innerHTML = ETIQUETTE_ITEMS.map(s => 
-      `<p style="padding:8px; background:rgba(0,137,214,0.1); border-inline-start:3px solid #0089D6; margin-bottom:6px; font-size:13px;">${s.text}</p>`
+      `<p style="padding:8px; background:rgba(20,91,140,0.1); border-inline-start:3px solid #145b8c; margin-bottom:6px; font-size:13px;">${s.text}</p>`
     ).join('');
 
     const isAr = currentLang === 'ar';
