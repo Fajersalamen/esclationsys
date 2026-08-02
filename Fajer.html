@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23146b61%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2352b788%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   
@@ -94,6 +95,7 @@
     .delete-btn { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
     .edit-btn { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
     .admin-mode .delete-btn, .admin-mode .edit-btn { display: inline-flex; }
+    .admin-limited .delete-btn, .admin-limited .danger-btn { display: none !important; }
 
     footer { text-align: center; padding: 20px; color: var(--slate-soft); font-size: 11.5px; border-top: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
     .admin-trigger, .lang-btn-foot { background: none; border: none; color: var(--slate-soft); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; }
@@ -142,6 +144,12 @@
     .update-card .update-date { font-size: 10px; color: var(--slate-soft); white-space: nowrap; }
     .update-card .update-text { font-size: 12.5px; line-height: 1.65; color: var(--text-main); white-space: pre-line; }
     .update-card.is-new .update-top::after { content: ''; }
+    .update-archive { margin-top: 6px; }
+    .update-archive summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--slate); padding: 8px 4px; list-style: none; }
+    .update-archive summary::-webkit-details-marker { display: none; }
+    .update-archive summary::before { content: '▸ '; }
+    .update-archive[open] summary::before { content: '▾ '; }
+    .update-archive .update-card { opacity: 0.75; }
   </style>
   <style>
     /* 2026 workspace redesign */
@@ -247,6 +255,8 @@
     .qt-etiquette { background: linear-gradient(150deg, #1f9686 0%, #146b61 100%); border-radius: 16px 6px 16px 6px; box-shadow: 0 8px 20px rgba(20,107,97,.35); }
     body[dir="ltr"] .qt-etiquette { border-radius: 6px 16px 6px 16px; }
     .qt-update { background: linear-gradient(150deg, #8a6ae0 0%, #5b3fb0 100%); border-radius: 50%; box-shadow: 0 8px 20px rgba(91,63,176,.4); }
+    .qt-suggest { background: linear-gradient(150deg, #e0578a 0%, #be185d 100%); border-radius: 50% 50% 50% 6px; box-shadow: 0 8px 20px rgba(190,24,93,.4); }
+    body[dir="ltr"] .qt-suggest { border-radius: 50% 50% 6px 50%; }
 
     .qt-badge {
       position: absolute; top: -3px; inset-inline-end: -3px; min-width: 17px; height: 17px; padding: 0 4px;
@@ -262,7 +272,7 @@
 
     main { max-width: 1352px; padding: 28px clamp(18px,4vw,56px) 64px; }
     .workspace-head { max-width: 1240px; margin: 0 auto 22px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
-    .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; }
+    .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; letter-spacing: -0.01em; font-weight: 800; }
     .workspace-head p { margin: 0; color: var(--slate); font-size: 12.5px; }
     .library-count { flex: none; border-inline-start: 3px solid var(--coral); padding-inline-start: 12px; }
     .library-count strong { display: block; font-size: 20px; line-height: 1; }
@@ -358,6 +368,52 @@
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
 
+    /* Custom scrollbar in brand colors */
+    * { scrollbar-width: thin; scrollbar-color: var(--brand-teal) var(--bg); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--brand-blue), var(--brand-teal)); border-radius: 10px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--brand-teal); }
+
+    /* First-visit-of-the-day splash */
+    .splash-overlay {
+      position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 32%, #40916c 62%, #52b788 100%);
+      opacity: 1; transition: opacity .5s ease;
+    }
+    .splash-overlay.hide { opacity: 0; pointer-events: none; }
+    .splash-logo { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 52px; color: #fff; opacity: 0; animation: splashIn 1s ease forwards; letter-spacing: .01em; }
+    .splash-sub { display: block; text-align: center; margin-top: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .16em; color: rgba(255,255,255,.75); opacity: 0; animation: splashIn 1s ease .15s forwards; }
+    @keyframes splashIn { 0% { opacity: 0; transform: scale(.85); } 60% { opacity: 1; transform: scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Toast notifications (replaces alert()) */
+    .toast-container { position: fixed; top: 16px; inset-inline-end: 16px; z-index: 250; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: min(360px, 92vw); }
+    .toast {
+      background: var(--card); color: var(--text-main); border: 1px solid var(--border); border-inline-start: 4px solid var(--brand-teal);
+      border-radius: 8px; padding: 12px 14px; box-shadow: 0 12px 30px rgba(0,0,0,.16); font-size: 12.5px; font-weight: 600;
+      display: flex; align-items: flex-start; gap: 8px; opacity: 0; transform: translateY(-10px); pointer-events: auto;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-inline-start-color: #0D9488; }
+    .toast.error { border-inline-start-color: #B91C1C; }
+    .toast-icon { flex-shrink: 0; font-size: 15px; line-height: 1.3; }
+
+    /* Skeleton loading state */
+    .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(315px, 1fr)); gap: 12px; }
+    .skeleton-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-height: 190px; }
+    .skeleton-line { height: 11px; border-radius: 6px; margin-bottom: 12px; position: relative; overflow: hidden; background: var(--border); }
+    .skeleton-line::after {
+      content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 70%, #fff), transparent);
+      animation: skeletonShimmer 1.3s infinite;
+    }
+    .skeleton-line.w-40 { width: 40%; } .skeleton-line.w-70 { width: 70%; } .skeleton-line.w-90 { width: 90%; } .skeleton-line.w-60 { width: 60%; }
+    @keyframes skeletonShimmer { 100% { transform: translateX(100%); } }
+
+    /* Friendlier empty search state */
+    .empty-state .empty-icon { font-size: 30px; display: block; margin-bottom: 10px; opacity: .8; }
+
     @media (max-width: 620px) {
       header { min-height: 74px; padding: 12px 16px; }
       .nova-wordmark { min-width: 80px; padding: 6px 11px; }
@@ -384,8 +440,40 @@
       footer { padding: 18px 14px 72px; }
     }
   </style>
+  <style>
+    /* Decor enhancements */
+    body {
+      background-image: radial-gradient(color-mix(in srgb, var(--navy) 6%, transparent) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    body.dark-mode {
+      background-image: radial-gradient(color-mix(in srgb, var(--text-main) 5%, transparent) 1px, transparent 1px);
+    }
+
+    .section-head { border-bottom: none; position: relative; }
+    .section-head::after {
+      content: ''; position: absolute; inset-inline-start: 0; bottom: 0; width: 100%; height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 85%);
+    }
+    body[dir="ltr"] .section-head::after { background: linear-gradient(270deg, var(--border) 0%, transparent 85%); }
+
+    .card { background: linear-gradient(180deg, color-mix(in srgb, var(--card-accent, var(--navy)) 5%, var(--card)) 0%, var(--card) 60%); }
+
+    body.dark-mode { --border: #33424a; --slate: #b7c2c8; }
+    body.dark-mode .card-text { color: var(--slate); }
+    body.dark-mode .action-pill:hover { color: var(--brand-blue); }
+  </style>
 </head>
 <body>
+
+<div class="splash-overlay" id="splashOverlay">
+  <div style="text-align:center;">
+    <div class="splash-logo">NOVA</div>
+    <span class="splash-sub">AN ENJEZ COMPANY</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <div class="site-watermark" aria-hidden="true">
   <svg class="wm-headset" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
@@ -415,6 +503,10 @@
     <span class="qt-badge" id="updateBadge" style="display:none;">0</span>
     <span class="qt-label" id="lblSideUpdate">NEW UPDATE</span>
   </button>
+  <button class="qt-btn qt-suggest" onclick="openPanel('suggest')" title="Suggestions">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.7.5 1.1 1.3 1.1 2.2v.7h5.8v-.7c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 2.5Z"></path><line x1="9.6" y1="20" x2="14.4" y2="20"></line><line x1="10.3" y1="22" x2="13.7" y2="22"></line></svg></span>
+    <span class="qt-label" id="lblSideSuggest">SUGGESTIONS</span>
+  </button>
 </div>
 
 <div class="panel-overlay" id="overlay" onclick="closePanels()"></div>
@@ -443,6 +535,15 @@
   <div id="newUpdateList"></div>
 </div>
 
+<!-- Suggestion Panel -->
+<div class="side-panel" id="suggestPanel">
+  <div class="panel-head"><h2 style="color:#be185d;" id="hSuggest">💡 اقتراح جديد</h2><button class="panel-close" onclick="closePanels()" aria-label="Close">×</button></div>
+  <p style="font-size:12.5px; color:var(--slate); margin-top:0;" id="lblSuggestDesc">شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.</p>
+  <input type="text" id="suggestName" placeholder="اسمك..." style="width:100%; margin-bottom:10px;">
+  <textarea id="suggestText" rows="5" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
+  <button onclick="submitSuggestion()" style="width:100%; background:#be185d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;" id="btnSubmitSuggest">إرسال الاقتراح</button>
+</div>
+
 <!-- Admin Modal -->
 <div class="modal-overlay" id="adminModal">
   <div class="modal-card">
@@ -462,6 +563,7 @@
         <button class="admin-tab-btn" id="btnTab2" onclick="switchAdminTab('categories')">🏷️ التبويبات</button>
         <button class="admin-tab-btn" id="btnTab3" onclick="switchAdminTab('panels')">📌 القوائم الجانبية</button>
         <button class="admin-tab-btn" id="btnTab4" onclick="switchAdminTab('updates')">🔔 نيو ابديت</button>
+        <button class="admin-tab-btn" id="btnTab5" onclick="switchAdminTab('suggestions')">💡 الاقتراحات</button>
       </div>
 
       <!-- Tab 1: Manage Scripts -->
@@ -524,6 +626,12 @@
         <div id="updatesAdminList" style="max-height:160px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px; margin-top:12px;"></div>
       </div>
 
+      <!-- Tab 5: View Employee Suggestions (admin-only) -->
+      <div id="adminTabSuggestions" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblSuggAdminDesc">اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:</p>
+        <div id="suggestionsAdminList" style="max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
       <button onclick="closeAdminModal()" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;" id="btnCloseAdmin">إغلاق الواجهة</button>
     </div>
   </div>
@@ -572,7 +680,10 @@
   // لا تحتفظ بكلمة المرور نفسها داخل الملف المنشور.
   // ملاحظة: هذا يمنع ظهورها كنص صريح فقط؛ الحماية الفعلية تتطلب التحقق على خادم.
   const ADMIN_PASS_SHA256 = "56feee9325f7caaca9b18aa83797f24c9f4002387d5ec644e69867c0b0428691";
+  const LIMITED_ADMIN_PASS_SHA256 = "2f8356ae0fa8c01f988a77b18c8574541e05cfd56d4f83a124b0b40f7fc1ecaa";
+  const UPDATE_ARCHIVE_DAYS = 30; // updates older than this are auto-collapsed into the archive
   let isAdmin = false;
+  let adminRole = null; // 'full' | 'limited' | null
   let activeCat = null;
   let renderSequence = 0;
   let previousVisibleCount = -1;
@@ -626,6 +737,7 @@
   ];
 
   const DEFAULT_UPDATES = [];
+  const DEFAULT_SUGGESTIONS = [];
 
   const FOLLOWUP = [
     { title:'Any Updates', titleAr:'متابعة التحديثات', text:'Any updates?\n\nCustomer Service Team', textAr:'هل يوجد أي تحديث على هذا الطلب؟\n\nفريق خدمة العملاء', usageCount: 0 },
@@ -638,6 +750,7 @@
   let CRITICAL_ITEMS = JSON.parse(localStorage.getItem('fajer_critical_v2')) || DEFAULT_CRITICAL_ITEMS;
   let ETIQUETTE_ITEMS = JSON.parse(localStorage.getItem('fajer_etiquette_v2')) || DEFAULT_ETIQUETTE_ITEMS;
   let UPDATES = JSON.parse(localStorage.getItem('fajer_updates_v2')) || DEFAULT_UPDATES;
+  let SUGGESTIONS = JSON.parse(localStorage.getItem('fajer_suggestions_v2')) || DEFAULT_SUGGESTIONS;
 
   function saveData() {
     localStorage.setItem('fajer_categories_v2', JSON.stringify(CATEGORIES));
@@ -646,6 +759,7 @@
     localStorage.setItem('fajer_critical_v2', JSON.stringify(CRITICAL_ITEMS));
     localStorage.setItem('fajer_etiquette_v2', JSON.stringify(ETIQUETTE_ITEMS));
     localStorage.setItem('fajer_updates_v2', JSON.stringify(UPDATES));
+    localStorage.setItem('fajer_suggestions_v2', JSON.stringify(SUGGESTIONS));
     localStorage.setItem('fajer_lang_v2', currentLang);
   }
 
@@ -669,6 +783,7 @@
     document.getElementById('lblSideCrit').textContent = isAr ? 'أخطاء حرجة' : 'CRITICAL MISTAKES';
     document.getElementById('lblSideEtiq').textContent = isAr ? 'بروتوكول المكالمة' : 'ETIQUETTE CALL';
     document.getElementById('lblSideUpdate').textContent = isAr ? 'تحديثات جديدة' : 'NEW UPDATE';
+    document.getElementById('lblSideSuggest').textContent = isAr ? 'الاقتراحات' : 'SUGGESTIONS';
 
     document.getElementById('hGenInfo').textContent = isAr ? 'ℹ️ معلومات عامة' : 'ℹ️ General Information';
     document.getElementById('hEtiqCall').textContent = isAr ? '📞 بروتوكول المكالمة' : '📞 Etiquette Call';
@@ -677,15 +792,23 @@
     document.getElementById('lblUpdDesc').textContent = isAr ? 'أضف تحديثاً جديداً — سيظهر إشعار للفريق تلقائياً:' : 'Add a new update — the team gets a notification automatically:';
     document.getElementById('btnAddUpd').textContent = isAr ? '🔔 نشر التحديث للفريق' : '🔔 Publish Update to Team';
 
+    document.getElementById('hSuggest').textContent = isAr ? '💡 اقتراح جديد' : '💡 New Suggestion';
+    document.getElementById('lblSuggestDesc').textContent = isAr ? 'شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.' : 'Share your suggestion to improve the work — it goes straight to management only.';
+    document.getElementById('suggestName').placeholder = isAr ? 'اسمك...' : 'Your name...';
+    document.getElementById('suggestText').placeholder = isAr ? 'اكتب اقتراحك هنا...' : 'Write your suggestion here...';
+    document.getElementById('btnSubmitSuggest').textContent = isAr ? 'إرسال الاقتراح' : 'Submit Suggestion';
+    document.getElementById('lblSuggAdminDesc').textContent = isAr ? 'اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:' : "Employee suggestions — visible only here, no one else can see them:";
+
     document.getElementById('hAdminPortal').textContent = isAr ? '⚙️ بوابة إدارة النظام' : '⚙️ Admin Management Portal';
     document.getElementById('lblAdminPass').textContent = isAr ? 'أدخل كلمة المرور للأدمن:' : 'Enter Admin Password:';
     document.getElementById('btnAdminLogin').textContent = isAr ? 'تسجيل الدخول' : 'Login';
-    document.getElementById('lblAdminActive').textContent = isAr ? '✅ وضع الأدمن مفعّل (تظهر الإحصائيات الآن)' : '✅ Admin Mode Active (Analytics Visible)';
+    updateAdminRoleLabel();
 
     document.getElementById('btnTab1').textContent = isAr ? '+ إدارة السكريبتات' : '+ Manage Scripts';
     document.getElementById('btnTab2').textContent = isAr ? '🏷️ التبويبات' : '🏷️ Categories';
     document.getElementById('btnTab3').textContent = isAr ? '📌 القوائم الجانبية' : '📌 Side Panels';
     document.getElementById('btnTab4').textContent = isAr ? '🔔 نيو ابديت' : '🔔 New Update';
+    document.getElementById('btnTab5').textContent = isAr ? '💡 الاقتراحات' : '💡 Suggestions';
 
     updateThemeIcon();
   }
@@ -717,6 +840,9 @@
   function render() {
     if(isAdmin) document.body.classList.add('admin-mode');
     else document.body.classList.remove('admin-mode');
+
+    if(isAdmin && adminRole === 'limited') document.body.classList.add('admin-limited');
+    else document.body.classList.remove('admin-limited');
 
     const isAr = currentLang === 'ar';
     renderSequence = 0;
@@ -788,7 +914,7 @@
     }
     previousVisibleCount = visibleCount;
     if (!visibleCount) {
-      content.innerHTML = `<div class="empty-state"><strong>${isAr ? 'لا توجد نتائج مطابقة' : 'No matching scripts'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'جرّب كلمة بحث أخرى أو اختر جميع السكريبتات.' : 'Try another search term or select All Scripts.'}</div></div>`;
+      content.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span><strong>${isAr ? 'لا توجد نتائج مطابقة' : 'No matching scripts'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'جرّب كلمة بحث أخرى أو اختر جميع السكريبتات.' : 'Try another search term or select All Scripts.'}</div></div>`;
     }
 
     renderSidePanels();
@@ -815,10 +941,22 @@
     if (!sortedUpdates.length) {
       updList.innerHTML = `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حالياً.' : 'No updates yet.'}</div>`;
     } else {
-      updList.innerHTML = sortedUpdates.map(u => {
+      const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
+      const cutoff = Date.now() - ARCHIVE_MS;
+      const recentUpdates = sortedUpdates.filter(u => u.id >= cutoff);
+      const archivedUpdates = sortedUpdates.filter(u => u.id < cutoff);
+      const renderCard = u => {
         const dateStr = new Date(u.id).toLocaleString(isAr ? 'ar' : 'en', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
         return `<div class="update-card"><div class="update-top"><span class="update-date">${dateStr}</span></div><div class="update-text">${u.text}</div></div>`;
-      }).join('');
+      };
+      let html = recentUpdates.length
+        ? recentUpdates.map(renderCard).join('')
+        : `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حديثة.' : 'No recent updates.'}</div>`;
+      if (archivedUpdates.length) {
+        const archiveLabel = isAr ? `📁 أرشيف التحديثات القديمة (${archivedUpdates.length})` : `📁 Archived Updates (${archivedUpdates.length})`;
+        html += `<details class="update-archive"><summary>${archiveLabel}</summary>${archivedUpdates.map(renderCard).join('')}</details>`;
+      }
+      updList.innerHTML = html;
     }
     updateNotificationBadge();
   }
@@ -843,14 +981,106 @@
       document.getElementById('newUpdText').value = '';
       render();
       renderAdminLists();
-      alert(currentLang === 'ar' ? 'تم نشر التحديث! سيظهر إشعار للفريق.' : 'Update published! The team will see a notification.');
+      showToast(currentLang === 'ar' ? 'تم نشر التحديث! سيظهر إشعار للفريق.' : 'Update published! The team will see a notification.', 'success');
     }
   }
 
   function deleteUpdate(id) {
+    if (!canDelete()) return;
     UPDATES = UPDATES.filter(u => u.id !== id);
+    saveData();
     render();
     renderAdminLists();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  }
+
+  function showToast(message, type) {
+    type = type || 'info';
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const icons = { success: '✅', error: '⚠️', info: '💬' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icons[type] || icons.info}</span><span>${escapeHtml(message)}</span>`;
+    container.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 3200);
+  }
+
+  function checkFirstVisitToday() {
+    const splash = document.getElementById('splashOverlay');
+    if (!splash) return;
+    setTimeout(() => {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 550);
+    }, 1200);
+  }
+
+  function showSkeleton() {
+    const content = document.getElementById('content');
+    if (!content) return;
+    let cards = '';
+    for (let i = 0; i < 6; i++) {
+      cards += `<div class="skeleton-card">
+        <div class="skeleton-line w-40" style="height:16px;"></div>
+        <div class="skeleton-line w-90" style="margin-top:14px;"></div>
+        <div class="skeleton-line w-70"></div>
+        <div class="skeleton-line w-60"></div>
+      </div>`;
+    }
+    content.innerHTML = `<div class="skeleton-grid">${cards}</div>`;
+  }
+
+  function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function (e) {
+      const tag = (e.target && e.target.tagName || '').toLowerCase();
+      const isTyping = tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable);
+      if (e.key === '/' && !isTyping) {
+        e.preventDefault();
+        const input = document.getElementById('searchInput');
+        if (input) input.focus();
+      }
+      if (e.key === 'Escape') {
+        closePanels();
+        closeAdminModal();
+      }
+    });
+  }
+
+  function submitSuggestion() {
+    const isAr = currentLang === 'ar';
+    const name = document.getElementById('suggestName').value.trim();
+    const text = document.getElementById('suggestText').value.trim();
+    if (!name || !text) {
+      showToast(isAr ? 'يرجى كتابة الاسم والاقتراح.' : 'Please enter your name and suggestion.', 'error');
+      return;
+    }
+    SUGGESTIONS.push({ id: Date.now(), name, text });
+    saveData();
+    document.getElementById('suggestName').value = '';
+    document.getElementById('suggestText').value = '';
+    renderAdminLists();
+    closePanels();
+    showToast(isAr ? 'شكراً لك! تم إرسال اقتراحك بنجاح.' : 'Thank you! Your suggestion has been sent.', 'success');
+  }
+
+  function deleteSuggestion(id) {
+    if (!canDelete()) return;
+    SUGGESTIONS = SUGGESTIONS.filter(s => s.id !== id);
+    saveData();
+    renderAdminLists();
+  }
+
+  function canDelete() {
+    if (adminRole === 'full') return true;
+    showToast(currentLang === 'ar' ? 'ما عندك صلاحية الحذف — راجع المشرف الكامل.' : "You don't have delete permission — contact the full admin.", 'error');
+    return false;
   }
 
   function setCategory(cat) { activeCat = cat; render(); }
@@ -871,7 +1101,6 @@
     const iconEdit = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.2L16.6 4.2a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.2 19 4 20Z"></path><path d="M14.5 6.3l3.2 3.2"></path></svg>`;
     const iconDelete = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"></path><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M7 7l1 12.5A2 2 0 0 0 10 21h4a2 2 0 0 0 2-1.5L17 7"></path><path d="M10 11v6M14 11v6"></path></svg>`;
     const iconUsage = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none"></path><path d="M9 13l2 2 4-4"></path></svg>`;
-
     card.innerHTML = `
       <div class="card-top">
         <span class="badge">${badge}</span>
@@ -920,6 +1149,7 @@
   }
 
   function deleteScript(index) {
+    if (!canDelete()) return;
     const isAr = currentLang === 'ar';
     if(confirm(isAr ? 'هل أنت تأكد من الحذف؟' : 'Are you sure you want to delete this script?')) {
       SCRIPTS.splice(index, 1);
@@ -957,12 +1187,33 @@
 
     if(passwordHash === ADMIN_PASS_SHA256) {
       isAdmin = true;
+      adminRole = 'full';
       document.getElementById('adminAuthSection').style.display = 'none';
       document.getElementById('adminEditSection').style.display = 'block';
+      updateAdminRoleLabel();
+      render();
+      renderAdminLists();
+    } else if(passwordHash === LIMITED_ADMIN_PASS_SHA256) {
+      isAdmin = true;
+      adminRole = 'limited';
+      document.getElementById('adminAuthSection').style.display = 'none';
+      document.getElementById('adminEditSection').style.display = 'block';
+      updateAdminRoleLabel();
       render();
       renderAdminLists();
     } else {
-      alert(isAr ? 'كلمة السر خاطئة!' : 'Incorrect password!');
+      showToast(isAr ? 'كلمة السر خاطئة!' : 'Incorrect password!', 'error');
+    }
+  }
+
+  function updateAdminRoleLabel() {
+    const isAr = currentLang === 'ar';
+    const el = document.getElementById('lblAdminActive');
+    if (!el) return;
+    if (adminRole === 'limited') {
+      el.textContent = isAr ? '✅ وضع مشرف محدود مفعّل (إضافة فقط، بدون حذف)' : '✅ Limited Admin Mode Active (Add only, no delete)';
+    } else {
+      el.textContent = isAr ? '✅ وضع الأدمن مفعّل (تظهر الإحصائيات الآن)' : '✅ Admin Mode Active (Analytics Visible)';
     }
   }
 
@@ -971,11 +1222,13 @@
     document.getElementById('adminTabCategories').style.display = type === 'categories' ? 'block' : 'none';
     document.getElementById('adminTabPanels').style.display = type === 'panels' ? 'block' : 'none';
     document.getElementById('adminTabUpdates').style.display = type === 'updates' ? 'block' : 'none';
+    document.getElementById('adminTabSuggestions').style.display = type === 'suggestions' ? 'block' : 'none';
     
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
     document.getElementById('btnTab3').classList.toggle('active', type === 'panels');
     document.getElementById('btnTab4').classList.toggle('active', type === 'updates');
+    document.getElementById('btnTab5').classList.toggle('active', type === 'suggestions');
   }
 
   function updateAdminDropdowns() {
@@ -1018,7 +1271,7 @@
       document.getElementById('newScriptText').value = '';
       document.getElementById('newScriptTextAr').value = '';
       render();
-      alert('تم حفظ السكريبت بنجاح!');
+      showToast(currentLang === 'ar' ? 'تم حفظ السكريبت بنجاح!' : 'Script saved successfully!', 'success');
     }
   }
 
@@ -1037,6 +1290,7 @@
   }
 
   function deleteCategory(key) {
+    if (!canDelete()) return;
     if(confirm('حذف التبويب سيؤدي لحذف السكريبتات التابعة له، هل أنت تأكد؟')) {
       CATEGORIES = CATEGORIES.filter(c => c.key !== key);
       SCRIPTS = SCRIPTS.filter(s => s.cat !== key);
@@ -1058,6 +1312,7 @@
   }
 
   function deleteGeneralInfo(idx) {
+    if (!canDelete()) return;
     GENERAL_INFO.splice(idx, 1);
     render();
     renderAdminLists();
@@ -1074,6 +1329,7 @@
   }
 
   function deleteEtiquette(idx) {
+    if (!canDelete()) return;
     ETIQUETTE_ITEMS.splice(idx, 1);
     render();
     renderAdminLists();
@@ -1090,6 +1346,7 @@
   }
 
   function deleteCritical(idx) {
+    if (!canDelete()) return;
     CRITICAL_ITEMS.splice(idx, 1);
     render();
     renderAdminLists();
@@ -1099,28 +1356,28 @@
     document.getElementById('generalAdminList').innerHTML = GENERAL_INFO.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
         <span><b>${item.label}:</b> ${item.val}</span>
-        <button onclick="deleteGeneralInfo(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteGeneralInfo(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('categoriesAdminList').innerHTML = CATEGORIES.map(c => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:4px;">
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${c.color}; margin-inline-end:5px;"></span>${c.labelAr || c.label} / ${c.label}</span>
-        <button onclick="deleteCategory('${c.key}')" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteCategory('${c.key}')" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('etiquetteAdminList').innerHTML = ETIQUETTE_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
         <span>${item}</span>
-        <button onclick="deleteEtiquette(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteEtiquette(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('criticalAdminList').innerHTML = CRITICAL_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
         <span>${item}</span>
-        <button onclick="deleteCritical(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+        <button class="danger-btn" onclick="deleteCritical(${i})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
@@ -1128,9 +1385,24 @@
     document.getElementById('updatesAdminList').innerHTML = sortedUpdates.length ? sortedUpdates.map(u => 
       `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:11.5px; margin-bottom:5px;">
         <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.text}</span>
-        <button onclick="deleteUpdate(${u.id})" style="background:none; border:none; color:#B91C1C; cursor:pointer; flex-shrink:0;">🗑️</button>
+        <button class="danger-btn" onclick="deleteUpdate(${u.id})" style="background:none; border:none; color:#B91C1C; cursor:pointer; flex-shrink:0;">🗑️</button>
       </div>`
     ).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد تحديثات بعد.</div>`;
+
+    const sortedSuggestions = [...SUGGESTIONS].sort((a, b) => b.id - a.id);
+    document.getElementById('suggestionsAdminList').innerHTML = sortedSuggestions.length ? sortedSuggestions.map(s => {
+      const dateStr = new Date(s.id).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+      return `<div style="border-bottom:1px solid var(--border); padding:8px 0; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <span style="font-weight:700; font-size:12px; color:#be185d;">${escapeHtml(s.name)}</span>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <span style="font-size:10px; color:var(--slate-soft);">${dateStr}</span>
+            <button class="danger-btn" onclick="deleteSuggestion(${s.id})" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
+          </div>
+        </div>
+        <div style="font-size:12px; color:var(--text-main); margin-top:4px; white-space:pre-line;">${escapeHtml(s.text)}</div>
+      </div>`;
+    }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد اقتراحات بعد.</div>`;
   }
 
   function openPanel(type) {
@@ -1148,7 +1420,10 @@
   }
 
   applyLanguage();
-  render();
+  checkFirstVisitToday();
+  setupKeyboardShortcuts();
+  showSkeleton();
+  setTimeout(render, 450);
 </script>
 </body>
 </html>
