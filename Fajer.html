@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-d3k/yGp8KDNG2KnFqqhCx4xoFk9XrdYILtIAMUYoSe4=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UeN+Fn5XEsxHSORAALDxHZ22rnpBrTdDn7dNA9zvtcY=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23145b8c%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234fa8d8%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
@@ -756,6 +756,114 @@
       .grid { column-width: auto; columns: 1; }
     }
   </style>
+  <style>
+    /* ===== Fixed bottom bar (Home / Technical Issue) ===== */
+    body { padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px)); }
+    .bottom-bar {
+      position: fixed; inset-inline: 0; bottom: 0; z-index: 95;
+      display: flex; justify-content: center;
+      padding: 10px clamp(14px, 4vw, 40px) calc(10px + env(safe-area-inset-bottom, 0px));
+      pointer-events: none;
+    }
+    .bottom-bar-inner {
+      pointer-events: auto;
+      display: flex; align-items: stretch; justify-content: center; gap: 8px;
+      width: 100%; max-width: 460px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--card) 62%, transparent), color-mix(in srgb, var(--card) 78%, transparent));
+      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      border-radius: 20px;
+      box-shadow: 0 16px 38px -12px rgba(20,91,140,.22), 0 2px 8px rgba(23,33,43,.06), inset 0 1px 0 rgba(255,255,255,.35);
+      backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%);
+      padding: 7px; height: 68px;
+    }
+    body.dark-mode .bottom-bar-inner {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--card) 55%, transparent), color-mix(in srgb, var(--card) 72%, transparent));
+      border-color: color-mix(in srgb, #94A3B8 35%, transparent);
+      box-shadow: 0 16px 38px -12px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .bb-btn {
+      flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: none; border: none; cursor: pointer; font-family: inherit;
+      font-size: 12.5px; font-weight: 700; color: var(--slate);
+      border-radius: 14px;
+      transition: background .18s ease, color .18s ease, transform .12s ease;
+    }
+    .bb-icon {
+      width: 34px; height: 34px; border-radius: 11px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .bb-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .bb-btn:active { transform: scale(.96); }
+    .bb-btn:active .bb-icon { transform: scale(.92); }
+    .bb-home { color: var(--brand-blue); }
+    .bb-home .bb-icon { background: color-mix(in srgb, var(--brand-blue) 14%, transparent); }
+    .bb-home:hover { background: color-mix(in srgb, var(--brand-blue) 8%, transparent); }
+    .bb-home:hover .bb-icon { background: color-mix(in srgb, var(--brand-blue) 22%, transparent); }
+    .bb-tech { color: var(--brand-teal); }
+    .bb-tech .bb-icon { background: color-mix(in srgb, var(--brand-teal) 14%, transparent); }
+    .bb-tech:hover { background: color-mix(in srgb, var(--brand-teal) 8%, transparent); }
+    .bb-tech:hover .bb-icon { background: color-mix(in srgb, var(--brand-teal) 22%, transparent); }
+    .bb-divider { width: 1px; align-self: center; height: 30px; background: var(--border); flex-shrink: 0; }
+    @media (max-width: 480px) {
+      .bottom-bar-inner { height: 62px; gap: 5px; padding: 5px; }
+      .bb-btn { font-size: 11px; gap: 6px; }
+      .bb-icon { width: 30px; height: 30px; border-radius: 10px; }
+      .bb-btn svg { width: 16px; height: 16px; }
+    }
+    /* push the quick-tools dock above the bottom bar */
+    .quick-tools { bottom: 108px; }
+    @media (max-width: 640px) { .quick-tools { bottom: 100px; } }
+
+    /* ===== Technical Issue full page ===== */
+    .tech-page {
+      position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
+      display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
+      transition: transform .28s ease, opacity .28s ease; overflow-y: auto;
+    }
+    .tech-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .tech-page-inner { max-width: 1180px; margin: 0 auto; width: 100%; padding: 20px clamp(16px,4vw,40px) 90px; flex: 1; }
+    .tech-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: var(--bg); padding-top: 6px; z-index: 2; }
+    .tech-back-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-main); font-size: 18px; cursor: pointer; flex-shrink: 0; }
+    .tech-page-head h2 { margin: 0; font-size: 18px; font-weight: 800; color: #B5473D; }
+    .tech-form-card, .tech-sheet-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    }
+    .tech-form-card label { display: block; font-size: 12.5px; font-weight: 700; color: var(--slate); margin-bottom: 8px; }
+    .tech-number-row { display: flex; gap: 8px; }
+    .tech-number-row input { flex: 1; }
+    #techAttachBtn {
+      background: var(--brand-blue); color: #fff; border: none; border-radius: 9px; padding: 0 18px;
+      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    #techAttachBtn:disabled { opacity: .5; cursor: not-allowed; }
+    .tech-attached-row {
+      display: none; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 14px; margin-bottom: 16px;
+    }
+    .tech-attached-row .num { font-weight: 800; font-size: 14px; }
+    #techChangeNumBtn { background: none; border: none; color: var(--brand-blue); font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: underline; }
+    #techOptionsWrap { display: none; }
+    #techOptionsLabel { font-size: 12.5px; font-weight: 700; color: var(--slate); margin: 0 0 10px; }
+    .tech-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; }
+    .tech-opt-btn {
+      display: flex; align-items: center; gap: 8px; padding: 14px 12px; border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 700; border: 1.5px solid var(--border); background: var(--bg); color: var(--text-main);
+      transition: border-color .15s ease, transform .12s ease;
+    }
+    .tech-opt-btn:hover { border-color: #B5473D; transform: translateY(-2px); }
+    .tech-opt-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .tech-sheet-card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
+    .tech-sheet-wrap { overflow-x: auto; }
+    #techSheetTable { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+    #techSheetTable th { text-align: start; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate-soft); padding: 12px 14px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+    #techSheetTable td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    #techSheetTable tr:last-child td { border-bottom: none; }
+    .tech-issue-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: rgba(181,71,61,0.12); color: #B5473D; white-space: nowrap; }
+    .tech-empty { text-align: center; padding: 26px 10px; color: var(--slate-soft); font-size: 12.5px; }
+    .tech-row-del { background: none; border: none; color: #B91C1C; cursor: pointer; font-size: 13px; display: none; }
+    .admin-mode .tech-row-del { display: inline-flex; }
+  </style>
 </head>
 <body>
 
@@ -831,6 +939,56 @@
 </div>
 
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Technical Issue Page -->
+<div class="tech-page" id="techPage">
+  <div class="tech-page-inner">
+    <div class="tech-page-head">
+      <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+    </div>
+
+    <div class="tech-form-card">
+      <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
+      <div class="tech-number-row">
+        <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
+        <button id="techAttachBtn">إرفاق</button>
+      </div>
+
+      <div class="tech-attached-row" id="techAttachedRow">
+        <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
+        <button id="techChangeNumBtn">تغيير الرقم</button>
+      </div>
+
+      <div id="techOptionsWrap">
+        <p id="techOptionsLabel">اختر نوع المشكلة:</p>
+        <div class="tech-options">
+          <button class="tech-opt-btn" id="techOptAudio" data-issue="audio">🔇 <span>الصوت بالمكالمة مشوش</span></button>
+          <button class="tech-opt-btn" id="techOptClosed" data-issue="closed">📴 <span>تم إغلاق المكالمة</span></button>
+          <button class="tech-opt-btn" id="techOptDelay" data-issue="delay">⏱️ <span>تأخير في المكالمة</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-sheet-card">
+      <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
+      <div class="tech-sheet-wrap">
+        <table id="techSheetTable">
+          <thead>
+            <tr>
+              <th id="techColNum">الرقم</th>
+              <th id="techColIssue">المشكلة</th>
+              <th id="techColEmail">الموظف</th>
+              <th id="techColTime">الوقت</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="techSheetBody"></tbody>
+        </table>
+        <div class="tech-empty" id="techSheetEmpty" style="display:none;">لا توجد مشاكل مسجلة بعد.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="quick-tools" aria-label="Quick tools">
   <button class="qt-btn qt-general" title="General information">
@@ -1043,6 +1201,20 @@
 <footer>
   <span id="footBrand"></span>
 </footer>
+
+<div class="bottom-bar" id="bottomBar" aria-label="Bottom navigation">
+  <div class="bottom-bar-inner">
+    <button class="bb-btn bb-home" id="bbHomeBtn">
+      <span class="bb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 9.8V20h13V9.8"></path><path d="M9.5 20v-6h5v6"></path></svg></span>
+      <span id="bbHomeLabel">الرئيسية</span>
+    </button>
+    <div class="bb-divider"></div>
+    <button class="bb-btn bb-tech" id="bbTechBtn">
+      <span class="bb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg></span>
+      <span id="bbTechLabel">مشاكل تقنية</span>
+    </button>
+  </div>
+</div>
 
 <script>
   document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -1500,6 +1672,26 @@
     document.getElementById('btnTab4').textContent = isAr ? '🔔 نيو ابديت' : '🔔 New Update';
     document.getElementById('btnTab5').textContent = isAr ? '💡 الاقتراحات' : '💡 Suggestions';
 
+    document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
+    document.getElementById('bbTechLabel').textContent = isAr ? 'مشاكل تقنية' : 'Technical Issue';
+    document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issue';
+    document.getElementById('techNumLabel').textContent = isAr ? 'أدخل رقم البوليصة أو رقم المكالمة' : 'Enter the Waybill number or call number';
+    document.getElementById('techNumberInput').placeholder = '';
+    document.getElementById('techAttachBtn').textContent = isAr ? 'إرفاق' : 'Attach';
+    document.getElementById('techAttachedLabel').childNodes[0].textContent = isAr ? 'الرقم المرفق: ' : 'Attached number: ';
+    document.getElementById('techChangeNumBtn').textContent = isAr ? 'تغيير الرقم' : 'Change number';
+    document.getElementById('techOptionsLabel').textContent = isAr ? 'اختر نوع المشكلة:' : 'Select the type of issue:';
+    document.querySelector('#techOptAudio span').textContent = isAr ? 'الصوت بالمكالمة مشوش' : 'Audio is unclear';
+    document.querySelector('#techOptClosed span').textContent = isAr ? 'تم إغلاق المكالمة' : 'Call got disconnected';
+    document.querySelector('#techOptDelay span').textContent = isAr ? 'تأخير في المكالمة' : 'Delay in the call';
+    document.getElementById('techSheetTitle').textContent = isAr ? '📋 سجل المشاكل التقنية' : '📋 Technical Issues Log';
+    document.getElementById('techColNum').textContent = isAr ? 'الرقم' : 'Number';
+    document.getElementById('techColIssue').textContent = isAr ? 'المشكلة' : 'Issue';
+    document.getElementById('techColEmail').textContent = isAr ? 'الموظف' : 'Employee';
+    document.getElementById('techColTime').textContent = isAr ? 'الوقت' : 'Time';
+    document.getElementById('techSheetEmpty').textContent = isAr ? 'لا توجد مشاكل مسجلة بعد.' : 'No issues logged yet.';
+    if (TECH_ISSUES.length) renderTechSheet();
+
     updateThemeIcon();
   }
 
@@ -1757,6 +1949,7 @@
       if (e.key === 'Escape') {
         closePanels();
         closeAdminModal();
+        closeTechPage();
       }
     });
   }
@@ -1806,6 +1999,152 @@
   }
 
   function setCategory(cat) { activeCat = cat; render(); }
+
+  // ===================== Technical Issue (شريط سفلي — مشاكل تقنية) =====================
+  // البيانات مشتركة بين كل الموظفين عبر جدول technical_issues على Supabase.
+  let TECH_ISSUES = [];
+  let techAttachedNumber = null;
+
+  const TECH_ISSUE_LABELS = {
+    audio:  { ar: '🔇 الصوت بالمكالمة مشوش', en: '🔇 Audio is unclear' },
+    closed: { ar: '📴 تم إغلاق المكالمة',     en: '📴 Call got disconnected' },
+    delay:  { ar: '⏱️ تأخير في المكالمة',      en: '⏱️ Delay in the call' }
+  };
+
+  function goHome() {
+    closePanels();
+    closeTechPage();
+    closeAdminModal();
+    setCategory(null);
+    const searchEl = document.getElementById('searchInput');
+    if (searchEl) searchEl.value = '';
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function openTechPage() {
+    closePanels();
+    resetTechForm();
+    document.getElementById('techPage').classList.add('open');
+    loadTechIssues();
+  }
+
+  function closeTechPage() {
+    document.getElementById('techPage').classList.remove('open');
+  }
+
+  function resetTechForm() {
+    techAttachedNumber = null;
+    const numInput = document.getElementById('techNumberInput');
+    numInput.value = '';
+    numInput.disabled = false;
+    document.getElementById('techAttachBtn').disabled = false;
+    document.querySelector('.tech-number-row').style.display = 'flex';
+    document.getElementById('techAttachedRow').style.display = 'none';
+    document.getElementById('techOptionsWrap').style.display = 'none';
+    setTechOptionsDisabled(false);
+  }
+
+  function setTechOptionsDisabled(disabled) {
+    ['techOptAudio', 'techOptClosed', 'techOptDelay'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.disabled = disabled;
+    });
+  }
+
+  function attachTechNumber() {
+    const isAr = currentLang === 'ar';
+    const val = document.getElementById('techNumberInput').value.trim();
+    if (!val) {
+      showToast(isAr ? 'يرجى إدخال الرقم أولاً.' : 'Please enter the number first.', 'error');
+      return;
+    }
+    techAttachedNumber = val;
+    document.querySelector('.tech-number-row').style.display = 'none';
+    document.getElementById('techAttachedNum').textContent = val;
+    document.getElementById('techAttachedRow').style.display = 'flex';
+    document.getElementById('techOptionsWrap').style.display = 'block';
+  }
+
+  function changeTechNumber() {
+    resetTechForm();
+    document.getElementById('techNumberInput').focus();
+  }
+
+  async function submitTechIssue(issueKey) {
+    const isAr = currentLang === 'ar';
+    if (!techAttachedNumber) {
+      showToast(isAr ? 'يرجى إرفاق الرقم أولاً.' : 'Please attach the number first.', 'error');
+      return;
+    }
+    if (!currentUserEmail) {
+      showToast(isAr ? 'تعذّر التعرف على المستخدم، الرجاء تسجيل الدخول مجدداً.' : 'Could not identify the user, please sign in again.', 'error');
+      return;
+    }
+    setTechOptionsDisabled(true);
+    const { error } = await sb.from('technical_issues').insert({
+      phone_number: techAttachedNumber,
+      issue_type: issueKey,
+      employee_email: currentUserEmail
+    });
+    if (error) {
+      setTechOptionsDisabled(false);
+      showToast(isAr ? 'تعذّر تسجيل المشكلة.' : 'Could not log the issue.', 'error');
+      return;
+    }
+    showToast(isAr ? 'تم تسجيل المشكلة بنجاح.' : 'The issue was logged successfully.', 'success');
+    resetTechForm();
+    await loadTechIssues();
+  }
+
+  async function loadTechIssues() {
+    const { data, error } = await sb.from('technical_issues').select('*').order('id', { ascending: false });
+    if (!error) {
+      TECH_ISSUES = (data || []).map(r => ({
+        id: r.id,
+        phoneNumber: r.phone_number,
+        issueType: r.issue_type,
+        employeeEmail: r.employee_email,
+        createdAt: r.created_at
+      }));
+    }
+    renderTechSheet();
+  }
+
+  function renderTechSheet() {
+    const isAr = currentLang === 'ar';
+    const body = document.getElementById('techSheetBody');
+    const empty = document.getElementById('techSheetEmpty');
+    if (!TECH_ISSUES.length) {
+      body.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    body.innerHTML = TECH_ISSUES.map(t => {
+      const lbl = TECH_ISSUE_LABELS[t.issueType];
+      const issueText = lbl ? (isAr ? lbl.ar : lbl.en) : escapeHtml(t.issueType || '');
+      const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+      return `<tr>
+        <td style="font-weight:700;">${escapeHtml(t.phoneNumber || '')}</td>
+        <td><span class="tech-issue-pill">${issueText}</span></td>
+        <td>${escapeHtml(t.employeeEmail || '—')}</td>
+        <td style="white-space:nowrap; color:var(--slate-soft);">${dateStr}</td>
+        <td><button class="tech-row-del" data-del-tech="${t.id}" title="${isAr ? 'حذف' : 'Delete'}">🗑️</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function deleteTechIssue(id) {
+    if (!canDelete()) return;
+    const { error } = await sb.from('technical_issues').delete().eq('id', id);
+    if (error) {
+      showToast(currentLang === 'ar' ? 'تعذّر الحذف.' : 'Could not delete.', 'error');
+      return;
+    }
+    TECH_ISSUES = TECH_ISSUES.filter(t => t.id !== id);
+    renderTechSheet();
+  }
 
   function createCard(title, text, color, badge, index, usageCount = 0, followObj = null) {
     const isAr = currentLang === 'ar';
@@ -2254,6 +2593,22 @@
     document.getElementById('suggestionsAdminList').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-del-suggestion]');
       if (btn) deleteSuggestion(parseInt(btn.dataset.delSuggestion, 10));
+    });
+
+    // الشريط السفلي الثابت
+    on('bbHomeBtn', 'click', goHome);
+    on('bbTechBtn', 'click', openTechPage);
+
+    // صفحة المشاكل التقنية
+    on('techAttachBtn', 'click', attachTechNumber);
+    on('techChangeNumBtn', 'click', changeTechNumber);
+    on('techNumberInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); attachTechNumber(); } });
+    document.querySelectorAll('.tech-opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => submitTechIssue(btn.dataset.issue));
+    });
+    document.getElementById('techSheetBody').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-del-tech]');
+      if (btn) deleteTechIssue(parseInt(btn.dataset.delTech, 10));
     });
   }
   bindStaticEvents();
