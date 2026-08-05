@@ -864,248 +864,6 @@
     .tech-row-del { background: none; border: none; color: #B91C1C; cursor: pointer; font-size: 13px; display: none; }
     .admin-mode .tech-row-del { display: inline-flex; }
   </style>
-
-  <style>
-    /* ===================================================================
-       v17 — Green refinement + Technical-Issues console redesign
-       (login gate intentionally untouched)
-       =================================================================== */
-    :root {
-      --g-900:#08301F; --g-800:#0B4A2F; --g-700:#0F6B41; --g-600:#12864F;
-      --g-500:#1BA463; --g-300:#7FD3A8; --g-050:#EAF6EF;
-      --ink:#101917; --line:#E3E8E5; --hair:#EEF2F0;
-    }
-    body.dark-mode {
-      --g-050:#0E1D17; --line:#26332C; --hair:#1D2823;
-    }
-
-    /* ---------- calm the canvas: one hero, less noise ---------- */
-    body { background-image: none !important; }
-    .site-bg-animation { display: none !important; }
-
-    /* ---------- header: green, logo untouched ---------- */
-    header {
-      background: linear-gradient(112deg, var(--g-900) 0%, var(--g-800) 38%, var(--g-700) 72%, var(--g-600) 100%) !important;
-      border-bottom: 1px solid rgba(255,255,255,.10) !important;
-      box-shadow: 0 1px 0 var(--line);
-      min-height: 78px;
-    }
-    header .project-seal .eyebrow { color: rgba(255,255,255,.6); }
-    .brand-tagline { color: rgba(255,255,255,.78); }
-
-    /* ---------- controls / tabs ---------- */
-    .controls { padding-top: 16px; padding-bottom: 12px; }
-    #searchInput:focus { border-color: var(--g-600); }
-    .tab.active {
-      background: var(--g-050) !important;
-      color: var(--g-700) !important;
-      border-color: color-mix(in srgb, var(--g-600) 34%, var(--line)) !important;
-    }
-    body.dark-mode .tab.active { color: var(--g-300) !important; }
-    .tab.active .dot { background: var(--g-600) !important; }
-    .action-pill:hover { border-color: var(--g-600); color: var(--g-700); }
-
-    /* ---------- typography rhythm ---------- */
-    .workspace-head { margin-bottom: 28px; }
-    .workspace-head h1 { font-size: 24px; letter-spacing: -.015em; }
-    .library-count { border-inline-start-color: var(--g-600); }
-    .section { margin-bottom: 42px; }
-    .section-head { margin-bottom: 16px; padding-bottom: 11px; }
-    .section-head h2 { font-size: 14.5px; letter-spacing: -.005em; }
-
-    /* ---------- cards: solid, breathing, readable ---------- */
-    main { padding-top: 32px; }
-    .grid { grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 20px; }
-    .card {
-      background: var(--card) !important;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 20px 20px 18px;
-      box-shadow: 0 1px 2px rgba(16,25,23,.04);
-    }
-    .card::before { height: 3px; opacity: .9; }
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 34px -20px rgba(16,25,23,.35);
-      border-color: color-mix(in srgb, var(--card-accent, var(--g-600)) 30%, var(--line));
-    }
-    .card-text { font-size: 13px; line-height: 1.8; }
-    .card-actions { border-top: 1px solid var(--hair); padding-top: 14px; }
-    .copy-btn { background: var(--g-700); border-color: var(--g-700); color: #fff; border-radius: 8px; }
-    .copy-btn:hover { background: var(--g-600); border-color: var(--g-600); opacity: 1; }
-    .copy-btn.copied { background: var(--g-500); border-color: var(--g-500); }
-
-    /* ---------- quick tools: one family, no rainbow ---------- */
-    .quick-tools { gap: 9px; }
-    .qt-btn { width: 46px; height: 46px; border-radius: 14px !important; }
-    .qt-general, .qt-critical, .qt-etiquette, .qt-update, .qt-suggest {
-      background: var(--g-900) !important;
-      box-shadow: 0 8px 22px -10px rgba(8,48,31,.65) !important;
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .qt-critical { background: #7A2B22 !important; box-shadow: 0 8px 22px -10px rgba(122,43,34,.7) !important; }
-    .qt-btn:hover { filter: brightness(1.18); }
-    .qt-badge { animation: qtBadgePop .3s cubic-bezier(.3,1.4,.4,1) !important; background: var(--g-500); }
-
-    /* ---------- bottom bar: solid, not glass ---------- */
-    .bottom-bar-inner {
-      background: var(--card) !important;
-      backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-      border: 1px solid var(--line) !important;
-      border-radius: 16px;
-      box-shadow: 0 14px 30px -18px rgba(8,48,31,.45) !important;
-      height: 64px;
-    }
-    .bb-icon { border-radius: 12px; }
-    .bb-home, .bb-tech { color: var(--slate); }
-    .bb-home .bb-icon, .bb-tech .bb-icon { background: var(--g-050) !important; color: var(--g-700); }
-    body.dark-mode .bb-home .bb-icon, body.dark-mode .bb-tech .bb-icon { color: var(--g-300); }
-    .bb-home:hover, .bb-tech:hover { background: var(--g-050) !important; color: var(--g-700); }
-
-    footer { border-top: 1px solid var(--line); }
-
-    /* ===================================================================
-       TECHNICAL ISSUES — full redesign
-       =================================================================== */
-    .tech-page {
-      background:
-        radial-gradient(1100px 520px at 88% -12%, rgba(27,164,99,.10), transparent 60%),
-        var(--bg) !important;
-    }
-    .tech-shell {
-      width: 100%; max-width: 1240px; margin: 0 auto;
-      padding: 26px clamp(16px,4vw,44px) 118px;
-      display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
-      gap: 22px; align-items: start;
-    }
-    @media (max-width: 940px) { .tech-shell { grid-template-columns: 1fr; } }
-
-    /* --- left rail: dark operations console --- */
-    .tech-rail {
-      position: sticky; top: 22px;
-      background: linear-gradient(165deg, #07271A 0%, #0B3D28 55%, #0E5333 100%);
-      border-radius: 22px; padding: 24px 22px 22px;
-      box-shadow: 0 26px 60px -34px rgba(7,39,26,.9);
-      overflow: hidden;
-    }
-    .tech-rail::after {
-      content:''; position: absolute; inset-inline-end: -70px; top: -70px;
-      width: 190px; height: 190px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(127,211,168,.20), transparent 68%);
-      pointer-events: none;
-    }
-    @media (max-width: 940px) { .tech-rail { position: static; } }
-    .tech-kicker {
-      display: inline-block; font-size: 9.5px; font-weight: 800; letter-spacing: .18em;
-      color: rgba(200,238,218,.72); margin-bottom: 10px;
-    }
-    .tech-rail h2 {
-      margin: 0; color: #fff !important; font-size: 26px; font-weight: 800; line-height: 1.25;
-      letter-spacing: -.02em;
-    }
-    .tech-rail-note { margin: 8px 0 0; color: rgba(219,242,230,.66); font-size: 12px; line-height: 1.7; }
-    .tech-rail-top { position: relative; z-index: 1; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.10); }
-
-    .tech-page .tech-form-card {
-      position: relative; z-index: 1;
-      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px; padding: 18px; margin: 0;
-    }
-    .tech-step { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
-    .tech-step-no {
-      width: 21px; height: 21px; flex: none; border-radius: 7px;
-      background: rgba(127,211,168,.16); color: #A6E8C4;
-      font-size: 11px; font-weight: 800; display: grid; place-items: center;
-    }
-    .tech-page .tech-form-card label,
-    .tech-page #techOptionsLabel {
-      margin: 0 !important; color: rgba(226,245,235,.86) !important; font-size: 12.5px; font-weight: 700;
-    }
-    .tech-number-row { gap: 8px; }
-    .tech-page #techNumberInput {
-      background: rgba(4,22,15,.55) !important; border: 1px solid rgba(255,255,255,.16) !important;
-      color: #F2FBF6 !important; border-radius: 11px; min-height: 46px; font-size: 15px;
-      font-weight: 700; letter-spacing: .04em;
-    }
-    .tech-page #techNumberInput:focus { border-color: var(--g-300) !important; outline: none; }
-    .tech-page #techAttachBtn {
-      background: #1BA463 !important; color: #04180F !important; border-radius: 11px;
-      padding: 0 20px; font-weight: 800; min-height: 46px; border: none;
-      box-shadow: 0 10px 22px -12px rgba(27,164,99,.9);
-    }
-    .tech-page #techAttachBtn:hover { background: #23BC74 !important; }
-
-    .tech-page .tech-attached-row {
-      background: rgba(127,211,168,.10) !important; border: 1px dashed rgba(127,211,168,.42) !important;
-      border-radius: 12px; color: rgba(226,245,235,.9); margin: 14px 0 0; padding: 11px 14px;
-    }
-    .tech-page .tech-attached-row .num { color: #A6E8C4; letter-spacing: .05em; }
-    .tech-page #techChangeNumBtn { color: #A6E8C4 !important; }
-
-    .tech-page #techOptionsWrap { margin-top: 18px; }
-    .tech-page .tech-options { grid-template-columns: 1fr; gap: 8px; }
-    .tech-page .tech-opt-btn {
-      background: rgba(255,255,255,.05) !important; border: 1px solid rgba(255,255,255,.13) !important;
-      color: #EAF7F0 !important; border-radius: 13px; padding: 14px 15px; font-size: 13px;
-      justify-content: flex-start; transition: background .16s ease, border-color .16s ease, transform .12s ease;
-    }
-    .tech-page .tech-opt-btn:hover {
-      background: rgba(27,164,99,.18) !important; border-color: rgba(127,211,168,.55) !important;
-      transform: none;
-    }
-    .tech-page .tech-opt-btn:disabled { opacity: .38; }
-
-    /* --- right column: log --- */
-    .tech-page .tech-sheet-card {
-      background: var(--card); border: 1px solid var(--line); border-radius: 20px;
-      padding: 6px 6px 8px; margin: 0; box-shadow: 0 1px 2px rgba(16,25,23,.04);
-      overflow: hidden;
-    }
-    .tech-page .tech-sheet-card h3 {
-      margin: 0; padding: 18px 20px 14px; font-size: 14px; font-weight: 800;
-      letter-spacing: -.005em; display: flex; align-items: center; gap: 9px;
-      border-bottom: 1px solid var(--hair);
-    }
-    .tech-page .tech-sheet-card h3::before {
-      content: ''; width: 8px; height: 8px; border-radius: 50%;
-      background: var(--g-500); box-shadow: 0 0 0 4px color-mix(in srgb, var(--g-500) 18%, transparent);
-    }
-    .tech-page #techSheetTable { font-size: 13.5px; }
-    .tech-page #techSheetTable th {
-      background: var(--g-050); color: var(--slate); font-size: 10.5px; font-weight: 800;
-      letter-spacing: .1em; padding: 11px 18px; border-bottom: 1px solid var(--line);
-    }
-    .tech-page #techSheetTable td { padding: 15px 18px; border-bottom: 1px solid var(--hair); }
-    .tech-page #techSheetTable tbody tr:hover td { background: color-mix(in srgb, var(--g-050) 70%, transparent); }
-    .tech-page #techSheetTable td:first-child {
-      font-family: 'JetBrains Mono','IBM Plex Mono','Inter',monospace;
-      font-weight: 700 !important; letter-spacing: .04em;
-    }
-    .tech-page .tech-issue-pill {
-      background: var(--g-050) !important; color: var(--g-700) !important;
-      border: 1px solid color-mix(in srgb, var(--g-600) 22%, transparent);
-      font-size: 12px; padding: 5px 12px;
-    }
-    body.dark-mode .tech-page .tech-issue-pill { color: var(--g-300) !important; }
-    .tech-page .tech-empty { padding: 46px 16px; color: var(--slate-soft); }
-
-    /* ---------- retire the gold accents (login gate keeps its own) ---------- */
-    .workspace-head::after { background: linear-gradient(90deg, var(--g-600) 0%, color-mix(in srgb, var(--g-600) 8%, transparent) 100%) !important; }
-    body[dir="ltr"] .workspace-head::after { background: linear-gradient(270deg, var(--g-600) 0%, color-mix(in srgb, var(--g-600) 8%, transparent) 100%) !important; }
-    .section-head::after { background: linear-gradient(90deg, var(--line) 0%, transparent 82%) !important; }
-    body[dir="ltr"] .section-head::after { background: linear-gradient(270deg, var(--line) 0%, transparent 82%) !important; }
-    .card::before { background: var(--card-accent, var(--g-700)) !important; }
-    .card:hover { box-shadow: 0 18px 34px -20px rgba(16,25,23,.35) !important; }
-    .usage-badge { color: var(--g-700) !important; background: var(--g-050) !important; }
-    body.dark-mode .usage-badge { color: var(--g-300) !important; }
-    .side-panel { border-inline-start: 1px solid var(--line) !important; }
-    body[dir="ltr"] .side-panel { border-inline-start: none !important; border-inline-end: 1px solid var(--line) !important; }
-    .modal-card { border-radius: 16px; }
-
-    /* ---------- balance the two console columns ---------- */
-    .tech-page .tech-sheet-card { min-height: 460px; display: flex; flex-direction: column; }
-    .tech-page .tech-sheet-wrap { flex: 1; }
-  </style>
 </head>
 <body>
 
@@ -1184,65 +942,51 @@
 
 <!-- Technical Issue Page -->
 <div class="tech-page" id="techPage">
-  <div class="tech-shell">
+  <div class="tech-page-inner">
+    <div class="tech-page-head">
+      <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+    </div>
 
-    <aside class="tech-rail">
-      <div class="tech-rail-top">
-        <span class="tech-kicker">NOVA · OPERATIONS</span>
-        <h2 id="techPageTitle">مشاكل تقنية</h2>
-        <p class="tech-rail-note">سجّل العطل التقني خلال المكالمة بخطوتين.</p>
+    <div class="tech-form-card">
+      <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
+      <div class="tech-number-row">
+        <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
+        <button id="techAttachBtn">إرفاق</button>
       </div>
 
-      <div class="tech-form-card">
-        <div class="tech-step">
-          <span class="tech-step-no">1</span>
-          <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
-        </div>
-        <div class="tech-number-row">
-          <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
-          <button id="techAttachBtn">إرفاق</button>
-        </div>
+      <div class="tech-attached-row" id="techAttachedRow">
+        <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
+        <button id="techChangeNumBtn">تغيير الرقم</button>
+      </div>
 
-        <div class="tech-attached-row" id="techAttachedRow">
-          <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
-          <button id="techChangeNumBtn">تغيير الرقم</button>
-        </div>
-
-        <div id="techOptionsWrap">
-          <div class="tech-step">
-            <span class="tech-step-no">2</span>
-            <p id="techOptionsLabel">اختر نوع المشكلة:</p>
-          </div>
-          <div class="tech-options">
-            <button class="tech-opt-btn" id="techOptAudio" data-issue="audio">🔇 <span>الصوت بالمكالمة مشوش</span></button>
-            <button class="tech-opt-btn" id="techOptClosed" data-issue="closed">📴 <span>تم إغلاق المكالمة</span></button>
-            <button class="tech-opt-btn" id="techOptDelay" data-issue="delay">⏱️ <span>تأخير في المكالمة</span></button>
-          </div>
+      <div id="techOptionsWrap">
+        <p id="techOptionsLabel">اختر نوع المشكلة:</p>
+        <div class="tech-options">
+          <button class="tech-opt-btn" id="techOptAudio" data-issue="audio">🔇 <span>الصوت بالمكالمة مشوش</span></button>
+          <button class="tech-opt-btn" id="techOptClosed" data-issue="closed">📴 <span>تم إغلاق المكالمة</span></button>
+          <button class="tech-opt-btn" id="techOptDelay" data-issue="delay">⏱️ <span>تأخير في المكالمة</span></button>
         </div>
       </div>
-    </aside>
+    </div>
 
-    <section class="tech-log">
-      <div class="tech-sheet-card">
-        <h3 id="techSheetTitle">سجل المشاكل التقنية</h3>
-        <div class="tech-sheet-wrap">
-          <table id="techSheetTable">
-            <thead>
-              <tr>
-                <th id="techColNum">الرقم</th>
-                <th id="techColIssue">المشكلة</th>
-                <th id="techColEmail">الموظف</th>
-                <th id="techColTime">الوقت</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="techSheetBody"></tbody>
-          </table>
-          <div class="tech-empty" id="techSheetEmpty" style="display:none;">لا توجد مشاكل مسجلة بعد.</div>
-        </div>
+    <div class="tech-sheet-card">
+      <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
+      <div class="tech-sheet-wrap">
+        <table id="techSheetTable">
+          <thead>
+            <tr>
+              <th id="techColNum">الرقم</th>
+              <th id="techColIssue">المشكلة</th>
+              <th id="techColEmail">الموظف</th>
+              <th id="techColTime">الوقت</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="techSheetBody"></tbody>
+        </table>
+        <div class="tech-empty" id="techSheetEmpty" style="display:none;">لا توجد مشاكل مسجلة بعد.</div>
       </div>
-    </section>
-
+    </div>
   </div>
 </div>
 
