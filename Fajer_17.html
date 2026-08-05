@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-tXkaOfA28H3vvBoTmi1yvhB6Osx4/L6Dmc4Y0q52XRg=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23145b8c%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234fa8d8%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
@@ -825,9 +825,10 @@
     .tech-page-inner { max-width: 1180px; margin: 0 auto; width: 100%; padding: 20px clamp(16px,4vw,40px) 90px; flex: 1; }
     .tech-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: var(--bg); padding-top: 6px; z-index: 2; }
     .tech-back-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-main); font-size: 18px; cursor: pointer; flex-shrink: 0; }
-    .tech-page-head h2 { margin: 0; font-size: 18px; font-weight: 800; color: #B5473D; }
+    .tech-page-head h2 { margin: 0; font-size: 18px; font-weight: 800; color: var(--brand-blue); }
     .tech-form-card, .tech-sheet-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(20,91,140,0.06);
     }
     .tech-form-card label { display: block; font-size: 12.5px; font-weight: 700; color: var(--slate); margin-bottom: 8px; }
     .tech-number-row { display: flex; gap: 8px; }
@@ -839,9 +840,9 @@
     #techAttachBtn:disabled { opacity: .5; cursor: not-allowed; }
     .tech-attached-row {
       display: none; align-items: center; justify-content: space-between; gap: 10px;
-      background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 14px; margin-bottom: 16px;
+      background: rgba(20,91,140,0.06); border: 1px solid rgba(20,91,140,0.25); border-radius: 9px; padding: 10px 14px; margin-bottom: 16px;
     }
-    .tech-attached-row .num { font-weight: 800; font-size: 14px; }
+    .tech-attached-row .num { font-weight: 800; font-size: 14px; color: var(--brand-blue); }
     #techChangeNumBtn { background: none; border: none; color: var(--brand-blue); font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: underline; }
     #techOptionsWrap { display: none; }
     #techOptionsLabel { font-size: 12.5px; font-weight: 700; color: var(--slate); margin: 0 0 10px; }
@@ -851,18 +852,35 @@
       font-size: 13px; font-weight: 700; border: 1.5px solid var(--border); background: var(--bg); color: var(--text-main);
       transition: border-color .15s ease, transform .12s ease;
     }
-    .tech-opt-btn:hover { border-color: #B5473D; transform: translateY(-2px); }
+    .tech-opt-btn:hover { border-color: var(--brand-blue); background: rgba(20,91,140,0.06); transform: translateY(-2px); }
     .tech-opt-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .tech-sheet-card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
+    .tech-sheet-card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; color: var(--brand-blue); }
     .tech-sheet-wrap { overflow-x: auto; }
     #techSheetTable { width: 100%; border-collapse: collapse; font-size: 14.5px; }
-    #techSheetTable th { text-align: start; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate-soft); padding: 12px 14px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+    #techSheetTable th { text-align: start; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate-soft); padding: 12px 14px; border-bottom: 1.5px solid rgba(20,91,140,0.2); white-space: nowrap; }
     #techSheetTable td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     #techSheetTable tr:last-child td { border-bottom: none; }
-    .tech-issue-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: rgba(181,71,61,0.12); color: #B5473D; white-space: nowrap; }
+    .tech-issue-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: rgba(20,91,140,0.12); color: var(--brand-blue); white-space: nowrap; }
     .tech-empty { text-align: center; padding: 26px 10px; color: var(--slate-soft); font-size: 12.5px; }
     .tech-row-del { background: none; border: none; color: #B91C1C; cursor: pointer; font-size: 13px; display: none; }
     .admin-mode .tech-row-del { display: inline-flex; }
+    .tech-tracking-card { background: linear-gradient(135deg, rgba(20,91,140,0.08), rgba(20,91,140,0.02)); border: 1.5px solid rgba(20,91,140,0.3); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+    .tech-tracking-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .tech-tracking-head h3 { margin: 0; font-size: 14px; font-weight: 800; color: var(--brand-blue); }
+    .tech-tracking-head .tt-icon { font-size: 18px; }
+    .tech-tracking-row { display: flex; gap: 8px; align-items: stretch; }
+    .tech-tracking-row input { flex: 1; }
+    #techTrackingBtn {
+      background: var(--brand-blue); color: #fff; border: none; border-radius: 9px; padding: 0 18px;
+      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    #techTrackingBtn:disabled { opacity: .5; cursor: not-allowed; }
+    .tech-tracking-out { display: none; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; background: var(--card); border: 1.5px solid rgba(20,91,140,0.3); border-radius: 10px; padding: 12px 14px; }
+    .tech-tracking-out .tt-label { font-size: 11px; font-weight: 700; color: var(--slate-soft); text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 3px; }
+    .tech-tracking-out .tt-val { font-weight: 800; font-size: 14px; color: var(--brand-blue); word-break: break-all; }
+    .tech-tracking-copy { background: var(--brand-blue); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .tech-tracking-copy.copied { background: #0D9488; }
+    .tech-tracking-copy:disabled { opacity: .5; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -945,6 +963,24 @@
   <div class="tech-page-inner">
     <div class="tech-page-head">
       <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+    </div>
+
+    <div class="tech-tracking-card">
+      <div class="tech-tracking-head">
+        <span class="tt-icon">📦</span>
+        <h3 id="techTrackingTitle">Tracking Information</h3>
+      </div>
+      <div class="tech-tracking-row">
+        <input type="text" id="techTrackingInput" inputmode="text" placeholder="">
+        <button id="techTrackingBtn">Generate</button>
+      </div>
+      <div class="tech-tracking-out" id="techTrackingOut">
+        <div>
+          <span class="tt-label" id="techTrackingOutLabel">Ready to copy</span>
+          <span class="tt-val" id="techTrackingVal">—</span>
+        </div>
+        <button class="tech-tracking-copy" id="techTrackingCopyBtn" type="button">📋 Copy</button>
+      </div>
     </div>
 
     <div class="tech-form-card">
@@ -1675,6 +1711,11 @@
     document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
     document.getElementById('bbTechLabel').textContent = isAr ? 'مشاكل تقنية' : 'Technical Issues';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
+    document.getElementById('techTrackingTitle').textContent = isAr ? 'معلومات التتبع' : 'Tracking Information';
+    document.getElementById('techTrackingInput').placeholder = isAr ? 'أدخل رقم التتبع (Tracking Number)' : 'Enter Tracking Number';
+    document.getElementById('techTrackingBtn').textContent = isAr ? 'تجهيز' : 'Generate';
+    document.getElementById('techTrackingOutLabel').textContent = isAr ? 'جاهز للنسخ' : 'Ready to copy';
+    document.getElementById('techTrackingCopyBtn').innerHTML = '📋 ' + (isAr ? 'نسخ' : 'Copy');
     document.getElementById('techNumLabel').textContent = isAr ? 'أدخل رقم البوليصة أو رقم المكالمة' : 'Enter the Waybill number or call number';
     document.getElementById('techNumberInput').placeholder = '';
     document.getElementById('techAttachBtn').textContent = isAr ? 'إرفاق' : 'Attach';
@@ -2025,8 +2066,49 @@
   function openTechPage() {
     closePanels();
     resetTechForm();
+    resetTechTracking();
     document.getElementById('techPage').classList.add('open');
     loadTechIssues();
+  }
+
+  function resetTechTracking() {
+    const inp = document.getElementById('techTrackingInput');
+    if (inp) inp.value = '';
+    const out = document.getElementById('techTrackingOut');
+    if (out) out.style.display = 'none';
+    const val = document.getElementById('techTrackingVal');
+    if (val) val.textContent = '—';
+    const btn = document.getElementById('techTrackingBtn');
+    if (btn) btn.disabled = false;
+  }
+
+  function generateTracking() {
+    const isAr = currentLang === 'ar';
+    const inp = document.getElementById('techTrackingInput');
+    const num = inp ? inp.value.trim() : '';
+    if (!num) {
+      showToast(isAr ? 'يرجى إدخال رقم التتبع أولاً.' : 'Please enter the tracking number first.', 'error');
+      return;
+    }
+    const formatted = 'The shipment ' + num;
+    document.getElementById('techTrackingVal').textContent = formatted;
+    document.getElementById('techTrackingOut').style.display = 'flex';
+    document.getElementById('techTrackingBtn').disabled = false;
+    showToast(isAr ? 'تم تجهيز النص للنسخ.' : 'Text ready to copy.', 'success');
+  }
+
+  function copyTrackingText() {
+    const isAr = currentLang === 'ar';
+    const val = document.getElementById('techTrackingVal').textContent;
+    if (!val || val === '—') return;
+    navigator.clipboard.writeText(val);
+    const btn = document.getElementById('techTrackingCopyBtn');
+    btn.innerHTML = '✅ ' + (isAr ? 'تم النسخ!' : 'Copied!');
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '📋 ' + (isAr ? 'نسخ' : 'Copy');
+      btn.classList.remove('copied');
+    }, 1200);
   }
 
   function closeTechPage() {
@@ -2603,6 +2685,9 @@
     on('techAttachBtn', 'click', attachTechNumber);
     on('techChangeNumBtn', 'click', changeTechNumber);
     on('techNumberInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); attachTechNumber(); } });
+    on('techTrackingBtn', 'click', generateTracking);
+    on('techTrackingInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); generateTracking(); } });
+    on('techTrackingCopyBtn', 'click', copyTrackingText);
     document.querySelectorAll('.tech-opt-btn').forEach(btn => {
       btn.addEventListener('click', () => submitTechIssue(btn.dataset.issue));
     });
