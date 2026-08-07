@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-tXkaOfA28H3vvBoTmi1yvhB6Osx4/L6Dmc4Y0q52XRg=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-pmBx3dE8kRYqlnaaz70xqUkPPPBJh49iOFZM/NK4fuo=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23145b8c%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234fa8d8%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-weight%3D%27800%27%20font-size%3D%2736%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
@@ -815,54 +815,222 @@
     .quick-tools { bottom: 108px; }
     @media (max-width: 640px) { .quick-tools { bottom: 100px; } }
 
-    /* ===== Technical Issue full page ===== */
+    /* ===== Technical Issue full page (blue theme, two-column layout) ===== */
     .tech-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .28s ease, opacity .28s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
     }
     .tech-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .tech-page-inner { max-width: 1180px; margin: 0 auto; width: 100%; padding: 20px clamp(16px,4vw,40px) 90px; flex: 1; }
-    .tech-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: var(--bg); padding-top: 6px; z-index: 2; }
-    .tech-back-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-main); font-size: 18px; cursor: pointer; flex-shrink: 0; }
-    .tech-page-head h2 { margin: 0; font-size: 18px; font-weight: 800; color: #B5473D; }
-    .tech-form-card, .tech-sheet-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    .tech-page-inner { max-width: 1440px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,40px) 90px; flex: 1; }
+
+    .tech-page-head {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 18px; position: sticky; top: 0;
+      background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      padding: 10px 2px 12px; z-index: 3; border-bottom: 1px solid var(--border);
     }
-    .tech-form-card label { display: block; font-size: 12.5px; font-weight: 700; color: var(--slate); margin-bottom: 8px; }
+    .tech-back-btn {
+      width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card);
+      color: var(--brand-blue); font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: background .18s ease, transform .15s ease, border-color .18s ease;
+    }
+    .tech-back-btn:hover { background: color-mix(in srgb, var(--brand-blue) 10%, var(--card)); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); }
+    .tech-back-btn:active { transform: scale(.94); }
+    .tech-page-head h2 {
+      margin: 0; font-size: 18.5px; font-weight: 800; color: var(--brand-blue);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tech-page-head-meta { margin-inline-start: auto; font-size: 11.5px; color: var(--slate-soft); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .tech-page-head-meta .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brand-teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-teal) 22%, transparent); }
+
+    .tech-layout { display: flex; align-items: flex-start; gap: 20px; }
+    .tech-sidebar { flex: 0 0 26%; max-width: 340px; min-width: 270px; position: sticky; top: 72px; }
+    .tech-main { flex: 1 1 74%; min-width: 0; }
+
+    .tech-form-card, .tech-sheet-card {
+      background: color-mix(in srgb, var(--card) 88%, transparent);
+      border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+      box-shadow: 0 10px 26px -14px rgba(20,91,140,.18);
+      backdrop-filter: blur(10px) saturate(150%); -webkit-backdrop-filter: blur(10px) saturate(150%);
+    }
+    .tech-sheet-card { padding: 0; overflow: hidden; }
+    .tech-form-card { margin-bottom: 16px; position: relative; overflow: hidden; }
+    .tech-form-card::before {
+      content: ''; position: absolute; inset-inline-start: 0; top: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--brand-blue), var(--brand-teal));
+    }
+    .tech-form-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .tech-form-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal)); color: #fff; box-shadow: 0 6px 14px -4px color-mix(in srgb, var(--brand-blue) 55%, transparent);
+    }
+    .tech-form-icon svg { width: 18px; height: 18px; }
+    .tech-form-card-head strong { font-size: 13.5px; font-weight: 800; color: var(--text-main); display: block; }
+    .tech-form-card-head span { font-size: 11px; color: var(--slate-soft); }
+
+    .tech-form-card label { display: block; font-size: 12px; font-weight: 700; color: var(--slate); margin-bottom: 7px; }
     .tech-number-row { display: flex; gap: 8px; }
     .tech-number-row input { flex: 1; }
     #techAttachBtn {
-      background: var(--brand-blue); color: #fff; border: none; border-radius: 9px; padding: 0 18px;
-      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal)); color: #fff; border: none; border-radius: 9px; padding: 0 16px;
+      font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      transition: opacity .18s ease, transform .12s ease; box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--brand-blue) 60%, transparent);
     }
+    #techAttachBtn:hover { opacity: .92; }
+    #techAttachBtn:active { transform: scale(.96); }
     #techAttachBtn:disabled { opacity: .5; cursor: not-allowed; }
     .tech-attached-row {
       display: none; align-items: center; justify-content: space-between; gap: 10px;
-      background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 14px; margin-bottom: 16px;
+      background: color-mix(in srgb, var(--brand-blue) 8%, var(--bg)); border: 1px solid color-mix(in srgb, var(--brand-blue) 22%, var(--border));
+      border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
     }
-    .tech-attached-row .num { font-weight: 800; font-size: 14px; }
-    #techChangeNumBtn { background: none; border: none; color: var(--brand-blue); font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: underline; }
+    .tech-attached-row .num { font-weight: 800; font-size: 14px; color: var(--brand-blue); }
+    #techChangeNumBtn { background: none; border: none; color: var(--brand-blue); font-weight: 700; font-size: 11.5px; cursor: pointer; text-decoration: underline; }
     #techOptionsWrap { display: none; }
-    #techOptionsLabel { font-size: 12.5px; font-weight: 700; color: var(--slate); margin: 0 0 10px; }
-    .tech-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; }
+    #techOptionsLabel { font-size: 12px; font-weight: 700; color: var(--slate); margin: 0 0 10px; }
+    .tech-options { display: flex; flex-direction: column; gap: 9px; }
     .tech-opt-btn {
-      display: flex; align-items: center; gap: 8px; padding: 14px 12px; border-radius: 10px; cursor: pointer;
-      font-size: 13px; font-weight: 700; border: 1.5px solid var(--border); background: var(--bg); color: var(--text-main);
-      transition: border-color .15s ease, transform .12s ease;
+      display: flex; align-items: center; gap: 11px; padding: 13px 14px; border-radius: 12px; cursor: pointer;
+      font-size: 12.5px; font-weight: 700; border: 1.5px solid var(--border); background: var(--surface-soft, var(--bg)); color: var(--text-main);
+      transition: border-color .18s ease, transform .15s ease, background .18s ease, box-shadow .18s ease;
+      text-align: start;
     }
-    .tech-opt-btn:hover { border-color: #B5473D; transform: translateY(-2px); }
-    .tech-opt-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .tech-sheet-card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
-    .tech-sheet-wrap { overflow-x: auto; }
-    #techSheetTable { width: 100%; border-collapse: collapse; font-size: 14.5px; }
-    #techSheetTable th { text-align: start; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate-soft); padding: 12px 14px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
-    #techSheetTable td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .tech-opt-btn .opt-icon {
+      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; background: color-mix(in srgb, var(--brand-blue) 12%, transparent);
+    }
+    .tech-opt-btn:hover { border-color: color-mix(in srgb, var(--brand-blue) 45%, var(--border)); transform: translateY(-2px); box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--brand-blue) 50%, transparent); background: color-mix(in srgb, var(--brand-blue) 5%, var(--surface-soft, var(--bg))); }
+    .tech-opt-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .tech-sheet-head {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px;
+      border-bottom: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in srgb, var(--brand-blue) 4%, var(--card)), var(--card));
+    }
+    .tech-sheet-head h3 { margin: 0; font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+    .tech-sheet-count {
+      font-size: 10.5px; font-weight: 800; color: var(--brand-blue); background: color-mix(in srgb, var(--brand-blue) 12%, transparent);
+      padding: 2px 9px; border-radius: 999px;
+    }
+    .tech-search-shell { position: relative; margin-inline-start: auto; min-width: 200px; flex: 1 1 220px; max-width: 320px; }
+    .tech-search-shell .search-icon { position: absolute; inset-inline-start: 12px; top: 50%; transform: translateY(-50%); color: var(--slate-soft); font-size: 15px; pointer-events: none; }
+    #techRecordSearch { width: 100%; padding-inline-start: 34px; min-height: 38px; font-size: 12.5px; }
+
+    .tech-sheet-wrap { overflow-x: auto; max-height: min(64vh, 620px); overflow-y: auto; }
+    #techSheetTable { width: 100%; border-collapse: collapse; font-size: 13px; }
+    #techSheetTable thead th {
+      position: sticky; top: 0; z-index: 1;
+      text-align: start; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--slate-soft);
+      padding: 12px 16px; border-bottom: 1.5px solid var(--border); white-space: nowrap;
+      background: color-mix(in srgb, var(--card) 96%, var(--brand-blue) 4%);
+    }
+    #techSheetTable td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    #techSheetTable tbody tr { transition: background .15s ease; }
+    #techSheetTable tbody tr:hover { background: color-mix(in srgb, var(--brand-blue) 4%, transparent); }
     #techSheetTable tr:last-child td { border-bottom: none; }
-    .tech-issue-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: rgba(181,71,61,0.12); color: #B5473D; white-space: nowrap; }
-    .tech-empty { text-align: center; padding: 26px 10px; color: var(--slate-soft); font-size: 12.5px; }
-    .tech-row-del { background: none; border: none; color: #B91C1C; cursor: pointer; font-size: 13px; display: none; }
+    .tech-num-cell { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .tech-num-cell .num-icon { width: 26px; height: 26px; border-radius: 7px; background: color-mix(in srgb, var(--brand-blue) 12%, transparent); color: var(--brand-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+    .tech-emp-cell { color: var(--slate); font-size: 12.5px; }
+    .tech-time-cell { white-space: nowrap; color: var(--slate-soft); font-size: 12px; }
+
+    .tech-issue-pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; padding: 5px 12px 5px 9px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .tech-issue-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .tech-issue-pill.pill-audio { background: color-mix(in srgb, var(--brand-blue) 13%, transparent); color: var(--brand-blue); }
+    .tech-issue-pill.pill-audio::before { background: var(--brand-blue); }
+    .tech-issue-pill.pill-closed { background: color-mix(in srgb, var(--brand-teal) 15%, transparent); color: var(--brand-teal); }
+    .tech-issue-pill.pill-closed::before { background: var(--brand-teal); }
+    .tech-issue-pill.pill-delay { background: color-mix(in srgb, #5b6fd6 14%, transparent); color: #5b6fd6; }
+    .tech-issue-pill.pill-delay::before { background: #5b6fd6; }
+    body.dark-mode .tech-issue-pill.pill-delay { color: #93a3f5; background: rgba(91,111,214,.18); }
+
+    .tech-empty { text-align: center; padding: 54px 16px; color: var(--slate-soft); }
+    .tech-empty .tech-empty-icon {
+      width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--brand-blue) 10%, transparent); color: var(--brand-blue); font-size: 24px;
+    }
+    .tech-empty strong { display: block; font-size: 13px; color: var(--text-main); margin-bottom: 4px; }
+    .tech-empty span { font-size: 12px; }
+
+    .tech-row-del {
+      width: 30px; height: 30px; border-radius: 8px; display: none; align-items: center; justify-content: center;
+      background: none; border: 1px solid transparent; color: var(--slate-soft); cursor: pointer; font-size: 13px;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .tech-row-del:hover { background: color-mix(in srgb, var(--brand-blue) 10%, transparent); color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 25%, transparent); }
     .admin-mode .tech-row-del { display: inline-flex; }
+
+    .tech-skeleton-row td { padding: 14px 16px; }
+    .tech-skeleton-bar { height: 11px; border-radius: 6px; background: var(--border); position: relative; overflow: hidden; width: 70%; }
+    .tech-skeleton-bar::after {
+      content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 70%, #fff), transparent);
+      animation: skeletonShimmer 1.3s infinite;
+    }
+
+    @media (max-width: 900px) {
+      .tech-layout { flex-direction: column; }
+      .tech-sidebar { position: static; flex: 1 1 auto; max-width: none; min-width: 0; width: 100%; }
+      .tech-main { flex: 1 1 auto; width: 100%; }
+      .tech-search-shell { max-width: none; flex-basis: 100%; margin-inline-start: 0; }
+      .tech-sheet-wrap { max-height: none; }
+    }
+    @media (max-width: 620px) {
+      .tech-page-inner { padding: 14px 12px 90px; }
+      .tech-form-card, .tech-sheet-head { padding: 16px; }
+      #techSheetTable td, #techSheetTable thead th { padding: 11px 12px; }
+    }
+
+    /* ===== Admin: Online Users (Presence) panel ===== */
+    .presence-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .presence-stat {
+      flex: 1 1 160px; display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+    }
+    .presence-stat strong { display: block; font-size: 17px; line-height: 1.2; color: var(--text-main); }
+    .presence-stat span { font-size: 10.5px; color: var(--slate-soft); font-weight: 700; }
+    .presence-stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .presence-stat-dot.online { background: #16A34A; box-shadow: 0 0 0 3px rgba(22,163,74,.18); animation: presencePulse 2s ease-in-out infinite; }
+    .presence-stat-dot.total { background: var(--brand-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-blue) 20%, transparent); }
+    @keyframes presencePulse { 0%,100% { box-shadow: 0 0 0 3px rgba(22,163,74,.18); } 50% { box-shadow: 0 0 0 6px rgba(22,163,74,.05); } }
+
+    .presence-table-wrap { max-height: 320px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; }
+    .presence-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .presence-table thead th {
+      position: sticky; top: 0; z-index: 1; background: var(--card); text-align: start;
+      font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate-soft);
+      padding: 9px 10px; border-bottom: 1.5px solid var(--border); white-space: nowrap;
+    }
+    .presence-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .presence-table tr:last-child td { border-bottom: none; }
+    .presence-table tbody tr:hover { background: color-mix(in srgb, var(--brand-blue) 4%, transparent); }
+    .presence-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .presence-dot.on { background: #16A34A; box-shadow: 0 0 0 2px rgba(22,163,74,.18); }
+    .presence-dot.off { background: var(--slate-soft); }
+    .presence-user { font-weight: 700; font-size: 11.5px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; display: inline-block; vertical-align: middle; }
+    .presence-status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .presence-status-pill.on { background: rgba(22,163,74,.12); color: #16A34A; }
+    .presence-status-pill.off { background: color-mix(in srgb, var(--slate-soft) 16%, transparent); color: var(--slate); }
+    .presence-time { color: var(--slate-soft); font-size: 11px; white-space: nowrap; }
+    .presence-empty { text-align: center; padding: 26px 10px; color: var(--slate-soft); font-size: 12px; }
+  </style>
+  <style>
+    /* ===== Shipment tracking number field (on script cards) ===== */
+    .track-row { margin-bottom: 12px; }
+    .track-input {
+      width: 100%; box-sizing: border-box; padding: 9px 13px; border-radius: 9px;
+      border: 1.5px solid var(--border); background: var(--surface-soft, var(--bg)); color: var(--text-main);
+      font-size: 12.5px; font-family: inherit;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .track-input::placeholder { color: var(--slate-soft); }
+    .track-input:focus {
+      outline: none; border-color: var(--card-accent, var(--brand-blue));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--card-accent, var(--brand-blue)) 16%, transparent);
+      background: var(--card);
+    }
+    .track-input:not(:placeholder-shown) { border-color: color-mix(in srgb, var(--card-accent, var(--brand-blue)) 45%, var(--border)); }
   </style>
 </head>
 <body>
@@ -944,48 +1112,68 @@
 <div class="tech-page" id="techPage">
   <div class="tech-page-inner">
     <div class="tech-page-head">
+      <button class="tech-back-btn" id="techBackBtn" aria-label="Back" title="Back">×</button>
       <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+      <span class="tech-page-head-meta"><span class="dot"></span><span id="techLiveLabel">مباشر</span></span>
     </div>
 
-    <div class="tech-form-card">
-      <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
-      <div class="tech-number-row">
-        <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
-        <button id="techAttachBtn">إرفاق</button>
-      </div>
+    <div class="tech-layout">
+      <aside class="tech-sidebar">
+        <div class="tech-form-card">
+          <div class="tech-form-card-head">
+            <div class="tech-form-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg></div>
+            <div><strong id="techFormHeadTitle">تسجيل مشكلة</strong><span id="techFormHeadSub">اختر الرقم ثم نوع المشكلة</span></div>
+          </div>
+          <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
+          <div class="tech-number-row">
+            <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
+            <button id="techAttachBtn">إرفاق</button>
+          </div>
 
-      <div class="tech-attached-row" id="techAttachedRow">
-        <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
-        <button id="techChangeNumBtn">تغيير الرقم</button>
-      </div>
+          <div class="tech-attached-row" id="techAttachedRow">
+            <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
+            <button id="techChangeNumBtn">تغيير الرقم</button>
+          </div>
 
-      <div id="techOptionsWrap">
-        <p id="techOptionsLabel">اختر نوع المشكلة:</p>
-        <div class="tech-options">
-          <button class="tech-opt-btn" id="techOptAudio" data-issue="audio">🔇 <span>الصوت بالمكالمة مشوش</span></button>
-          <button class="tech-opt-btn" id="techOptClosed" data-issue="closed">📴 <span>تم إغلاق المكالمة</span></button>
-          <button class="tech-opt-btn" id="techOptDelay" data-issue="delay">⏱️ <span>تأخير في المكالمة</span></button>
+          <div id="techOptionsWrap">
+            <p id="techOptionsLabel">اختر نوع المشكلة:</p>
+            <div class="tech-options">
+              <button class="tech-opt-btn" id="techOptAudio" data-issue="audio"><span class="opt-icon">🔇</span><span>الصوت بالمكالمة مشوش</span></button>
+              <button class="tech-opt-btn" id="techOptClosed" data-issue="closed"><span class="opt-icon">📴</span><span>تم إغلاق المكالمة</span></button>
+              <button class="tech-opt-btn" id="techOptDelay" data-issue="delay"><span class="opt-icon">⏱️</span><span>تأخير في المكالمة</span></button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </aside>
 
-    <div class="tech-sheet-card">
-      <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
-      <div class="tech-sheet-wrap">
-        <table id="techSheetTable">
-          <thead>
-            <tr>
-              <th id="techColNum">الرقم</th>
-              <th id="techColIssue">المشكلة</th>
-              <th id="techColEmail">الموظف</th>
-              <th id="techColTime">الوقت</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="techSheetBody"></tbody>
-        </table>
-        <div class="tech-empty" id="techSheetEmpty" style="display:none;">لا توجد مشاكل مسجلة بعد.</div>
-      </div>
+      <section class="tech-main">
+        <div class="tech-sheet-card">
+          <div class="tech-sheet-head">
+            <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
+            <span class="tech-sheet-count" id="techSheetCount">0</span>
+            <div class="tech-search-shell"><span class="search-icon">⌕</span><input type="text" id="techRecordSearch" placeholder=""></div>
+          </div>
+          <div class="tech-sheet-wrap">
+            <table id="techSheetTable">
+              <thead>
+                <tr>
+                  <th id="techColNum">الرقم</th>
+                  <th id="techColIssue">المشكلة</th>
+                  <th id="techColEmail">الموظف</th>
+                  <th id="techColTime">الوقت</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="techSheetBody"></tbody>
+            </table>
+            <div class="tech-empty" id="techSheetEmpty" style="display:none;">
+              <div class="tech-empty-icon">📋</div>
+              <strong id="techEmptyTitle">لا توجد مشاكل مسجلة بعد</strong>
+              <span id="techEmptySub">ستظهر المشاكل هنا فور تسجيلها</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </div>
@@ -1070,6 +1258,7 @@
         <button class="admin-tab-btn" id="btnTab3" data-admin-tab="panels">📌 القوائم الجانبية</button>
         <button class="admin-tab-btn" id="btnTab4" data-admin-tab="updates">🔔 نيو ابديت</button>
         <button class="admin-tab-btn" id="btnTab5" data-admin-tab="suggestions">💡 الاقتراحات</button>
+        <button class="admin-tab-btn" id="btnTab6" data-admin-tab="presence">👥 المستخدمون المتصلون</button>
       </div>
 
       <!-- Tab 1: Manage Scripts -->
@@ -1136,6 +1325,43 @@
       <div id="adminTabSuggestions" style="display:none;">
         <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblSuggAdminDesc">اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:</p>
         <div id="suggestionsAdminList" style="max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
+      <!-- Tab 6: Online Users (admin-only, auto-refreshing) -->
+      <div id="adminTabPresence" style="display:none;">
+        <div class="presence-summary">
+          <div class="presence-stat">
+            <span class="presence-stat-dot online"></span>
+            <div>
+              <strong id="presenceOnlineCount">0</strong>
+              <span id="lblPresenceOnline">متصل الآن</span>
+            </div>
+          </div>
+          <div class="presence-stat">
+            <span class="presence-stat-dot total"></span>
+            <div>
+              <strong id="presenceTotalCount">0</strong>
+              <span id="lblPresenceTotal">إجمالي المستخدمين المسجّلين</span>
+            </div>
+          </div>
+        </div>
+        <div class="presence-table-wrap">
+          <table class="presence-table" id="presenceTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th id="presenceColUser">المستخدم</th>
+                <th id="presenceColStatus">الحالة</th>
+                <th id="presenceColLastActive">آخر نشاط</th>
+                <th id="presenceColLoginTime">وقت تسجيل الدخول</th>
+              </tr>
+            </thead>
+            <tbody id="presenceTableBody"></tbody>
+          </table>
+          <div class="presence-empty" id="presenceEmpty" style="display:none;">
+            <span id="presenceEmptyText">لا يوجد مستخدمون بعد.</span>
+          </div>
+        </div>
       </div>
 
       <button id="btnCloseAdmin" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;">إغلاق الواجهة</button>
@@ -1307,6 +1533,8 @@
 
   function employeeLogout() {
     closeProfileMenu();
+    stopPresenceHeartbeat();
+    stopPresenceAdminRefresh();
     sb.auth.signOut().then(({ error }) => {
       if (error) console.error('Supabase signOut error:', error);
       // Force the login gate open immediately — don't rely solely on the
@@ -1401,6 +1629,8 @@
       isAdmin = false;
       adminRole = null;
       currentUserRole = null;
+      stopPresenceHeartbeat();
+      stopPresenceAdminRefresh();
     }
   });
   // ====== End Supabase Authentication ======
@@ -1622,6 +1852,149 @@
     }
   }
 
+  // ===================== Online Users (Presence) =====================
+  // نظام تتبّع حالة الاتصال. كل مستخدم مسجّل دخول يبعث "نبضة" (heartbeat) دورية
+  // لجدول user_presence على Supabase؛ الأدمن يشوف قائمة بكل المستخدمين وحالتهم
+  // (متصل/غير متصل) بالاعتماد على آخر نبضة وصلت، مع تحديث دوري تلقائي بدون Reload.
+  // ملاحظة: هاد النظام منفصل تماماً عن تسجيل الدخول (Supabase Auth) ولا يغيّر فيه شي.
+  const PRESENCE_HEARTBEAT_MS = 20000;       // كل كم ثانية نبعث نبضة "أنا لسا موجود"
+  const PRESENCE_ONLINE_THRESHOLD_MS = 45000; // إذا آخر نبضة أقدم من هيك، يعتبر Offline
+  const PRESENCE_ADMIN_REFRESH_MS = 8000;     // كل كم ثانية تتحدث القائمة عند الأدمن
+
+  let presenceHeartbeatTimer = null;
+  let presenceAdminRefreshTimer = null;
+  let PRESENCE_USERS = [];
+  let currentSessionStartedAt = null;
+
+  async function upsertPresence(isNewSession) {
+    if (!currentUserEmail) return;
+    try {
+      const { data: { user } } = await sb.auth.getUser();
+      const uid = user && user.id;
+      if (!uid) return;
+      if (isNewSession || !currentSessionStartedAt) currentSessionStartedAt = new Date().toISOString();
+      const { error } = await sb.from('user_presence').upsert({
+        user_id: uid,
+        email: currentUserEmail,
+        session_started_at: currentSessionStartedAt,
+        last_seen: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (error) console.warn('تعذّر تحديث حالة الاتصال (presence):', error.message);
+    } catch (err) {
+      console.warn('presence heartbeat error:', err);
+    }
+  }
+
+  function startPresenceHeartbeat() {
+    stopPresenceHeartbeat();
+    upsertPresence(true);
+    presenceHeartbeatTimer = setInterval(() => upsertPresence(false), PRESENCE_HEARTBEAT_MS);
+    // آخر محاولة "أفضل جهد" لتحديث آخر ظهور لحظة إغلاق التبويب/الصفحة
+    window.addEventListener('beforeunload', sendPresenceBeacon);
+  }
+
+  function stopPresenceHeartbeat() {
+    if (presenceHeartbeatTimer) { clearInterval(presenceHeartbeatTimer); presenceHeartbeatTimer = null; }
+    currentSessionStartedAt = null;
+    window.removeEventListener('beforeunload', sendPresenceBeacon);
+  }
+
+  function sendPresenceBeacon() {
+    // Best-effort: matawwar tarslib request عادي بيولي، مش أكيد توصل، لهيك ما نعتمد عليها لوحدها
+    upsertPresence(false);
+  }
+
+  function startPresenceAdminRefresh() {
+    stopPresenceAdminRefresh();
+    presenceAdminRefreshTimer = setInterval(loadPresenceUsers, PRESENCE_ADMIN_REFRESH_MS);
+  }
+  function stopPresenceAdminRefresh() {
+    if (presenceAdminRefreshTimer) { clearInterval(presenceAdminRefreshTimer); presenceAdminRefreshTimer = null; }
+  }
+
+  async function loadPresenceUsers() {
+    if (!isAdmin) return;
+    const { data, error } = await sb.from('user_presence').select('*').order('last_seen', { ascending: false });
+    if (error) {
+      console.warn('تعذّر جلب قائمة المستخدمين المتصلين:', error.message);
+      return;
+    }
+    const now = Date.now();
+    PRESENCE_USERS = (data || []).map(r => {
+      const lastSeenMs = new Date(r.last_seen).getTime();
+      return {
+        userId: r.user_id,
+        email: r.email,
+        sessionStartedAt: r.session_started_at,
+        lastSeen: r.last_seen,
+        isOnline: (now - lastSeenMs) < PRESENCE_ONLINE_THRESHOLD_MS
+      };
+    });
+    renderPresenceList();
+  }
+
+  function relativeTimeAr(ms) {
+    const sec = Math.max(0, Math.round(ms / 1000));
+    if (sec < 10) return 'الآن';
+    if (sec < 60) return `منذ ${sec} ثانية`;
+    const min = Math.round(sec / 60);
+    if (min < 60) return `منذ ${min} دقيقة`;
+    const hr = Math.round(min / 60);
+    if (hr < 24) return `منذ ${hr} ساعة`;
+    const day = Math.round(hr / 24);
+    return `منذ ${day} يوم`;
+  }
+  function relativeTimeEn(ms) {
+    const sec = Math.max(0, Math.round(ms / 1000));
+    if (sec < 10) return 'just now';
+    if (sec < 60) return `${sec}s ago`;
+    const min = Math.round(sec / 60);
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.round(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    const day = Math.round(hr / 24);
+    return `${day}d ago`;
+  }
+
+  function renderPresenceList() {
+    const isAr = currentLang === 'ar';
+    const body = document.getElementById('presenceTableBody');
+    const empty = document.getElementById('presenceEmpty');
+    const onlineCountEl = document.getElementById('presenceOnlineCount');
+    const totalCountEl = document.getElementById('presenceTotalCount');
+    if (!body) return;
+
+    const now = Date.now();
+    const onlineCount = PRESENCE_USERS.filter(u => u.isOnline).length;
+    if (onlineCountEl) onlineCountEl.textContent = onlineCount;
+    if (totalCountEl) totalCountEl.textContent = PRESENCE_USERS.length;
+
+    if (!PRESENCE_USERS.length) {
+      body.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const timeFn = isAr ? relativeTimeAr : relativeTimeEn;
+    const loginTimeFmt = (iso) => iso ? new Date(iso).toLocaleString(isAr ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+
+    body.innerHTML = PRESENCE_USERS.map(u => {
+      const statusText = u.isOnline ? (isAr ? 'متصل' : 'Online') : (isAr ? 'غير متصل' : 'Offline');
+      const lastActiveText = timeFn(now - new Date(u.lastSeen).getTime());
+      const loginTimeText = u.isOnline ? loginTimeFmt(u.sessionStartedAt) : '—';
+      const initials = (u.email || '؟').trim().slice(0, 2).toUpperCase();
+      return `<tr>
+        <td><span class="presence-dot ${u.isOnline ? 'on' : 'off'}" title="${escapeHtml(statusText)}"></span></td>
+        <td><span class="presence-user" title="${escapeHtml(u.email || '')}">${escapeHtml(u.email || initials)}</span></td>
+        <td><span class="presence-status-pill ${u.isOnline ? 'on' : 'off'}">${statusText}</span></td>
+        <td class="presence-time">${lastActiveText}</td>
+        <td class="presence-time">${loginTimeText}</td>
+      </tr>`;
+    }).join('');
+  }
+  // ===================== End Online Users (Presence) =====================
+
   function toggleLanguage() {
     currentLang = (currentLang === 'ar') ? 'en' : 'ar';
     localStorage.setItem('fajer_lang_v2', currentLang);
@@ -1671,25 +2044,39 @@
     document.getElementById('btnTab3').textContent = isAr ? '📌 القوائم الجانبية' : '📌 Side Panels';
     document.getElementById('btnTab4').textContent = isAr ? '🔔 نيو ابديت' : '🔔 New Update';
     document.getElementById('btnTab5').textContent = isAr ? '💡 الاقتراحات' : '💡 Suggestions';
+    document.getElementById('btnTab6').textContent = isAr ? '👥 المستخدمون المتصلون' : '👥 Online Users';
+    document.getElementById('lblPresenceOnline').textContent = isAr ? 'متصل الآن' : 'Online now';
+    document.getElementById('lblPresenceTotal').textContent = isAr ? 'إجمالي المستخدمين المسجّلين' : 'Total tracked users';
+    document.getElementById('presenceColUser').textContent = isAr ? 'المستخدم' : 'User';
+    document.getElementById('presenceColStatus').textContent = isAr ? 'الحالة' : 'Status';
+    document.getElementById('presenceColLastActive').textContent = isAr ? 'آخر نشاط' : 'Last Active';
+    document.getElementById('presenceColLoginTime').textContent = isAr ? 'وقت تسجيل الدخول' : 'Login Time';
+    document.getElementById('presenceEmptyText').textContent = isAr ? 'لا يوجد مستخدمون بعد.' : 'No users yet.';
+    if (PRESENCE_USERS.length) renderPresenceList();
 
     document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
     document.getElementById('bbTechLabel').textContent = isAr ? 'مشاكل تقنية' : 'Technical Issues';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
+    document.getElementById('techLiveLabel').textContent = isAr ? 'مباشر' : 'Live';
+    document.getElementById('techFormHeadTitle').textContent = isAr ? 'تسجيل مشكلة' : 'Log an Issue';
+    document.getElementById('techFormHeadSub').textContent = isAr ? 'اختر الرقم ثم نوع المشكلة' : 'Pick the number, then the issue type';
     document.getElementById('techNumLabel').textContent = isAr ? 'أدخل رقم البوليصة أو رقم المكالمة' : 'Enter the Waybill number or call number';
     document.getElementById('techNumberInput').placeholder = '';
     document.getElementById('techAttachBtn').textContent = isAr ? 'إرفاق' : 'Attach';
     document.getElementById('techAttachedLabel').childNodes[0].textContent = isAr ? 'الرقم المرفق: ' : 'Attached number: ';
     document.getElementById('techChangeNumBtn').textContent = isAr ? 'تغيير الرقم' : 'Change number';
     document.getElementById('techOptionsLabel').textContent = isAr ? 'اختر نوع المشكلة:' : 'Select the type of issue:';
-    document.querySelector('#techOptAudio span').textContent = isAr ? 'الصوت بالمكالمة مشوش' : 'Audio is unclear';
-    document.querySelector('#techOptClosed span').textContent = isAr ? 'تم إغلاق المكالمة' : 'Call got disconnected';
-    document.querySelector('#techOptDelay span').textContent = isAr ? 'تأخير في المكالمة' : 'Delay in the call';
+    document.querySelector('#techOptAudio span:not(.opt-icon)').textContent = isAr ? 'الصوت بالمكالمة مشوش' : 'Audio is unclear';
+    document.querySelector('#techOptClosed span:not(.opt-icon)').textContent = isAr ? 'تم إغلاق المكالمة' : 'Call got disconnected';
+    document.querySelector('#techOptDelay span:not(.opt-icon)').textContent = isAr ? 'تأخير في المكالمة' : 'Delay in the call';
     document.getElementById('techSheetTitle').textContent = isAr ? '📋 سجل المشاكل التقنية' : '📋 Technical Issues Log';
+    document.getElementById('techRecordSearch').placeholder = isAr ? 'ابحث بالرقم أو الموظف أو نوع المشكلة...' : 'Search by number, employee, or issue type...';
     document.getElementById('techColNum').textContent = isAr ? 'الرقم' : 'Number';
     document.getElementById('techColIssue').textContent = isAr ? 'المشكلة' : 'Issue';
     document.getElementById('techColEmail').textContent = isAr ? 'الموظف' : 'Employee';
     document.getElementById('techColTime').textContent = isAr ? 'الوقت' : 'Time';
-    document.getElementById('techSheetEmpty').textContent = isAr ? 'لا توجد مشاكل مسجلة بعد.' : 'No issues logged yet.';
+    document.getElementById('techEmptyTitle').textContent = isAr ? 'لا توجد مشاكل مسجلة بعد' : 'No issues logged yet';
+    document.getElementById('techEmptySub').textContent = isAr ? 'ستظهر المشاكل هنا فور تسجيلها' : 'Logged issues will appear here';
     if (TECH_ISSUES.length) renderTechSheet();
 
     updateThemeIcon();
@@ -2026,6 +2413,9 @@
     closePanels();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
+    const searchEl = document.getElementById('techRecordSearch');
+    if (searchEl) searchEl.value = '';
+    showTechSkeleton();
     loadTechIssues();
   }
 
@@ -2111,25 +2501,74 @@
     renderTechSheet();
   }
 
+  function showTechSkeleton() {
+    const body = document.getElementById('techSheetBody');
+    const empty = document.getElementById('techSheetEmpty');
+    if (!body) return;
+    empty.style.display = 'none';
+    let rows = '';
+    for (let i = 0; i < 5; i++) {
+      rows += `<tr class="tech-skeleton-row">
+        <td><div class="tech-skeleton-bar" style="width:60%"></div></td>
+        <td><div class="tech-skeleton-bar" style="width:75%"></div></td>
+        <td><div class="tech-skeleton-bar" style="width:85%"></div></td>
+        <td><div class="tech-skeleton-bar" style="width:55%"></div></td>
+        <td></td>
+      </tr>`;
+    }
+    body.innerHTML = rows;
+  }
+
+  function getFilteredTechIssues() {
+    const searchEl = document.getElementById('techRecordSearch');
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    if (!q) return TECH_ISSUES;
+    const isAr = currentLang === 'ar';
+    return TECH_ISSUES.filter(t => {
+      const lbl = TECH_ISSUE_LABELS[t.issueType];
+      const issueText = lbl ? (isAr ? lbl.ar : lbl.en) + ' ' + (lbl.ar || '') + ' ' + (lbl.en || '') : (t.issueType || '');
+      const pool = `${t.phoneNumber || ''} ${t.employeeEmail || ''} ${issueText}`.toLowerCase();
+      return pool.includes(q);
+    });
+  }
+
   function renderTechSheet() {
     const isAr = currentLang === 'ar';
     const body = document.getElementById('techSheetBody');
     const empty = document.getElementById('techSheetEmpty');
-    if (!TECH_ISSUES.length) {
+    const countEl = document.getElementById('techSheetCount');
+    const filtered = getFilteredTechIssues();
+
+    if (countEl) countEl.textContent = filtered.length;
+
+    if (!filtered.length) {
       body.innerHTML = '';
       empty.style.display = 'block';
+      const emptyTitle = document.getElementById('techEmptyTitle');
+      const emptySub = document.getElementById('techEmptySub');
+      if (emptyTitle && emptySub) {
+        if (TECH_ISSUES.length && !filtered.length) {
+          emptyTitle.textContent = isAr ? 'لا توجد نتائج مطابقة' : 'No matching results';
+          emptySub.textContent = isAr ? 'جرّب كلمة بحث أخرى.' : 'Try a different search term.';
+        } else {
+          emptyTitle.textContent = isAr ? 'لا توجد مشاكل مسجلة بعد' : 'No issues logged yet';
+          emptySub.textContent = isAr ? 'ستظهر المشاكل هنا فور تسجيلها' : 'Logged issues will appear here';
+        }
+      }
       return;
     }
     empty.style.display = 'none';
-    body.innerHTML = TECH_ISSUES.map(t => {
+    const pillClass = { audio: 'pill-audio', closed: 'pill-closed', delay: 'pill-delay' };
+    const numIcon = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4h4l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5L15 13l5 2v4a2 2 0 0 1-2 2C9.5 21 3 14.5 3 6.5a2 2 0 0 1 1.5-2Z"></path></svg>`;
+    body.innerHTML = filtered.map(t => {
       const lbl = TECH_ISSUE_LABELS[t.issueType];
       const issueText = lbl ? (isAr ? lbl.ar : lbl.en) : escapeHtml(t.issueType || '');
       const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
       return `<tr>
-        <td style="font-weight:700;">${escapeHtml(t.phoneNumber || '')}</td>
-        <td><span class="tech-issue-pill">${issueText}</span></td>
-        <td>${escapeHtml(t.employeeEmail || '—')}</td>
-        <td style="white-space:nowrap; color:var(--slate-soft);">${dateStr}</td>
+        <td><div class="tech-num-cell"><span class="num-icon">${numIcon}</span>${escapeHtml(t.phoneNumber || '')}</div></td>
+        <td><span class="tech-issue-pill ${pillClass[t.issueType] || 'pill-audio'}">${issueText}</span></td>
+        <td class="tech-emp-cell">${escapeHtml(t.employeeEmail || '—')}</td>
+        <td class="tech-time-cell">${dateStr}</td>
         <td><button class="tech-row-del" data-del-tech="${t.id}" title="${isAr ? 'حذف' : 'Delete'}">🗑️</button></td>
       </tr>`;
     }).join('');
@@ -2157,6 +2596,7 @@
     const editTxt = isAr ? 'تعديل' : 'Edit';
     const delTxt = isAr ? 'حذف' : 'Delete';
     const usageTxt = isAr ? `تم النسخ ${usageCount} مرة` : `Used ${usageCount} times`;
+    const trackPlaceholder = isAr ? 'أدخل رقم تتبع الشحنة' : 'Enter shipment tracking number';
 
     const iconCopy = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M5.5 15.5H4.8A1.8 1.8 0 0 1 3 13.7V4.8A1.8 1.8 0 0 1 4.8 3h8.9A1.8 1.8 0 0 1 15.5 4.8v.7"></path></svg>`;
     const iconEdit = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.2L16.6 4.2a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.2 19 4 20Z"></path><path d="M14.5 6.3l3.2 3.2"></path></svg>`;
@@ -2169,6 +2609,9 @@
       </div>
       <div class="card-title">${escapeHtml(title)}</div>
       <div class="card-text">${escapeHtml(text)}</div>
+      <div class="track-row">
+        <input type="text" class="track-input" placeholder="${escapeHtml(trackPlaceholder)}" aria-label="${escapeHtml(trackPlaceholder)}">
+      </div>
       <div class="card-actions">
         <button class="copy-btn" type="button">${iconCopy}${copyTxt}</button>
         ${index >= 0 ? `
@@ -2184,11 +2627,23 @@
     card.querySelector('.copy-btn').addEventListener('click', function () {
       handleCopy(text, this, index);
     });
+    const trackInputEl = card.querySelector('.track-input');
+    if (trackInputEl) {
+      trackInputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); card.querySelector('.copy-btn').click(); }
+      });
+    }
     return card;
   }
 
   function handleCopy(txt, btn, index) {
-    navigator.clipboard.writeText(txt);
+    const card = btn.closest('.card');
+    const trackInput = card ? card.querySelector('.track-input') : null;
+    const trackVal = trackInput ? trackInput.value.trim() : '';
+    const isAr = currentLang === 'ar';
+    const trackLabel = isAr ? 'رقم التتبع الخاص بالشحنة' : 'Shipment Tracking Number';
+    const finalText = trackVal ? `${trackLabel}: ${trackVal}\n\n${txt}` : txt;
+    navigator.clipboard.writeText(finalText);
     const iconUsage = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none"></path><path d="M9 13l2 2 4-4"></path></svg>`;
     const iconCopy = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M5.5 15.5H4.8A1.8 1.8 0 0 1 3 13.7V4.8A1.8 1.8 0 0 1 4.8 3h8.9A1.8 1.8 0 0 1 15.5 4.8v.7"></path></svg>`;
     const iconCheck = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"></path></svg>`;
@@ -2203,13 +2658,13 @@
       sb.rpc('increment_script_usage', { script_id: SCRIPTS[index].id })
         .then(({ error }) => { if (error) console.error('تعذّر تحديث عداد الاستخدام:', error.message); });
     }
-    
-    const isAr = currentLang === 'ar';
+
     btn.innerHTML = iconCheck + (isAr ? 'تم النسخ!' : 'Copied!');
     btn.classList.add('copied');
-    setTimeout(() => { 
-      btn.innerHTML = iconCopy + (isAr ? 'نسخ النص' : 'Copy Text'); 
-      btn.classList.remove('copied'); 
+    setTimeout(() => {
+      btn.innerHTML = iconCopy + (isAr ? 'نسخ النص' : 'Copy Text');
+      btn.classList.remove('copied');
+      if (trackInput) trackInput.value = '';
     }, 1200);
 
   }
@@ -2254,7 +2709,10 @@
     document.getElementById('adminModal').classList.add('active');
     renderAdminLists();
   }
-  function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
+  function closeAdminModal() {
+    document.getElementById('adminModal').classList.remove('active');
+    stopPresenceAdminRefresh();
+  }
 
   function updateAdminRoleLabel() {
     const isAr = currentLang === 'ar';
@@ -2275,12 +2733,21 @@
     document.getElementById('adminTabPanels').style.display = type === 'panels' ? 'block' : 'none';
     document.getElementById('adminTabUpdates').style.display = type === 'updates' ? 'block' : 'none';
     document.getElementById('adminTabSuggestions').style.display = type === 'suggestions' ? 'block' : 'none';
-    
+    document.getElementById('adminTabPresence').style.display = type === 'presence' ? 'block' : 'none';
+
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
     document.getElementById('btnTab3').classList.toggle('active', type === 'panels');
     document.getElementById('btnTab4').classList.toggle('active', type === 'updates');
     document.getElementById('btnTab5').classList.toggle('active', type === 'suggestions');
+    document.getElementById('btnTab6').classList.toggle('active', type === 'presence');
+
+    if (type === 'presence') {
+      loadPresenceUsers();
+      startPresenceAdminRefresh();
+    } else {
+      stopPresenceAdminRefresh();
+    }
   }
 
   function updateAdminDropdowns() {
@@ -2600,9 +3067,11 @@
     on('bbTechBtn', 'click', openTechPage);
 
     // صفحة المشاكل التقنية
+    on('techBackBtn', 'click', closeTechPage);
     on('techAttachBtn', 'click', attachTechNumber);
     on('techChangeNumBtn', 'click', changeTechNumber);
     on('techNumberInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); attachTechNumber(); } });
+    on('techRecordSearch', 'input', renderTechSheet);
     document.querySelectorAll('.tech-opt-btn').forEach(btn => {
       btn.addEventListener('click', () => submitTechIssue(btn.dataset.issue));
     });
@@ -2624,6 +3093,7 @@
     await loadAllData();
     render();
     if (isAdmin) renderAdminLists();
+    startPresenceHeartbeat();
   }
 </script>
 </body>
