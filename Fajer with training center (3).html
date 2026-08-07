@@ -3455,5 +3455,194 @@
     startPresenceHeartbeat();
   }
 </script>
+  <!-- ================= بداية كود مركز التدريب وشجرة القرارات ================= -->
+<script>
+// 1. كائن يحتوي على جميع مراكز التدريب والأشجار الخاصة بها
+const TRAINING_CENTERS = {
+  logistics: {
+    title: "مركز تدريب الشحن واللوجستيات",
+    trees: {
+      delivery_delay: {
+        title: "مشكلة تأخير الشحنة",
+        root: "q1",
+        nodes: {
+          q1: {
+            question: "هل تتبع الشحنة متوقف في النظام لأكثر من 3 أيام؟",
+            options: [
+              { label: "نعم", next: "q2" },
+              { label: "لا", result: "الجراء: طلب الانتظار من العميل لحين اكتمال المدة المحددة." }
+            ]
+          },
+          q2: {
+            question: "هل تجاوز التوقف 7 أيام عمل؟",
+            options: [
+              { label: "نعم", result: "الجراء: رفع بلاغ مفقودات لفرع اللوجستيات فوراً وإبلاغ العميل." },
+              { label: "لا", result: "الجراء: إرسال تذكير استعجال للمستودع وتحديد الموعد المتوقع للعميل." }
+            ]
+          }
+        }
+      }
+    }
+  },
+  customer_service: {
+    title: "مركز تدريب خدمة العملاء",
+    trees: {
+      refund_request: {
+        title: "مشكلة طلب استرجاع مبلغ",
+        root: "q1",
+        nodes: {
+          q1: {
+            question: "هل الشراء تم خلال الـ 14 يوماً الماضية؟",
+            options: [
+              { label: "نعم", result: "الجراء: قبول الطلب وإصدار بوليسة الاسترجاع للعميل." },
+              { label: "لا", result: "الجراء: الاعتذار للعميل لتجاوز الفترة المسموحة بحسب السياسة." }
+            ]
+          }
+        }
+      }
+    }
+  }
+};
+
+let currentTreePath = [];
+
+// 2. دالة عرض القائمة الرئيسية لمراكز التدريب
+function renderTrainingCenterMain() {
+  const container = document.getElementById('trainingContent');
+  if (!container) return;
+
+  let html = `
+    <div style="direction: rtl; text-align: right; padding: 20px; font-family: sans-serif;">
+      <h2 style="color: #2c3e50; margin-bottom: 5px;">مراكز التدريب وشجرة القرارات</h2>
+      <p style="color: #666; margin-bottom: 20px;">اختر مركز التدريب المطلوب للبدء:</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+  `;
+
+  for (const centerKey in TRAINING_CENTERS) {
+    const center = TRAINING_CENTERS[centerKey];
+    html += `
+      <div style="border: 1px solid #e0e0e0; padding: 18px; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <h3 style="margin-top: 0; color: #333; font-size: 18px;">${center.title}</h3>
+        <button onclick="openCenterTreeList('${centerKey}')" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+          عرض المشاكل والقرارات
+        </button>
+      </div>
+    `;
+  }
+
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+// 3. عرض قائمة المشاكل داخل المركز المختار
+function openCenterTreeList(centerKey) {
+  const container = document.getElementById('trainingContent');
+  const center = TRAINING_CENTERS[centerKey];
+  if (!center) return;
+
+  let html = `
+    <div style="direction: rtl; text-align: right; padding: 20px; font-family: sans-serif;">
+      <button onclick="renderTrainingCenterMain()" style="margin-bottom: 15px; padding: 6px 14px; background: #6c757d; color: #fff; border: none; border-radius: 4px; cursor: pointer;">← العودة للمراكز</button>
+      <h2 style="color: #2c3e50;">${center.title}</h2>
+      <p style="color: #666;">اختر نوع المشكلة للبدء في شجرة اتخاذ القرار:</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+  `;
+
+  for (const treeKey in center.trees) {
+    const tree = center.trees[treeKey];
+    html += `
+      <button onclick="startTree('${centerKey}', '${treeKey}')" style="padding: 12px 20px; background: #28a745; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">
+        ${tree.title}
+      </button>
+    `;
+  }
+
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+// 4. دالة بدء الشجرة المحددة
+function startTree(centerKey, treeKey) {
+  currentTreePath = [];
+  const tree = TRAINING_CENTERS[centerKey].trees[treeKey];
+  if (tree) {
+    renderTreeNode(centerKey, treeKey, tree.root);
+  }
+}
+
+// 5. دالة عرض عقدة الشجرة (السؤال أو القرار)
+function renderTreeNode(centerKey, treeKey, nodeId) {
+  const container = document.getElementById('trainingContent');
+  const tree = TRAINING_CENTERS[centerKey].trees[treeKey];
+  const node = tree.nodes[nodeId];
+
+  if (!node) return;
+
+  let html = `
+    <div style="direction: rtl; text-align: right; padding: 20px; font-family: sans-serif;">
+      <button onclick="openCenterTreeList('${centerKey}')" style="margin-bottom: 15px; padding: 6px 14px; background: #6c757d; color: #fff; border: none; border-radius: 4px; cursor: pointer;">← العودة لقائمة المشاكل</button>
+      <h3 style="color: #333; margin-bottom: 15px;">${tree.title}</h3>
+  `;
+
+  // عرض مسار الإجابات السابقة
+  if (currentTreePath.length > 0) {
+    html += `<div style="background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; border-radius: 6px; margin-bottom: 15px;">`;
+    currentTreePath.forEach(item => {
+      html += `<div style="font-size: 13px; color: #495057; margin-bottom: 4px;">🔹 <strong>${item.question}</strong>: <span style="color: #007bff; font-weight: bold;">${item.answer}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // إذا وصل للنتيجة
+  if (node.result) {
+    html += `
+      <div style="background: #d4edda; border-right: 5px solid #28a745; padding: 18px; border-radius: 6px;">
+        <h4 style="color: #155724; margin-top: 0; font-size: 18px;">القرار / الإجراء المطلوب:</h4>
+        <p style="font-size: 16px; color: #155724; font-weight: bold; margin-bottom: 15px;">${node.result}</p>
+        <button onclick="startTree('${centerKey}', '${treeKey}')" style="padding: 8px 16px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer;">إعادة الشجرة</button>
+      </div>
+    `;
+  } else {
+    // عرض السؤال مع الخيارات
+    html += `
+      <div style="background: #fff; border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <p style="font-size: 17px; font-weight: bold; color: #212529; margin-bottom: 20px;">${node.question}</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    `;
+    
+    node.options.forEach(opt => {
+      if (opt.result) {
+        html += `<button onclick="selectOptionResult('${centerKey}', '${treeKey}', '${nodeId}', '${opt.label}', '${opt.result}')" style="padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">${opt.label}</button>`;
+      } else {
+        html += `<button onclick="selectOptionNext('${centerKey}', '${treeKey}', '${nodeId}', '${opt.label}', '${opt.next}')" style="padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">${opt.label}</button>`;
+      }
+    });
+
+    html += `</div></div>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function selectOptionNext(centerKey, treeKey, nodeId, label, nextNodeId) {
+  const node = TRAINING_CENTERS[centerKey].trees[treeKey].nodes[nodeId];
+  currentTreePath.push({ question: node.question, answer: label });
+  renderTreeNode(centerKey, treeKey, nextNodeId);
+}
+
+function selectOptionResult(centerKey, treeKey, nodeId, label, resultText) {
+  const node = TRAINING_CENTERS[centerKey].trees[treeKey].nodes[nodeId];
+  currentTreePath.push({ question: node.question, answer: label });
+  
+  TRAINING_CENTERS[centerKey].trees[treeKey].nodes['temp_result'] = { result: resultText };
+  renderTreeNode(centerKey, treeKey, 'temp_result');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderTrainingCenterMain();
+});
+</script>
+<!-- ================= نهاية كود مركز التدريب وشجرة القرارات ================= -->
 </body>
 </html>
