@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2314506B%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%232E8C82%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Georgia%2C%20serif%27%20font-weight%3D%27700%27%20font-size%3D%2734%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Amiri:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="site-bg-animation" aria-hidden="true">
+  <div class="site-bg-scene">
+    <svg viewBox="0 0 640 274" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="4">
+      <rect class="kb-key" data-letter="Q" x="5" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="W" x="69" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="E" x="133" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="R" x="197" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="T" x="261" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="Y" x="325" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="U" x="389" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="I" x="453" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="O" x="517" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="P" x="581" y="14" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="A" x="37" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="S" x="101" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="D" x="165" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="F" x="229" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="G" x="293" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="H" x="357" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="J" x="421" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="K" x="485" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="L" x="549" y="78" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="Z" x="101" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="X" x="165" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="C" x="229" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="V" x="293" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="B" x="357" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="N" x="421" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key" data-letter="M" x="485" y="142" width="54" height="54" rx="9"/>
+      <rect class="kb-key kb-space" x="160" y="206" width="320" height="54" rx="9"/>
+    </svg>
+  </div>
+  <div class="falling-letters" id="fallingLetters"></div>
+</div>
+
+<div class="login-gate" id="loginGate" dir="rtl">
+  <div class="login-form-panel">
+    <div class="login-card">
+    <div class="login-brand">
+      <div class="login-wordmark"><span class="nova-text"><span class="nv-n">n</span><span class="nv-ova">ova</span></span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+    </div>
+    <h2 id="loginTitle" dir="ltr" lang="en">Sign In</h2>
+    <p id="loginSub" dir="ltr" lang="en">Enter your details</p>
+    <form id="loginForm" autocomplete="on" dir="ltr" lang="en">
+      <label id="lblLoginEmail" for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" autocomplete="username" required>
+      <label id="lblLoginPass" for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" required>
+      <button type="submit" id="loginSubmitBtn">
+        <span id="loginSubmitText">Sign In</span>
+        <span class="login-spinner" id="loginSpinner" style="display:none;"></span>
+      </button>
+      <div class="login-error" id="loginError" style="display:none;"></div>
+      <button type="button" class="login-forgot" id="loginForgotBtn">Forgot password?</button>
+    </form>
+    </div>
+  </div>
+  <div class="login-image-panel" aria-hidden="true">
+    <div class="chat-animation" aria-hidden="true">
+      <div class="chat-bubble-track" id="chatBubbleTrack" dir="ltr"></div>
+    </div>
+  </div>
+</div>
+
+<div class="splash-overlay" id="splashOverlay">
+  <div style="text-align:center;">
+    <div class="splash-logo">NOVA</div>
+    <span class="splash-sub">AN ENJEZ COMPANY</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Technical Issue Page -->
+<div class="tech-page" id="techPage">
+  <div class="tech-page-inner">
+    <div class="tech-page-head">
+      <button class="tech-back-btn" id="techBackBtn" aria-label="Back" title="Back">×</button>
+      <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+      <span class="tech-page-head-meta"><span class="dot"></span><span id="techLiveLabel">مباشر</span></span>
+    </div>
+
+    <div class="tech-layout">
+      <aside class="tech-sidebar">
+        <div class="tech-form-card">
+          <div class="tech-form-card-head">
+            <div class="tech-form-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg></div>
+            <div><strong id="techFormHeadTitle">تسجيل مشكلة</strong><span id="techFormHeadSub">اختر الرقم ثم نوع المشكلة</span></div>
+          </div>
+          <label for="techNumberInput" id="techNumLabel">أدخل رقم البوليصة أو رقم المكالمة</label>
+          <div class="tech-number-row">
+            <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
+            <button id="techAttachBtn">إرفاق</button>
+          </div>
+
+          <div class="tech-attached-row" id="techAttachedRow">
+            <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
+            <button id="techChangeNumBtn">تغيير الرقم</button>
+          </div>
+
+          <div id="techOptionsWrap">
+            <p id="techOptionsLabel">اختر نوع المشكلة:</p>
+            <div class="tech-options">
+              <button class="tech-opt-btn" id="techOptAudio" data-issue="audio"><span class="opt-icon">🔇</span><span>الصوت بالمكالمة مشوش</span></button>
+              <button class="tech-opt-btn" id="techOptClosed" data-issue="closed"><span class="opt-icon">📴</span><span>تم إغلاق المكالمة</span></button>
+              <button class="tech-opt-btn" id="techOptDelay" data-issue="delay"><span class="opt-icon">⏱️</span><span>تأخير في المكالمة</span></button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="tech-main">
+        <div class="tech-sheet-card">
+          <div class="tech-sheet-head">
+            <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
+            <span class="tech-sheet-count" id="techSheetCount">0</span>
+            <div class="tech-search-shell"><span class="search-icon">⌕</span><input type="text" id="techRecordSearch" placeholder=""></div>
+          </div>
+          <div class="tech-sheet-wrap">
+            <table id="techSheetTable">
+              <thead>
+                <tr>
+                  <th id="techColNum">الرقم</th>
+                  <th id="techColIssue">المشكلة</th>
+                  <th id="techColEmail">الموظف</th>
+                  <th id="techColTime">الوقت</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="techSheetBody"></tbody>
+            </table>
+            <div class="tech-empty" id="techSheetEmpty" style="display:none;">
+              <div class="tech-empty-icon">📋</div>
+              <strong id="techEmptyTitle">لا توجد مشاكل مسجلة بعد</strong>
+              <span id="techEmptySub">ستظهر المشاكل هنا فور تسجيلها</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Training Center Page -->
+<div class="training-page" id="trainingPage">
+  <div class="training-page-inner">
+    <div class="training-page-head">
+      <button class="tech-back-btn" id="trainingBackBtn" aria-label="Back" title="Back">×</button>
+      <div class="training-head-icon">🎓</div>
+      <div class="training-head-copy">
+        <h2 id="trainingPageTitle">مركز التدريب</h2>
+        <p id="trainingPageSub">دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة</p>
+      </div>
+    </div>
+
+    <!-- Problems grid -->
+    <div id="trainingGridView">
+      <div class="training-grid" id="trainingGrid"></div>
+    </div>
+
+    <!-- Decision tree view -->
+    <div id="trainingTreeView" style="display:none;">
+      <button class="training-tree-back" id="trainingTreeBackBtn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"></path></svg>
+        <span id="trainingTreeBackLabel">رجوع لكل المشاكل</span>
+      </button>
+      <div class="training-tree-head">
+        <span class="training-tree-icon" id="trainingTreeIcon">📦</span>
+        <h3 id="trainingTreeTitle">—</h3>
+      </div>
+      <div class="training-tree-stage" id="trainingTreeStage"></div>
+    </div>
+  </div>
+</div>
+
+<div class="quick-tools" aria-label="Quick tools">
+  <button class="qt-btn qt-general" title="General information">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="qt-label" id="lblSideGen">GENERAL INFO</span>
+  </button>
+  <button class="qt-btn qt-critical" title="Critical mistakes">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2Z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="qt-label" id="lblSideCrit">CRITICAL MISTAKES</span>
+  </button>
+  <button class="qt-btn qt-etiquette" title="Call etiquette">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c0-1 .8-1.5 1.7-1.5H8c.6 0 1.1.4 1.3.9l1 2.9c.2.6 0 1.3-.5 1.7L8.3 9.8c1.1 2.6 3.3 4.8 5.9 5.9l1.3-1.5c.4-.5 1.1-.7 1.7-.5l2.9 1c.5.2.9.7.9 1.3v1.8c0 .9-.5 1.7-1.5 1.7C11.9 19.5 4.5 12.1 4.5 4.5Z"></path></svg></span>
+    <span class="qt-label" id="lblSideEtiq">ETIQUETTE CALL</span>
+  </button>
+  <button class="qt-btn qt-update" title="New updates">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 1 1 12 0c0 4.2 1.3 5.8 1.3 5.8H4.7S6 13.7 6 9.5Z"></path><path d="M10.3 19a1.9 1.9 0 0 0 3.4 0"></path></svg></span>
+    <span class="qt-badge" id="updateBadge" style="display:none;">0</span>
+    <span class="qt-label" id="lblSideUpdate">NEW UPDATE</span>
+  </button>
+  <button class="qt-btn qt-suggest" title="Suggestions">
+    <span class="qt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.7.5 1.1 1.3 1.1 2.2v.7h5.8v-.7c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 2.5Z"></path><line x1="9.6" y1="20" x2="14.4" y2="20"></line><line x1="10.3" y1="22" x2="13.7" y2="22"></line></svg></span>
+    <span class="qt-label" id="lblSideSuggest">SUGGESTIONS</span>
+  </button>
+</div>
+
+<div class="panel-overlay" id="overlay"></div>
+
+<!-- General Info Panel -->
+<div class="side-panel" id="generalPanel">
+  <div class="panel-head"><h2 style="color:#bf7a2b;" id="hGenInfo">General Information</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div id="generalList"></div>
+</div>
+
+<!-- Etiquette Panel -->
+<div class="side-panel" id="etiquettePanel">
+  <div class="panel-head"><h2 style="color:var(--brand-blue);" id="hEtiqCall">Etiquette Call</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div id="etiquetteList"></div>
+</div>
+
+<!-- Critical Panel -->
+<div class="side-panel" id="criticalPanel">
+  <div class="panel-head"><h2 style="color:#B5473D;" id="hCritMist">Critical Mistakes</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div id="criticalList"></div>
+</div>
+
+<!-- New Update Panel -->
+<div class="side-panel" id="newUpdatePanel">
+  <div class="panel-head"><h2 style="color:#5b3fb0;" id="hNewUpdate">New Updates</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div id="newUpdateList"></div>
+</div>
+
+<!-- Suggestion Panel -->
+<div class="side-panel" id="suggestPanel">
+  <div class="panel-head"><h2 style="color:#be185d;" id="hSuggest">💡 اقتراح جديد</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <p style="font-size:12.5px; color:var(--slate); margin-top:0;" id="lblSuggestDesc">شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.</p>
+  <div id="suggestSenderRow" style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--slate); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+    <span id="lblSuggestAs">سيصل الاقتراح باسم:</span>
+    <span id="suggestSenderEmail" style="font-weight:700; color:var(--text-main);">—</span>
+  </div>
+  <textarea id="suggestText" rows="5" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
+  <button id="btnSubmitSuggest" style="width:100%; background:#be185d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال الاقتراح</button>
+</div>
+
+<!-- Admin Modal -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-card">
+    <h3 style="margin-top:0;" id="hAdminPortal">⚙️ Admin Management Portal</h3>
+    
+    <div id="adminAuthSection" style="display:none;">
+      <p style="font-size:13px; color:var(--slate);" id="lblAdminPass">ما عندك صلاحية الوصول لهذه اللوحة.</p>
+    </div>
+
+    <div id="adminEditSection" style="display:none;">
+      <p style="color:var(--brand-teal); font-weight:700; margin-bottom:12px;" id="lblAdminActive">✅ Admin Mode Active</p>
+      
+      <div style="display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;">
+        <button class="admin-tab-btn active" id="btnTab1" data-admin-tab="scripts">+ إدارة السكريبتات</button>
+        <button class="admin-tab-btn" id="btnTab2" data-admin-tab="categories">🏷️ التبويبات</button>
+        <button class="admin-tab-btn" id="btnTab3" data-admin-tab="panels">📌 القوائم الجانبية</button>
+        <button class="admin-tab-btn" id="btnTab4" data-admin-tab="updates">🔔 نيو ابديت</button>
+        <button class="admin-tab-btn" id="btnTab5" data-admin-tab="suggestions">💡 الاقتراحات</button>
+        <button class="admin-tab-btn" id="btnTab6" data-admin-tab="presence">👥 المستخدمون المتصلون</button>
+        <button class="admin-tab-btn" id="btnTab7" data-admin-tab="training">🎓 مركز التدريب</button>
+      </div>
+
+      <!-- Tab 1: Manage Scripts -->
+      <div id="adminTabScripts">
+        <input type="hidden" id="editScriptIndex" value="-1">
+        <label style="font-size:12px; font-weight:600;" id="lblSelectCat">اختر التبويب:</label>
+        <select id="newScriptCat" style="width:100%; margin-bottom:8px; margin-top:4px;"></select>
+        
+        <input type="text" id="newScriptTitle" placeholder="العنوان بالإنجليزية (English Title)" style="width:100%; margin-bottom:8px;">
+        <input type="text" id="newScriptTitleAr" placeholder="العنوان بالعربية (Arabic Title)" style="width:100%; margin-bottom:8px;">
+        
+        <textarea id="newScriptText" rows="3" placeholder="النص بالإنجليزية (English Text)..." style="width:100%; margin-bottom:8px;"></textarea>
+        <textarea id="newScriptTextAr" rows="3" placeholder="النص بالعربية (Arabic Text)..." style="width:100%; margin-bottom:8px;"></textarea>
+        
+        <button id="saveScriptBtn" style="width:100%; background:var(--brand-blue); color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">+ إضافة السكريبت</button>
+      </div>
+
+      <!-- Tab 2: Manage Categories -->
+      <div id="adminTabCategories" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblCatDesc">إضافة/حذف التصنيفات (التبويبات العلوية):</p>
+        <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+          <input type="text" id="newCatLabel" placeholder="الاسم بالإنجليزية...">
+          <input type="text" id="newCatLabelAr" placeholder="الاسم بالعربية...">
+          <input type="color" id="newCatColor" value="#14506B" style="width:40px; height:38px; border:none; border-radius:6px; cursor:pointer;">
+          <button id="btnAddCat" style="background:var(--brand-teal); color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
+        </div>
+        <div id="categoriesAdminList" style="max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
+      <!-- Tab 3: Manage Side Panels -->
+      <div id="adminTabPanels" style="display:none;">
+        <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:#D97706;" id="lblEditGen">تعديل General Info:</p>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+          <input type="text" id="newInfoLabel" placeholder="العنوان">
+          <input type="text" id="newInfoVal" placeholder="القيمة...">
+          <button id="btnAddGen" style="background:#D97706; color:#fff; border:none; padding:8px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة معلومة</button>
+        </div>
+        <div id="generalAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px; margin-bottom:12px;"></div>
+
+        <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:var(--brand-blue);" id="lblEditEtiq">تعديل Etiquette Call:</p>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <input type="text" id="newEtiquetteInput" placeholder="بند جديد...">
+          <button id="btnAddEtiq" style="background:var(--brand-blue); color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
+        </div>
+        <div id="etiquetteAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px; margin-bottom:12px;"></div>
+
+        <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:#B91C1C;" id="lblEditCrit">تعديل Critical Mistakes:</p>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <input type="text" id="newCriticalInput" placeholder="خطأ جديد...">
+          <button id="btnAddCrit" style="background:#B91C1C; color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
+        </div>
+        <div id="criticalAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px;"></div>
+      </div>
+
+      <!-- Tab 4: Manage New Updates -->
+      <div id="adminTabUpdates" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblUpdDesc">أضف تحديثاً جديداً — سيظهر إشعار للفريق تلقائياً:</p>
+        <textarea id="newUpdText" rows="4" placeholder="اكتب نص التحديث هنا..." style="width:100%; margin-bottom:8px;"></textarea>
+        <button id="btnAddUpd" style="width:100%; background:#5b3fb0; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">🔔 نشر التحديث للفريق</button>
+        <div id="updatesAdminList" style="max-height:160px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px; margin-top:12px;"></div>
+      </div>
+
+      <!-- Tab 5: View Employee Suggestions (admin-only) -->
+      <div id="adminTabSuggestions" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblSuggAdminDesc">اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:</p>
+        <div id="suggestionsAdminList" style="max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
+      <!-- Tab 6: Online Users (admin-only, auto-refreshing) -->
+      <div id="adminTabPresence" style="display:none;">
+        <div class="presence-summary">
+          <div class="presence-stat">
+            <span class="presence-stat-dot online"></span>
+            <div>
+              <strong id="presenceOnlineCount">0</strong>
+              <span id="lblPresenceOnline">متصل الآن</span>
+            </div>
+          </div>
+          <div class="presence-stat">
+            <span class="presence-stat-dot total"></span>
+            <div>
+              <strong id="presenceTotalCount">0</strong>
+              <span id="lblPresenceTotal">إجمالي المستخدمين المسجّلين</span>
+            </div>
+          </div>
+        </div>
+        <div class="presence-table-wrap">
+          <table class="presence-table" id="presenceTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th id="presenceColUser">المستخدم</th>
+                <th id="presenceColStatus">الحالة</th>
+                <th id="presenceColLastActive">آخر نشاط</th>
+                <th id="presenceColLoginTime">وقت تسجيل الدخول</th>
+              </tr>
+            </thead>
+            <tbody id="presenceTableBody"></tbody>
+          </table>
+          <div class="presence-empty" id="presenceEmpty" style="display:none;">
+            <span id="presenceEmptyText">لا يوجد مستخدمون بعد.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 7: Training Center (Dynamic Decision Tree) — admin-only -->
+      <div id="adminTabTraining" style="display:none;">
+        <div class="tb-subnav">
+          <button class="tb-subnav-btn active" id="tbSubDashboard" data-train-sub="dashboard">📊 لوحة المعلومات</button>
+          <button class="tb-subnav-btn" id="tbSubProblems" data-train-sub="problems">🌳 المشاكل والشجرة</button>
+          <button class="tb-subnav-btn" id="tbSubPreview" data-train-sub="preview">👁️ معاينة</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="tbPaneDashboard">
+          <div class="tb-stats-row">
+            <div class="tb-stat"><strong id="tbStatProblems">0</strong><span>مشكلة</span></div>
+            <div class="tb-stat"><strong id="tbStatNodes">0</strong><span>عقدة (Node)</span></div>
+            <div class="tb-stat"><strong id="tbStatOptions">0</strong><span>خيار (Option)</span></div>
+            <div class="tb-stat tb-stat-warn"><strong id="tbStatIssues">0</strong><span>ملاحظة/خطأ بالشجرة</span></div>
+          </div>
+          <div id="tbIssuesList"></div>
+        </div>
+
+        <!-- Problems & Tree Builder -->
+        <div id="tbPaneProblems" style="display:none;">
+          <div class="tb-new-problem-card">
+            <p class="tb-mini-title">➕ إنشاء مشكلة تدريب جديدة</p>
+            <div class="tb-new-problem-row">
+              <input type="text" id="newProblemIcon" placeholder="إيموجي 📦" style="max-width:90px;">
+              <input type="color" id="newProblemColor" value="#2563EB" style="width:40px;height:38px;border:none;border-radius:6px;cursor:pointer;">
+              <input type="text" id="newProblemTitle" placeholder="العنوان بالإنجليزية">
+              <input type="text" id="newProblemTitleAr" placeholder="العنوان بالعربية">
+              <button id="btnCreateProblem" style="background:var(--brand-blue); color:#fff; border:none; padding:0 16px; border-radius:8px; font-weight:700; cursor:pointer; white-space:nowrap;">+ إنشاء</button>
+            </div>
+          </div>
+          <div class="tb-problems-list" id="tbProblemsList"></div>
+          <div id="tbProblemEditor"></div>
+        </div>
+
+        <!-- Preview -->
+        <div id="tbPanePreview" style="display:none;">
+          <p class="tb-mini-title">اختر مشكلة لمعاينتها كما سيشاهدها الموظف (تشمل حتى العناصر غير المنشورة):</p>
+          <select id="tbPreviewProblemSelect" style="width:100%; margin-bottom:16px;"></select>
+          <div id="tbPreviewStage"></div>
+        </div>
+      </div>
+
+      <button id="btnCloseAdmin" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;">إغلاق الواجهة</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="nova-wordmark" id="novaWordmark"><span class="nova-text"><span class="nv-n">n</span><span class="nv-ova">ova</span></span><span class="nova-sub">AN ENJEZ COMPANY</span></div>
+    <div class="brand-divider"></div>
+    <button class="theme-toggle-fixed" id="themeToggleBtn" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+      <svg id="themeIconMoon" class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="currentColor"><path d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
+      <svg id="themeIconSun" class="icon-sun" style="display:none" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
+  </div>
+  <div class="header-right">
+    <div class="project-seal"><span class="eyebrow"> PROJECT</span><span class="name">FAJER AL SALAMEEN</span></div>
+    <div class="profile-menu" id="profileMenu">
+      <button class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false" title="Account menu">
+        <span class="profile-avatar" id="profileAvatar">؟</span>
+        <svg class="profile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-dropdown-head">
+          <span class="profile-avatar profile-avatar-lg" id="profileAvatarLg">؟</span>
+          <div class="profile-info">
+            <div class="profile-email" id="profileEmail">—</div>
+            <div class="profile-role" id="profileRoleLabel">موظف</div>
+          </div>
+        </div>
+        <div class="profile-dropdown-label" id="profileDecorLabel">ضبط الديكور</div>
+        <button class="profile-dropdown-item" id="profileThemeBtn">
+          <span id="profileThemeIcon">🌙</span> <span id="profileThemeText">الوضع الداكن</span>
+        </button>
+        <button class="profile-dropdown-item" id="profileLangBtn">
+          <span>🌐</span> <span id="langBtnText">English</span>
+        </button>
+        <div class="profile-dropdown-sep"></div>
+        <button class="profile-dropdown-item profile-dropdown-danger" id="logoutBtn">
+          <span>🚪</span> <span id="logoutBtnText">تسجيل الخروج</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-row">
+      <div class="search-shell"><span class="search-icon">⌕</span><input type="text" id="searchInput" placeholder="البحث في السكريبتات... / Search scripts..."></div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+  </div>
+</div>
+
+<main>
+  <div class="workspace-head"><div><h1 id="workspaceTitle">تصعيد التذكرة</h1></div><div class="library-count"><strong id="scriptCount">0</strong><span id="scriptCountLabel">سكريبت متاح</span></div></div>
+  <div id="content"></div>
+  <div id="followupGrid" class="grid" style="margin-top:30px;"></div>
+</main>
+
+<footer>
+  <span id="footBrand"></span>
+</footer>
+
+<div class="bottom-bar" id="bottomBar" aria-label="Bottom navigation">
+  <div class="bottom-bar-inner">
+    <button class="bb-btn bb-home" id="bbHomeBtn">
+      <span class="bb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 9.8V20h13V9.8"></path><path d="M9.5 20v-6h5v6"></path></svg></span>
+      <span id="bbHomeLabel">الرئيسية</span>
+    </button>
+    <div class="bb-divider"></div>
+    <button class="bb-btn bb-tech" id="bbTechBtn">
+      <span class="bb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg></span>
+      <span id="bbTechLabel">مشاكل تقنية</span>
+    </button>
+    <div class="bb-divider"></div>
+    <button class="bb-btn bb-training" id="bbTrainingBtn">
+      <span class="bb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 8-4v6"></path><path d="M6 10.5V16c0 1.1 2.7 3 6 3s6-1.9 6-3v-5.5"></path></svg></span>
+      <span id="bbTrainingLabel">🎓 مركز التدريب</span>
+    </button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
