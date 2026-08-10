@@ -1,1 +1,1 @@
-استبدل المحتوى كامل بهاد: name = "nova" compatibility_date = "2026-08-10" [assets] directory = "./public" لاحظ: ما في سطر main نهائياً — لأن ما عندك Worker حقيقي، بس ملفات ثابتة.
+ name = "nova" compatibility_date = "2026-08-10" [assets] directory = "./public"
