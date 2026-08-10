@@ -1,0 +1,135 @@
+I truly apologize for this problem you are facing, and I appreciate the difficulty of the situation
+
+_______________________
+Greetings/الترحيب والتحية
+
+Hi, I'm fajer. How can I assist you today?
+
+Hi, I'm Fajer. I'm here to assist you
+
+I will help you, don't worry
+
+
+“I’m truly sorry for any inconvenience this may have caused. Your experience matters, and I want to make things right. Can you confirm if you’re inquiring about the (       ) order from restaurant (      )?”
+____________________________________
+
+Confirming with an order/تأكيد الطلب
+
+ Can you confirm if you're inquiring about the (    ) order from restaurant  (     ) ?
+
+
+
+/تأكيد طلب الرقم التسلسلي المختلف / تأكيد طلب مختلف
+Could you give us the serial number for the order you want to check?
+
+
+___________________________________________________
+Confirm other issues/تأكيد المشكلات الأخرى
+
+ Is there anything else I can help you with?
+
+ It was a pleasure helping you today. Is there anything else I can help you with?
+
+___________________________________________________________________
+No response/لا يوجد رد أو لا استجابة
+
+
+Hello! We still have not received your respond, our conversation will be closed very soon. If you have further inquiry please feel free to contact us. Thank you!
+
+
+
+
+_______________________________________________
+Evaluation & Goodbye/التقييم والوداع  
+
+
+I was pleased to serve you today. After the conversation ends, you will receive a notification to rate your experience with us. We would like to inform you that the rating is from 1 to 5, where 5 is the highest and 1 is the lowest.
+Thank you for contacting Keeta and wish you a happy day.
+
+
+
+
+Thank you for reaching out to Keeta customer service. We'd appreciate it if you could take a moment to rate our service. Thanks for your cooperation, and have a great day!
+
+
+
+
+__________________________________________________________________________
+Appeasement and Apology/التهدئة والاعتذار
+
+I understand how crucial timely deliveries are for your business. I’m sorry for any delays you've experienced, and we’re committed to resolving this as quickly as possible.
+
+I completely empathize with your frustration regarding your recent experience. I appreciate you bringing this to our attention, and we’re committed to improving.
+
+ I apologize for the delay in getting back to you. I understand how important timely communication is, and I appreciate your patience as we address your concerns.
+
+I want to acknowledge your concerns about the service. Your experience is important to us, and I’m here to assist you in any way I can.
+
+ I want you to know that we take your feedback seriously. I’m sorry for any inconvenience you’ve faced, and we’re here to ensure your future experiences are better.
+
+I want to recognize your concerns about our service. Your experience matters to us, and I’m here to help in any way possible.
+
+I recognize the importance of timely deliveries for your business, and I sincerely apologize for any delays you've faced. Please know that we are dedicated to resolving this issue as quickly as we can.
+
+I truly understand your frustration with your recent experience. Thank you for bringing this to our attention; we are committed to making the necessary improvements.
+
+I apologize for the delay in my response. I recognize how important timely communication is, and I appreciate your patience while we work to address your concerns.
+
+I’d like to recognize your concerns regarding our service. Your experience matters to us, and I’m here to help in any way possible.
+
+I want you to know that we value your feedback. I apologize for any inconvenience you’ve encountered, and we’re committed to improving your future experiences.
+
+
+
+
+
+
+
+Hold Scripts-EN:
+
+ Please hold for just one minute while I look into this for you
+ 
+ One minute, please—I’ll be back shortly
+ Please hold for a minute while I gather the information you need
+ I’ll need just a minute to assist you—thank you for waiting
+ Let me check on that for you—please hold for a one minute 
+ I’ll be back in one minute with an update for you
+ Please give me a minute to review this for you
+ I’ll need a quick minute to assist—thank you for holding
+ One minute, please, while I verify this for you
+ I’ll be right back—just need a minute to help you out
+ Please hold for a minute while I check the details
+ I’ll need about a minute to resolve this—thank you for your patience
+ Just a moment, please—I’ll be back in a minute
+ Let me take a minute to assist you—thank you for waiting
+ I’ll need a quick minute to look into this—please hold
+ One minute while I check—thank you for your patience
+ Please hold for a minute while I confirm the details
+ I’ll be back in just a minute with the information you need
+
+
+
+Thanking after the hold-EN*
+
+ Thank you for your patience. I appreciate your time!
+ I really appreciate you waiting. Thank you!
+ Thank you for holding. I truly appreciate it.
+ I appreciate your patience while I checked that for you.
+ Thanks for waiting! I have the information you need now
+ Thanks for hanging in there! I appreciate your patience.
+ I really appreciate you waiting—it means a lot!
+ Thanks for sticking with me! I’ve got what you need.
+ I know waiting isn’t always easy—thanks for your patience!
+ I appreciate you holding on. Here’s what I found for you!
+ Sorry for the wait, and thank you for your patience!
+ I appreciate your time—thank you for holding on.
+ I truly appreciate your patience. Thanks for waiting!
+ I apologize for the delay, and I appreciate you waiting!
+ Thanks for your patience! I have everything ready for you now.
+___________________________________________________________________________
+
+
+
+
+
+no specific request
