@@ -1,10 +1,3 @@
-export default {
-  async fetch(request, env, ctx) {
-    return new Response("مرحباً بك في موقع Nova، الملفات تعمل بنجاح!", {
-      headers: { "content-type": "text/html;charset=UTF-8" },
-    });
-  },
-};
 /* ============================================================
    Nova — Customer Service Scripts (FAJER AL SALAMEEN)
    app.js — منطق التطبيق + الاتصال بـ Supabase
