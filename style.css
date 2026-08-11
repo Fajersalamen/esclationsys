@@ -440,15 +440,17 @@
     }
 
     /* Ambient premium layer: soft drifting glow + film grain, sits behind all content */
-    .ambient-glow { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
+    .ambient-glow { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
     body.dark-mode .ambient-glow { opacity: 1; }
-    .ambient-blob { position: absolute; width: 620px; height: 620px; border-radius: 50%; filter: blur(90px); opacity: .28; }
-    .ambient-blob.a1 { background: radial-gradient(circle, rgba(124,114,255,.55), transparent 70%); top: -220px; inset-inline-start: -160px; animation: ambDrift1 16s ease-in-out infinite alternate; }
-    .ambient-blob.a2 { background: radial-gradient(circle, rgba(240,185,66,.35), transparent 70%); bottom: -240px; inset-inline-end: -160px; animation: ambDrift2 19s ease-in-out infinite alternate; }
+    .ambient-blob { position: fixed; border-radius: 50%; filter: blur(100px); opacity: .4; }
+    .ambient-blob.a1 { width: 720px; height: 720px; background: radial-gradient(circle, rgba(124,114,255,.6), transparent 70%); top: -260px; inset-inline-start: -180px; animation: ambDrift1 16s ease-in-out infinite alternate; }
+    .ambient-blob.a2 { width: 640px; height: 640px; background: radial-gradient(circle, rgba(240,185,66,.4), transparent 70%); bottom: -260px; inset-inline-end: -180px; animation: ambDrift2 19s ease-in-out infinite alternate; }
+    .ambient-blob.a3 { width: 560px; height: 560px; background: radial-gradient(circle, rgba(34,211,238,.32), transparent 70%); top: 40%; inset-inline-end: -220px; animation: ambDrift3 22s ease-in-out infinite alternate; }
     @keyframes ambDrift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(80px,60px) scale(1.15); } }
     @keyframes ambDrift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-70px,-50px) scale(1.1); } }
+    @keyframes ambDrift3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,70px) scale(1.12); } }
     .ambient-grain {
-      position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; mix-blend-mode: overlay; transition: opacity .4s ease;
+      position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0; mix-blend-mode: overlay; transition: opacity .4s ease;
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     }
     body.dark-mode .ambient-grain { opacity: .045; }
@@ -922,10 +924,20 @@
     .tech-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .tech-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .tech-page-inner { max-width: 1440px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,40px) 90px; flex: 1; }
+    body.dark-mode .tech-page::before {
+      content: ''; position: fixed; width: 480px; height: 480px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,211,238,.35), transparent 70%); filter: blur(60px);
+      top: -120px; inset-inline-end: -140px; animation: cometDrift 13s ease-in-out infinite alternate; pointer-events: none; z-index: 0;
+    }
+    body.dark-mode .tech-page::after {
+      content: ''; position: fixed; width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,114,255,.3), transparent 70%); filter: blur(60px);
+      bottom: -120px; inset-inline-start: -100px; animation: cometDrift 17s ease-in-out infinite alternate-reverse; pointer-events: none; z-index: 0;
+    }
+    .tech-page-inner { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,40px) 90px; flex: 1; }
 
     .tech-page-head {
       display: flex; align-items: center; gap: 12px; margin-bottom: 18px; position: sticky; top: 0;
