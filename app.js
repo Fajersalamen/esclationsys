@@ -400,9 +400,9 @@
 
     CATEGORIES = catRes.error ? DEFAULT_CATEGORIES : (catRes.data || []).map(c => ({ key: c.key, label: c.label, labelAr: c.label_ar, color: c.color }));
     SCRIPTS = scrRes.error ? DEFAULT_SCRIPTS : (scrRes.data || []).map(s => ({ id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar, usageCount: s.usage_count || 0 }));
-    GENERAL_INFO = genRes.error ? DEFAULT_GENERAL_INFO : (genRes.data || []).map(g => ({ id: g.id, label: g.label, val: g.val }));
-    CRITICAL_ITEMS = critRes.error ? DEFAULT_CRITICAL_ITEMS.map(t => ({ text: t })) : (critRes.data || []).map(c => ({ id: c.id, text: c.text }));
-    ETIQUETTE_ITEMS = etiqRes.error ? DEFAULT_ETIQUETTE_ITEMS.map(t => ({ text: t })) : (etiqRes.data || []).map(e => ({ id: e.id, text: e.text }));
+    GENERAL_INFO = genRes.error ? DEFAULT_GENERAL_INFO : (genRes.data || []).map(g => ({ id: g.id, label: g.label, labelAr: g.label_ar, val: g.val, valAr: g.val_ar }));
+    CRITICAL_ITEMS = critRes.error ? DEFAULT_CRITICAL_ITEMS.map(t => ({ text: t })) : (critRes.data || []).map(c => ({ id: c.id, text: c.text, textAr: c.text_ar }));
+    ETIQUETTE_ITEMS = etiqRes.error ? DEFAULT_ETIQUETTE_ITEMS.map(t => ({ text: t })) : (etiqRes.data || []).map(e => ({ id: e.id, text: e.text, textAr: e.text_ar }));
     UPDATES = updRes.error ? [] : (updRes.data || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
 
     // الاقتراحات يشوفها بس اللي عندهم صلاحية admin/team_leader
@@ -1567,8 +1567,7 @@
 
   let dashTipItem = null;
   function pickDashTip() {
-    const pool = CRITICAL_ITEMS.map(c => ({ type: 'critical', text: c.text }));
-    dashTipItem = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+    dashTipItem = CRITICAL_ITEMS.length ? CRITICAL_ITEMS[Math.floor(Math.random() * CRITICAL_ITEMS.length)] : null;
   }
 
   function renderDashTip() {
@@ -1576,11 +1575,10 @@
     if (!wrap) return;
     if (!dashTipItem) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
     const isAr = currentLang === 'ar';
-    const label = dashTipItem.type === 'critical'
-      ? (isAr ? '⚠️ تذكير' : '⚠️ Reminder')
-      : (isAr ? '📞 بروتوكول' : '📞 Protocol');
+    const label = isAr ? '⚠️ تذكير' : '⚠️ Reminder';
+    const text = (isAr && dashTipItem.textAr) ? dashTipItem.textAr : dashTipItem.text;
     wrap.style.display = 'flex';
-    wrap.innerHTML = `<span class="dash-tip-label">${escapeHtml(label)}</span><span class="dash-tip-text">${escapeHtml(dashTipItem.text)}</span>`;
+    wrap.innerHTML = `<span class="dash-tip-label">${escapeHtml(label)}</span><span class="dash-tip-text">${escapeHtml(text)}</span>`;
   }
 
   function render() {
@@ -1669,19 +1667,23 @@
   }
 
   function renderSidePanels() {
-    document.getElementById('generalList').innerHTML = GENERAL_INFO.map(info => 
-      `<div class="info-card"><span class="label">${escapeHtml(info.label)}</span><span class="val">${escapeHtml(info.val)}</span></div>`
-    ).join('');
-
-    document.getElementById('criticalList').innerHTML = CRITICAL_ITEMS.map((m, i) => 
-      `<p style="padding:8px; background:rgba(185,28,28,0.1); border-inline-start:3px solid #B91C1C; margin-bottom:6px; font-size:12.5px;"><b>${i+1}.</b> ${escapeHtml(m.text)}</p>`
-    ).join('');
-
-    document.getElementById('etiquetteList').innerHTML = ETIQUETTE_ITEMS.map(s => 
-      `<p style="padding:8px; background:rgba(20,91,140,0.1); border-inline-start:3px solid #145b8c; margin-bottom:6px; font-size:13px;">${escapeHtml(s.text)}</p>`
-    ).join('');
-
     const isAr = currentLang === 'ar';
+    document.getElementById('generalList').innerHTML = GENERAL_INFO.map(info => {
+      const label = (isAr && info.labelAr) ? info.labelAr : info.label;
+      const val = (isAr && info.valAr) ? info.valAr : info.val;
+      return `<div class="info-card"><span class="label">${escapeHtml(label)}</span><span class="val">${escapeHtml(val)}</span></div>`;
+    }).join('');
+
+    document.getElementById('criticalList').innerHTML = CRITICAL_ITEMS.map((m, i) => {
+      const text = (isAr && m.textAr) ? m.textAr : m.text;
+      return `<p style="padding:8px; background:rgba(185,28,28,0.1); border-inline-start:3px solid #B91C1C; margin-bottom:6px; font-size:12.5px;"><b>${i+1}.</b> ${escapeHtml(text)}</p>`;
+    }).join('');
+
+    document.getElementById('etiquetteList').innerHTML = ETIQUETTE_ITEMS.map(s => {
+      const text = (isAr && s.textAr) ? s.textAr : s.text;
+      return `<p style="padding:8px; background:rgba(20,91,140,0.1); border-inline-start:3px solid #145b8c; margin-bottom:6px; font-size:13px;">${escapeHtml(text)}</p>`;
+    }).join('');
+
     const sortedUpdates = [...UPDATES].sort((a, b) => b.id - a.id);
     const updList = document.getElementById('newUpdateList');
     if (!sortedUpdates.length) {
@@ -2327,15 +2329,19 @@
     const isAr = currentLang === 'ar';
     const label = document.getElementById('newInfoLabel').value.trim();
     const val = document.getElementById('newInfoVal').value.trim();
+    const labelAr = document.getElementById('newInfoLabelAr') ? document.getElementById('newInfoLabelAr').value.trim() : '';
+    const valAr = document.getElementById('newInfoValAr') ? document.getElementById('newInfoValAr').value.trim() : '';
     if(!(label && val)) return;
-    const { data, error } = await sb.from('general_info').insert({ label, val }).select().single();
+    const { data, error } = await sb.from('general_info').insert({ label, val, label_ar: labelAr || null, val_ar: valAr || null }).select().single();
     if (error) {
       showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
       return;
     }
-    GENERAL_INFO.push({ id: data.id, label: data.label, val: data.val });
+    GENERAL_INFO.push({ id: data.id, label: data.label, labelAr: data.label_ar, val: data.val, valAr: data.val_ar });
     document.getElementById('newInfoLabel').value = '';
     document.getElementById('newInfoVal').value = '';
+    if (document.getElementById('newInfoLabelAr')) document.getElementById('newInfoLabelAr').value = '';
+    if (document.getElementById('newInfoValAr')) document.getElementById('newInfoValAr').value = '';
     render();
     renderAdminLists();
   }
@@ -2357,14 +2363,16 @@
   async function addEtiquette() {
     const isAr = currentLang === 'ar';
     const val = document.getElementById('newEtiquetteInput').value.trim();
+    const valAr = document.getElementById('newEtiquetteInputAr') ? document.getElementById('newEtiquetteInputAr').value.trim() : '';
     if(!val) return;
-    const { data, error } = await sb.from('etiquette_items').insert({ text: val }).select().single();
+    const { data, error } = await sb.from('etiquette_items').insert({ text: val, text_ar: valAr || null }).select().single();
     if (error) {
       showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
       return;
     }
-    ETIQUETTE_ITEMS.push({ id: data.id, text: data.text });
+    ETIQUETTE_ITEMS.push({ id: data.id, text: data.text, textAr: data.text_ar });
     document.getElementById('newEtiquetteInput').value = '';
+    if (document.getElementById('newEtiquetteInputAr')) document.getElementById('newEtiquetteInputAr').value = '';
     render();
     renderAdminLists();
   }
@@ -2386,14 +2394,16 @@
   async function addCritical() {
     const isAr = currentLang === 'ar';
     const val = document.getElementById('newCriticalInput').value.trim();
+    const valAr = document.getElementById('newCriticalInputAr') ? document.getElementById('newCriticalInputAr').value.trim() : '';
     if(!val) return;
-    const { data, error } = await sb.from('critical_items').insert({ text: val }).select().single();
+    const { data, error } = await sb.from('critical_items').insert({ text: val, text_ar: valAr || null }).select().single();
     if (error) {
       showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error');
       return;
     }
-    CRITICAL_ITEMS.push({ id: data.id, text: data.text });
+    CRITICAL_ITEMS.push({ id: data.id, text: data.text, textAr: data.text_ar });
     document.getElementById('newCriticalInput').value = '';
+    if (document.getElementById('newCriticalInputAr')) document.getElementById('newCriticalInputAr').value = '';
     render();
     renderAdminLists();
   }
@@ -2415,7 +2425,7 @@
   function renderAdminLists() {
     document.getElementById('generalAdminList').innerHTML = GENERAL_INFO.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
-        <span><b>${escapeHtml(item.label)}:</b> ${escapeHtml(item.val)}</span>
+        <span><b>${escapeHtml(item.labelAr || item.label)} / ${escapeHtml(item.label)}:</b> ${escapeHtml(item.valAr || item.val)} / ${escapeHtml(item.val)}</span>
         <button class="danger-btn" data-del-general="${i}" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
@@ -2429,14 +2439,14 @@
 
     document.getElementById('etiquetteAdminList').innerHTML = ETIQUETTE_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
-        <span>${escapeHtml(item.text)}</span>
+        <span>${escapeHtml(item.textAr || item.text)} / ${escapeHtml(item.text)}</span>
         <button class="danger-btn" data-del-etiquette="${i}" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
 
     document.getElementById('criticalAdminList').innerHTML = CRITICAL_ITEMS.map((item, i) => 
       `<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; margin-bottom:3px;">
-        <span>${escapeHtml(item.text)}</span>
+        <span>${escapeHtml(item.textAr || item.text)} / ${escapeHtml(item.text)}</span>
         <button class="danger-btn" data-del-critical="${i}" style="background:none; border:none; color:#B91C1C; cursor:pointer;">🗑️</button>
       </div>`
     ).join('');
