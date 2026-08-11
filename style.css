@@ -596,37 +596,6 @@
     }
     @keyframes caretBlink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
-    /* Site-wide animated keyboard background */
-    .site-bg-animation {
-      position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
-    }
-    .site-bg-scene { position: absolute; bottom: 42vh; left: 50%; transform: translateX(-50%); width: min(780px, 72vw); opacity: .12; color: var(--text-main); transition: opacity .3s ease, color .3s ease; }
-    body.dark-mode .site-bg-scene { opacity: .08; }
-    .site-bg-scene svg { width: 100%; height: auto; display: block; }
-    .kb-key {
-      transition: transform .12s ease, stroke-width .12s ease;
-      transform-box: fill-box; transform-origin: center;
-    }
-    .kb-key.pressed { transform: translateY(4px) scale(0.96); stroke-width: 6; }
-
-    .falling-letters {
-      position: absolute; inset: 0; overflow: hidden;
-    }
-    .falling-letter {
-      position: absolute; top: 0; font-family: 'Courier New', monospace; font-weight: 700;
-      color: var(--text-main); opacity: 1; user-select: none;
-      animation-name: letterFall; animation-timing-function: ease-in; animation-fill-mode: forwards;
-    }
-    @keyframes letterFall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10% { opacity: var(--fl-opacity, 1); }
-      85% { opacity: var(--fl-opacity, 1); }
-      100% { transform: translateY(110vh) rotate(var(--fl-rot, 220deg)); opacity: 0; }
-    }
-    @media (max-width: 760px) {
-      .site-bg-animation { display: none; }
-    }
-
     @media (max-width: 860px) {
       .login-image-panel { display: none; }
       .login-form-panel { flex: 1 1 100%; padding: 32px 24px; }
