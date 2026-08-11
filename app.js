@@ -2610,7 +2610,7 @@
     });
 
     // الشريط السفلي الثابت
-    on('bbHomeBtn', 'click', goHome);
+    on('bbHomeBtn', 'click', () => { launchHomePlanet(); goHome(); });
     on('bbTechBtn', 'click', openTechPage);
     on('bbTrainingBtn', 'click', openTrainingPage);
 
@@ -2643,6 +2643,16 @@
   applyLanguage();
   setupKeyboardShortcuts();
   setupCardTilt();
+
+  function launchHomePlanet() {
+    const icon = document.getElementById('bbHomeIcon');
+    const ring = document.getElementById('bbHomeLaunchRing');
+    if (!icon || !ring) return;
+    icon.classList.remove('bb-launch'); ring.classList.remove('go');
+    void icon.offsetWidth; // restart animation if clicked repeatedly
+    icon.classList.add('bb-launch'); ring.classList.add('go');
+    setTimeout(() => { icon.classList.remove('bb-launch'); ring.classList.remove('go'); }, 650);
+  }
 
   // Subtle cursor-reactive tilt + glow for .card elements (event-delegated so it
   // keeps working across re-renders without rebinding per card).
