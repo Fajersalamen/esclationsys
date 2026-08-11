@@ -282,23 +282,27 @@
       <div id="adminTabPanels" style="display:none;">
         <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:#D97706;" id="lblEditGen">تعديل General Info:</p>
         <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
-          <input type="text" id="newInfoLabel" placeholder="العنوان">
-          <input type="text" id="newInfoVal" placeholder="القيمة...">
+          <input type="text" id="newInfoLabel" placeholder="العنوان (إنجليزي)">
+          <input type="text" id="newInfoLabelAr" placeholder="العنوان (عربي)">
+          <input type="text" id="newInfoVal" placeholder="القيمة (إنجليزي)...">
+          <input type="text" id="newInfoValAr" placeholder="القيمة (عربي)...">
           <button id="btnAddGen" style="background:#D97706; color:#fff; border:none; padding:8px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة معلومة</button>
         </div>
         <div id="generalAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px; margin-bottom:12px;"></div>
 
         <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:var(--brand-blue);" id="lblEditEtiq">تعديل Etiquette Call:</p>
-        <div style="display:flex; gap:6px; margin-bottom:10px;">
-          <input type="text" id="newEtiquetteInput" placeholder="بند جديد...">
-          <button id="btnAddEtiq" style="background:var(--brand-blue); color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+          <input type="text" id="newEtiquetteInput" placeholder="بند جديد (إنجليزي)...">
+          <input type="text" id="newEtiquetteInputAr" placeholder="بند جديد (عربي)...">
+          <button id="btnAddEtiq" style="background:var(--brand-blue); color:#fff; border:none; padding:8px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
         </div>
         <div id="etiquetteAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px; margin-bottom:12px;"></div>
 
         <p style="font-size:12px; font-weight:700; margin:0 0 6px; color:#B91C1C;" id="lblEditCrit">تعديل Critical Mistakes:</p>
-        <div style="display:flex; gap:6px; margin-bottom:10px;">
-          <input type="text" id="newCriticalInput" placeholder="خطأ جديد...">
-          <button id="btnAddCrit" style="background:#B91C1C; color:#fff; border:none; padding:0 12px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+          <input type="text" id="newCriticalInput" placeholder="خطأ جديد (إنجليزي)...">
+          <input type="text" id="newCriticalInputAr" placeholder="خطأ جديد (عربي)...">
+          <button id="btnAddCrit" style="background:#B91C1C; color:#fff; border:none; padding:8px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة</button>
         </div>
         <div id="criticalAdminList" style="max-height:100px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px;"></div>
       </div>
