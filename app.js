@@ -1567,10 +1567,7 @@
 
   let dashTipItem = null;
   function pickDashTip() {
-    const pool = [
-      ...CRITICAL_ITEMS.map(c => ({ type: 'critical', text: c.text })),
-      ...ETIQUETTE_ITEMS.map(e => ({ type: 'etiquette', text: e.text }))
-    ];
+    const pool = CRITICAL_ITEMS.map(c => ({ type: 'critical', text: c.text }));
     dashTipItem = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
   }
 
