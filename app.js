@@ -631,6 +631,8 @@
     const grid = document.getElementById('trainingGrid');
     if (!grid) return;
     const visibleProblems = TRAINING_PROBLEMS.filter(p => p.isActive);
+    const headCount = document.getElementById('trainingHeadCount');
+    if (headCount) headCount.textContent = visibleProblems.length ? (isAr ? `${visibleProblems.length} سيناريو تدريبي` : `${visibleProblems.length} training scenarios`) : '';
     if (!visibleProblems.length) {
       grid.innerHTML = `<div class="empty-state"><span class="empty-icon">🎓</span><strong>${isAr ? 'لا توجد مواضيع تدريب منشورة بعد' : 'No published training topics yet'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'راجع الأدمن لإضافة محتوى مركز التدريب.' : 'Ask your admin to add training content.'}</div></div>`;
       return;
@@ -1450,6 +1452,8 @@
     document.getElementById('workspaceTitle').textContent = isAr ? 'تصعيد التذكرة' : 'Escalation Ticket';
     document.getElementById('scriptCountLabel').textContent = isAr ? 'سكريبت متاح' : 'available scripts';
     
+    const lblQt = document.getElementById('lblQuickTools');
+    if (lblQt) lblQt.textContent = isAr ? 'أدوات سريعة' : 'QUICK TOOLS';
     document.getElementById('lblSideGen').textContent = isAr ? 'معلومات عامة' : 'GENERAL INFO';
     document.getElementById('lblSideCrit').textContent = isAr ? 'أخطاء حرجة' : 'CRITICAL MISTAKES';
     document.getElementById('lblSideEtiq').textContent = isAr ? 'بروتوكول المكالمة' : 'ETIQUETTE CALL';
@@ -1560,6 +1564,59 @@
   }
   updateThemeIcon();
 
+  function timeAgo(ts, isAr) {
+    if (!ts) return isAr ? 'لا توجد تحديثات بعد' : 'No updates yet';
+    const diffMs = Date.now() - ts;
+    const days = Math.floor(diffMs / 86400000);
+    if (days <= 0) return isAr ? 'اليوم' : 'Today';
+    if (days === 1) return isAr ? 'قبل يوم واحد' : '1 day ago';
+    if (days < 30) return isAr ? `قبل ${days} أيام` : `${days} days ago`;
+    const months = Math.floor(days / 30);
+    return isAr ? `قبل ${months} شهر` : `${months} mo ago`;
+  }
+
+  function renderDashStats() {
+    const wrap = document.getElementById('dashStats');
+    if (!wrap) return;
+    const isAr = currentLang === 'ar';
+    const latestUpdate = [...UPDATES].sort((a, b) => b.id - a.id)[0];
+
+    const stats = [
+      {
+        accent: 'var(--gold)',
+        label: isAr ? 'السكريبتات المتاحة' : 'Scripts available',
+        value: SCRIPTS.length,
+        caption: isAr ? `عبر ${CATEGORIES.length} تصنيف` : `across ${CATEGORIES.length} categories`
+      },
+      {
+        accent: '#B91C1C',
+        label: isAr ? 'الأخطاء الحرجة الموثقة' : 'Critical mistakes logged',
+        value: CRITICAL_ITEMS.length,
+        caption: isAr ? 'أخطاء يجب تجنبها' : 'to avoid on calls'
+      },
+      {
+        accent: 'var(--brand-blue)',
+        label: isAr ? 'بنود بروتوكول المكالمة' : 'Etiquette guidelines',
+        value: ETIQUETTE_ITEMS.length,
+        caption: isAr ? 'قواعد أسلوب التعامل' : 'call conduct rules'
+      },
+      {
+        accent: '#6E5A9E',
+        label: isAr ? 'آخر تحديث للفريق' : 'Latest team update',
+        value: UPDATES.length,
+        caption: timeAgo(latestUpdate ? latestUpdate.createdAt : null, isAr)
+      }
+    ];
+
+    wrap.innerHTML = stats.map(s => `
+      <div class="dash-stat-card" style="--stat-accent:${s.accent}">
+        <span class="dash-stat-label">${escapeHtml(s.label)}</span>
+        <strong class="dash-stat-value">${s.value}</strong>
+        <span class="dash-stat-caption">${escapeHtml(s.caption)}</span>
+      </div>`
+    ).join('');
+  }
+
   function render() {
     if(isAdmin) document.body.classList.add('admin-mode');
     else document.body.classList.remove('admin-mode');
@@ -1642,6 +1699,7 @@
 
     renderSidePanels();
     updateAdminDropdowns();
+    renderDashStats();
   }
 
   function renderSidePanels() {
@@ -1991,6 +2049,9 @@
     const filtered = getFilteredTechIssues();
 
     if (countEl) countEl.textContent = filtered.length;
+
+    const headCount = document.getElementById('techHeadCount');
+    if (headCount) headCount.textContent = TECH_ISSUES.length ? (isAr ? `${TECH_ISSUES.length} مشكلة مسجلة` : `${TECH_ISSUES.length} issues logged`) : '';
 
     if (!filtered.length) {
       body.innerHTML = '';
