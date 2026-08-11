@@ -631,24 +631,33 @@
     const isAr = currentLang === 'ar';
     const grid = document.getElementById('trainingGrid');
     if (!grid) return;
-    const visibleProblems = TRAINING_PROBLEMS.filter(p => p.isActive);
+    const q = (document.getElementById('trainingSearchInput')?.value || '').toLowerCase().trim();
+    let visibleProblems = TRAINING_PROBLEMS.filter(p => p.isActive);
     const headCount = document.getElementById('trainingHeadCount');
     if (headCount) headCount.textContent = visibleProblems.length ? (isAr ? `${visibleProblems.length} سيناريو تدريبي` : `${visibleProblems.length} training scenarios`) : '';
+    if (q) {
+      visibleProblems = visibleProblems.filter(p => {
+        const pool = [p.title, p.titleAr, p.description, p.descriptionAr].filter(Boolean).join(' ').toLowerCase();
+        return pool.includes(q);
+      });
+    }
     if (!visibleProblems.length) {
-      grid.innerHTML = `<div class="empty-state"><span class="empty-icon">🎓</span><strong>${isAr ? 'لا توجد مواضيع تدريب منشورة بعد' : 'No published training topics yet'}</strong><div style="margin-top:6px;font-size:12px">${isAr ? 'راجع الأدمن لإضافة محتوى مركز التدريب.' : 'Ask your admin to add training content.'}</div></div>`;
+      const noneMatched = q && TRAINING_PROBLEMS.some(p => p.isActive);
+      grid.innerHTML = `<div class="empty-state"><span class="empty-icon">🎓</span><strong>${noneMatched ? (isAr ? 'لا توجد نتائج مطابقة' : 'No matching results') : (isAr ? 'لا توجد مواضيع تدريب منشورة بعد' : 'No published training topics yet')}</strong><div style="margin-top:6px;font-size:12px">${noneMatched ? (isAr ? 'جرّب كلمة بحث أخرى.' : 'Try a different search term.') : (isAr ? 'راجع الأدمن لإضافة محتوى مركز التدريب.' : 'Ask your admin to add training content.')}</div></div>`;
       return;
     }
     grid.innerHTML = visibleProblems.map(p => {
       const title = isAr ? p.titleAr : p.title;
       const desc = isAr ? p.descriptionAr : p.description;
-      const arrowIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${isAr ? '<path d="M15 5 8 12l7 7"></path>' : '<path d="M9 5l7 7-7 7"></path>'}</svg>`;
+      const illus = renderTrainingIllustration(p.icon, p.color, 'training-illus-card');
+      const iconHtml = illus || `<div class="training-card-icon-legacy">${escapeHtml(p.icon)}</div>`;
       return `<div class="card training-card" style="--card-accent:${safeColor(p.color)}" data-training-id="${p.id}">
-        <span class="training-card-icon">${escapeHtml(p.icon)}</span>
+        ${iconHtml}
         <div class="training-card-body">
           <div class="training-card-title">${escapeHtml(title || '—')}</div>
           <div class="training-card-desc">${escapeHtml(desc || '')}</div>
+          <span class="training-card-more">${isAr ? 'التفاصيل' : 'Learn more'} ${isAr ? '←' : '→'}</span>
         </div>
-        <span class="training-card-arrow">${arrowIcon}</span>
       </div>`;
     }).join('');
   }
@@ -679,8 +688,15 @@
     const isAr = currentLang === 'ar';
     const p = currentTrainingProblem;
     if (!p) return;
-    document.getElementById('trainingTreeIcon').textContent = p.icon;
-    document.getElementById('trainingTreeIcon').style.setProperty('--training-accent', safeColor(p.color));
+    const treeIconEl = document.getElementById('trainingTreeIcon');
+    const def = TRAINING_ICON_DEFS[p.icon];
+    if (def) {
+      const color = safeColor(p.color);
+      treeIconEl.innerHTML = `<svg viewBox="0 0 100 100" style="width:26px;height:26px;">${def(shadeHex(color, 0.55), color, shadeHex(color, -0.28))}</svg>`;
+    } else {
+      treeIconEl.textContent = p.icon;
+    }
+    treeIconEl.style.setProperty('--training-accent', safeColor(p.color));
     document.getElementById('trainingTreeTitle').textContent = isAr ? p.titleAr : p.title;
     const stage = document.getElementById('trainingTreeStage');
     if (stage) stage.style.setProperty('--training-accent', safeColor(p.color));
@@ -713,6 +729,8 @@
     const stage = document.getElementById('trainingTreeStage');
     if (!stage || !currentTrainingProblem) return;
     const node = currentTrainingProblem.nodesById[currentTrainingNodeId];
+    const problemColor = safeColor(currentTrainingProblem.color);
+    const problemIcon = currentTrainingProblem.icon;
 
     let html = '<div class="training-trail">';
     trainingAnswerTrail.forEach(step => {
@@ -745,8 +763,9 @@
           <span class="val ${val ? '' : 'empty'}">${escapeHtml(val || emptyText)}</span>
         </div>`;
       }).join('');
-      html += `<div class="training-end-card">
-        <div class="training-end-badge">🎉</div>
+      const successIllus = renderTrainingIllustration('check', problemColor, 'training-illus-end');
+      html += `<div class="training-end-card" style="--training-accent:${problemColor}">
+        ${successIllus || ''}
         <h4 class="training-end-title">${isAr ? 'الحل النهائي' : 'Final Solution'}</h4>
         <div class="training-end-fields">${fieldHtml}</div>
         <button class="training-restart-btn" id="trainingRestartBtn">↺ ${isAr ? 'ابدأ من جديد' : 'Start Over'}</button>
@@ -754,8 +773,10 @@
     } else {
       const questionText = isAr ? node.questionAr : node.question;
       const opts = [...node.options].sort((a, b) => a.sortOrder - b.sortOrder);
+      const qIllus = renderTrainingIllustration(problemIcon, problemColor, 'training-illus-question');
       if (!opts.length) {
         html += `<div class="training-node-card active" style="text-align:center;">
+          ${qIllus || ''}
           <p class="training-question">${escapeHtml(questionText || (isAr ? '(سؤال بدون نص)' : '(untitled question)'))}</p>
           <p style="font-size:12px;color:var(--slate-soft);margin:0 0 14px;">${isAr ? 'لا توجد خيارات متاحة لهذا السؤال حالياً.' : 'No options are available for this question yet.'}</p>
           <button class="training-restart-btn" id="trainingRestartBtn">↺ ${isAr ? 'ابدأ من جديد' : 'Start Over'}</button>
@@ -766,6 +787,7 @@
           return `<button class="training-opt-btn" data-opt-index="${i}">${escapeHtml(label || '—')}</button>`;
         }).join('');
         html += `<div class="training-node-card active">
+          ${qIllus || ''}
           <p class="training-question">${escapeHtml(questionText || '—')}</p>
           <div class="training-options">${optsHtml}</div>
         </div>`;
@@ -956,11 +978,17 @@
     let html = `
       <div class="tb-meta-card" style="--tb-accent:${safeColor(p.color)}">
         <div class="tb-meta-row">
-          <input type="text" id="tbMetaIcon" value="${escapeHtml(p.icon)}" style="max-width:80px;" placeholder="إيموجي">
+          <input type="hidden" id="tbMetaIcon" value="${escapeHtml(p.icon)}">
           <input type="color" id="tbMetaColor" value="${safeColor(p.color)}" style="width:40px;height:38px;border:none;border-radius:6px;cursor:pointer;">
           <input type="text" id="tbMetaTitle" value="${escapeHtml(p.title)}" placeholder="العنوان بالإنجليزية">
           <input type="text" id="tbMetaTitleAr" value="${escapeHtml(p.titleAr)}" placeholder="العنوان بالعربية">
         </div>
+        <div class="tb-icon-picker" id="tbIconPicker">${TRAINING_ICON_KEYS.map(key => `
+          <button type="button" class="tb-icon-opt ${p.icon === key ? 'selected' : ''}" data-icon-key="${key}" title="${key}">
+            <svg viewBox="0 0 100 100">${TRAINING_ICON_DEFS[key](shadeHex(safeColor(p.color), 0.55), safeColor(p.color), shadeHex(safeColor(p.color), -0.28))}</svg>
+          </button>`).join('')}
+        </div>
+        ${!TRAINING_ICON_DEFS[p.icon] ? `<p class="tb-icon-legacy-note">الأيقونة الحالية: ${escapeHtml(p.icon)} — اختر رسمة من فوق لاستبدالها</p>` : ''}
         <div class="tb-meta-row">
           <input type="text" id="tbMetaDesc" value="${escapeHtml(p.description)}" placeholder="وصف قصير بالإنجليزية">
           <input type="text" id="tbMetaDescAr" value="${escapeHtml(p.descriptionAr)}" placeholder="وصف قصير بالعربية">
@@ -1080,7 +1108,7 @@
   // ---------- Problem CRUD ----------
   async function createTrainingProblem() {
     const isAr = currentLang === 'ar';
-    const icon = document.getElementById('newProblemIcon').value.trim() || '📋';
+    const icon = document.getElementById('newProblemIcon').value.trim() || 'list';
     const color = document.getElementById('newProblemColor').value || '#2563EB';
     const title = document.getElementById('newProblemTitle').value.trim();
     const titleAr = document.getElementById('newProblemTitleAr').value.trim();
@@ -1387,7 +1415,27 @@
 
     document.getElementById('btnCreateProblem').addEventListener('click', createTrainingProblem);
 
+    container.addEventListener('input', (e) => {
+      if (e.target.id === 'tbMetaColor') {
+        const color = safeColor(e.target.value);
+        const light = shadeHex(color, 0.55), dark = shadeHex(color, -0.28);
+        document.querySelectorAll('.tb-icon-opt').forEach(btn => {
+          const key = btn.dataset.iconKey;
+          const def = TRAINING_ICON_DEFS[key];
+          if (def) btn.querySelector('svg').innerHTML = def(light, color, dark);
+        });
+      }
+    });
+
     container.addEventListener('click', (e) => {
+      const iconOptBtn = e.target.closest('.tb-icon-opt');
+      if (iconOptBtn) {
+        const hiddenInput = document.getElementById('tbMetaIcon');
+        if (hiddenInput) hiddenInput.value = iconOptBtn.dataset.iconKey;
+        document.querySelectorAll('.tb-icon-opt').forEach(b => b.classList.toggle('selected', b === iconOptBtn));
+        return;
+      }
+
       const gotoBtn = e.target.closest('[data-goto-problem]');
       if (gotoBtn) { switchTrainingSub('problems'); selectAdminProblem(gotoBtn.dataset.gotoProblem); return; }
 
@@ -1523,6 +1571,10 @@
     document.getElementById('bbTrainingLabel').textContent = isAr ? '🎓 مركز التدريب' : '🎓 Training Center';
     document.getElementById('trainingPageTitle').textContent = isAr ? 'مركز التدريب' : 'Training Center';
     document.getElementById('trainingPageSub').textContent = isAr ? 'دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة' : 'Your guide to handling every customer issue step by step';
+    document.getElementById('trainingSearchInput').placeholder = isAr ? 'ابحث عن سيناريو تدريبي...' : 'Search training scenarios...';
+    document.getElementById('trainingSectionLabel').textContent = isAr ? 'ابدأ من هنا' : 'Get Started';
+    document.getElementById('trainingFooterQ').textContent = isAr ? 'عندك سؤال أو اقتراح ما لقيت جوابه هون؟' : "Got a question or suggestion you couldn't find here?";
+    document.getElementById('trainingFooterBtnLabel').textContent = isAr ? 'أرسل اقتراح' : 'Send a suggestion';
     document.getElementById('trainingTreeBackLabel').textContent = isAr ? 'رجوع لكل المشاكل' : 'Back to all issues';
     if (document.getElementById('trainingPage').classList.contains('open')) {
       if (currentTrainingProblem) {
@@ -1757,6 +1809,52 @@
   // يتأكد إن قيمة اللون صيغة hex سليمة قبل حقنها بـ style="" مباشرة، لمنع كسر الـ attribute
   function safeColor(val) {
     return /^#[0-9a-fA-F]{3,8}$/.test(String(val || '').trim()) ? val : '#334155';
+  }
+
+  // ===================== Training illustrations (isometric 3D-style icons) =====================
+  function shadeHex(hex, percent) {
+    const h = safeColor(hex).replace('#', '');
+    const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h.padEnd(6, '0');
+    const num = parseInt(full.slice(0, 6), 16);
+    let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+    const adjust = (c) => {
+      const v = percent >= 0 ? c + (255 - c) * percent : c * (1 + percent);
+      return Math.max(0, Math.min(255, Math.round(v)));
+    };
+    r = adjust(r); g = adjust(g); b = adjust(b);
+    return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  }
+
+  const TRAINING_ICON_DEFS = {
+    box: (l, m, d) => `<polygon points="50,16 84,33 50,50 16,33" fill="${l}"/><polygon points="16,33 50,50 50,84 16,67" fill="${m}"/><polygon points="84,33 50,50 50,84 84,67" fill="${d}"/>`,
+    refresh: (l, m, d) => `<circle cx="50" cy="50" r="28" fill="none" stroke="${m}" stroke-width="11" stroke-linecap="round" stroke-dasharray="132 176"/><polygon points="72,24 86,29 77,42" fill="${d}"/><ellipse cx="50" cy="82" rx="20" ry="4.5" fill="${l}"/>`,
+    warning: (l, m, d) => `<polygon points="50,14 88,80 12,80" fill="${d}"/><polygon points="50,14 88,80 62,80 38,32" fill="${m}"/><rect x="46" y="42" width="8" height="20" rx="3" fill="${l}"/><circle cx="50" cy="70" r="4.5" fill="${l}"/>`,
+    card: (l, m, d) => `<rect x="12" y="30" width="76" height="48" rx="7" fill="${m}"/><rect x="12" y="30" width="76" height="14" fill="${d}"/><rect x="22" y="60" width="26" height="7" rx="3" fill="${l}"/>`,
+    pin: (l, m, d) => `<path d="M50 12C34 12 22 24 22 40c0 22 28 48 28 48s28-26 28-48c0-16-12-28-28-28Z" fill="${m}"/><circle cx="50" cy="40" r="11" fill="${l}"/><ellipse cx="50" cy="88" rx="16" ry="4" fill="${d}" opacity=".5"/>`,
+    face: (l, m, d) => `<circle cx="50" cy="46" r="30" fill="${m}"/><circle cx="40" cy="42" r="4" fill="${d}"/><circle cx="60" cy="42" r="4" fill="${d}"/><path d="M38 60c4-6 20-6 24 0" stroke="${d}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M32 30l10 6M68 30l-10 6" stroke="${d}" stroke-width="4" stroke-linecap="round"/><ellipse cx="50" cy="86" rx="20" ry="4" fill="${l}" opacity=".6"/>`,
+    headset: (l, m, d) => `<path d="M24 52a26 26 0 0 1 52 0" fill="none" stroke="${m}" stroke-width="8" stroke-linecap="round"/><rect x="16" y="50" width="14" height="22" rx="6" fill="${d}"/><rect x="70" y="50" width="14" height="22" rx="6" fill="${d}"/><path d="M30 72v4a10 10 0 0 0 10 10h6" fill="none" stroke="${l}" stroke-width="6" stroke-linecap="round"/>`,
+    doc: (l, m, d) => `<polygon points="28,12 62,12 76,26 76,88 28,88" fill="${m}"/><polygon points="62,12 76,26 62,26" fill="${d}"/><rect x="38" y="42" width="28" height="5" rx="2.5" fill="${l}"/><rect x="38" y="56" width="28" height="5" rx="2.5" fill="${l}"/><rect x="38" y="70" width="18" height="5" rx="2.5" fill="${l}"/>`,
+    clock: (l, m, d) => `<circle cx="50" cy="50" r="34" fill="${m}"/><circle cx="50" cy="50" r="26" fill="${l}"/><line x1="50" y1="50" x2="50" y2="32" stroke="${d}" stroke-width="5" stroke-linecap="round"/><line x1="50" y1="50" x2="63" y2="56" stroke="${d}" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="${d}"/>`,
+    check: (l, m, d) => `<circle cx="50" cy="50" r="34" fill="${m}"/><circle cx="50" cy="50" r="34" fill="none" stroke="${d}" stroke-width="3" opacity=".35"/><path d="M34 50l11 11 21-24" fill="none" stroke="${l}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`,
+    chat: (l, m, d) => `<path d="M14 26h64a6 6 0 0 1 6 6v30a6 6 0 0 1-6 6H46l-16 14V68H14a6 6 0 0 1-6-6V32a6 6 0 0 1 6-6Z" fill="${m}"/><circle cx="30" cy="47" r="4" fill="${l}"/><circle cx="46" cy="47" r="4" fill="${l}"/><circle cx="62" cy="47" r="4" fill="${l}"/><path d="M14 26h64a6 6 0 0 1 6 6v6H8v-6a6 6 0 0 1 6-6Z" fill="${d}"/>`,
+    list: (l, m, d) => `<rect x="16" y="14" width="68" height="72" rx="8" fill="${m}"/><rect x="28" y="30" width="44" height="6" rx="3" fill="${l}"/><rect x="28" y="46" width="44" height="6" rx="3" fill="${l}"/><rect x="28" y="62" width="28" height="6" rx="3" fill="${l}"/><rect x="16" y="14" width="68" height="12" rx="6" fill="${d}"/>`,
+    truck: (l, m, d) => `<rect x="10" y="40" width="46" height="30" rx="4" fill="${m}"/><polygon points="56,48 78,48 88,60 88,70 56,70" fill="${d}"/><circle cx="28" cy="76" r="8" fill="${d}"/><circle cx="72" cy="76" r="8" fill="${d}"/><circle cx="28" cy="76" r="3.5" fill="${l}"/><circle cx="72" cy="76" r="3.5" fill="${l}"/><rect x="62" y="52" width="14" height="10" rx="2" fill="${l}"/>`
+  };
+  const TRAINING_ICON_KEYS = Object.keys(TRAINING_ICON_DEFS);
+
+  function renderTrainingIllustration(iconKey, colorHex, sizeClass) {
+    const base = safeColor(colorHex);
+    const light = shadeHex(base, 0.55);
+    const mid = base;
+    const dark = shadeHex(base, -0.28);
+    const bgLight = shadeHex(base, 0.82);
+    const bgMid = shadeHex(base, 0.6);
+    const def = TRAINING_ICON_DEFS[iconKey];
+    if (!def) return null;
+    return `<div class="training-illus ${sizeClass || ''}" style="background:linear-gradient(160deg, ${bgLight}, ${bgMid});">
+      <span class="training-illus-shadow"></span>
+      <svg class="training-illus-svg" viewBox="0 0 100 100">${def(light, mid, dark)}</svg>
+    </div>`;
   }
 
   function showToast(message, type) {
@@ -2578,6 +2676,8 @@
 
     // مركز التدريب
     on('trainingBackBtn', 'click', closeTrainingPage);
+    on('trainingSearchInput', 'input', renderTrainingGrid);
+    on('trainingFooterBtn', 'click', () => openPanel('suggest'));
     on('trainingTreeBackBtn', 'click', backToTrainingGrid);
     document.getElementById('trainingGrid').addEventListener('click', (e) => {
       const cardEl = e.target.closest('[data-training-id]');
