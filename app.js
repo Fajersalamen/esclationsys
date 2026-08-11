@@ -1565,57 +1565,25 @@
   }
   updateThemeIcon();
 
-  function timeAgo(ts, isAr) {
-    if (!ts) return isAr ? 'لا توجد تحديثات بعد' : 'No updates yet';
-    const diffMs = Date.now() - ts;
-    const days = Math.floor(diffMs / 86400000);
-    if (days <= 0) return isAr ? 'اليوم' : 'Today';
-    if (days === 1) return isAr ? 'قبل يوم واحد' : '1 day ago';
-    if (days < 30) return isAr ? `قبل ${days} أيام` : `${days} days ago`;
-    const months = Math.floor(days / 30);
-    return isAr ? `قبل ${months} شهر` : `${months} mo ago`;
+  let dashTipItem = null;
+  function pickDashTip() {
+    const pool = [
+      ...CRITICAL_ITEMS.map(c => ({ type: 'critical', text: c.text })),
+      ...ETIQUETTE_ITEMS.map(e => ({ type: 'etiquette', text: e.text }))
+    ];
+    dashTipItem = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
   }
 
-  function renderDashStats() {
-    const wrap = document.getElementById('dashStats');
+  function renderDashTip() {
+    const wrap = document.getElementById('dashTip');
     if (!wrap) return;
+    if (!dashTipItem) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
     const isAr = currentLang === 'ar';
-    const latestUpdate = [...UPDATES].sort((a, b) => b.id - a.id)[0];
-
-    const stats = [
-      {
-        accent: 'var(--gold)',
-        label: isAr ? 'السكريبتات المتاحة' : 'Scripts available',
-        value: SCRIPTS.length,
-        caption: isAr ? `عبر ${CATEGORIES.length} تصنيف` : `across ${CATEGORIES.length} categories`
-      },
-      {
-        accent: '#B91C1C',
-        label: isAr ? 'الأخطاء الحرجة الموثقة' : 'Critical mistakes logged',
-        value: CRITICAL_ITEMS.length,
-        caption: isAr ? 'أخطاء يجب تجنبها' : 'to avoid on calls'
-      },
-      {
-        accent: 'var(--brand-blue)',
-        label: isAr ? 'بنود بروتوكول المكالمة' : 'Etiquette guidelines',
-        value: ETIQUETTE_ITEMS.length,
-        caption: isAr ? 'قواعد أسلوب التعامل' : 'call conduct rules'
-      },
-      {
-        accent: '#6E5A9E',
-        label: isAr ? 'آخر تحديث للفريق' : 'Latest team update',
-        value: UPDATES.length,
-        caption: timeAgo(latestUpdate ? latestUpdate.createdAt : null, isAr)
-      }
-    ];
-
-    wrap.innerHTML = stats.map(s => `
-      <div class="dash-stat-card" style="--stat-accent:${s.accent}">
-        <span class="dash-stat-label">${escapeHtml(s.label)}</span>
-        <strong class="dash-stat-value">${s.value}</strong>
-        <span class="dash-stat-caption">${escapeHtml(s.caption)}</span>
-      </div>`
-    ).join('');
+    const label = dashTipItem.type === 'critical'
+      ? (isAr ? '⚠️ تذكير' : '⚠️ Reminder')
+      : (isAr ? '📞 بروتوكول' : '📞 Protocol');
+    wrap.style.display = 'flex';
+    wrap.innerHTML = `<span class="dash-tip-label">${escapeHtml(label)}</span><span class="dash-tip-text">${escapeHtml(dashTipItem.text)}</span>`;
   }
 
   function render() {
@@ -1700,7 +1668,7 @@
 
     renderSidePanels();
     updateAdminDropdowns();
-    renderDashStats();
+    renderDashTip();
   }
 
   function renderSidePanels() {
@@ -2621,6 +2589,7 @@
     const role = await fetchUserRole(userId);
     applyUserRole(role);
     await loadAllData();
+    pickDashTip();
     render();
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
