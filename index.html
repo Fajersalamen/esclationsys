@@ -162,18 +162,26 @@
 <div class="training-page" id="trainingPage">
   <div class="training-page-inner">
     <div class="training-page-head">
-      <button class="tech-back-btn" id="trainingBackBtn" aria-label="Back" title="Back">×</button>
-      <div class="training-head-icon">🎓</div>
+      <button class="training-back-btn" id="trainingBackBtn" aria-label="Back" title="Back">×</button>
+      <span class="training-head-chip" id="trainingHeadCount"></span>
       <div class="training-head-copy">
         <h2 id="trainingPageTitle">مركز التدريب</h2>
         <p id="trainingPageSub">دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة</p>
       </div>
-      <span class="dash-chip" id="trainingHeadCount" style="--stat-accent:var(--brand-teal);"></span>
+      <div class="training-search-shell">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="trainingSearchInput" placeholder="ابحث عن سيناريو تدريبي...">
+      </div>
     </div>
 
     <!-- Problems grid -->
     <div id="trainingGridView">
+      <div class="training-section-label" id="trainingSectionLabel">ابدأ من هنا</div>
       <div class="training-grid" id="trainingGrid"></div>
+      <div class="training-footer-cta">
+        <p id="trainingFooterQ">عندك سؤال أو اقتراح ما لقيت جوابه هون؟</p>
+        <button id="trainingFooterBtn">💡 <span id="trainingFooterBtnLabel">أرسل اقتراح</span></button>
+      </div>
     </div>
 
     <!-- Decision tree view -->
