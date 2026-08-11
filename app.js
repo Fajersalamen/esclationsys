@@ -1612,7 +1612,7 @@
     updateThemeIcon();
   }
 
-  if (localStorage.getItem('fajer_dark_mode') === 'true') {
+  if (localStorage.getItem('fajer_dark_mode') !== 'false') {
     document.body.classList.add('dark-mode');
   }
   updateThemeIcon();
