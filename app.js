@@ -2675,7 +2675,6 @@
     });
 
     // مركز التدريب
-    on('trainingBackBtn', 'click', closeTrainingPage);
     on('trainingSearchInput', 'input', renderTrainingGrid);
     on('trainingFooterBtn', 'click', () => openPanel('suggest'));
     on('trainingTreeBackBtn', 'click', backToTrainingGrid);
