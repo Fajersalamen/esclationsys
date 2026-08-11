@@ -128,9 +128,9 @@
 
     /* Side Panels */
     
-    .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 60; }
+    .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 96; }
     .panel-overlay.show { display: block; }
-    .side-panel { position: fixed; top: 0; left: 0; height: 100vh; width: min(440px, 90vw); background: var(--card); color: var(--text-main); z-index: 61; transform: translateX(-100%); transition: transform .25s ease; padding: 20px; overflow-y: auto; }
+    .side-panel { position: fixed; top: 0; left: 0; height: 100vh; width: min(440px, 90vw); background: var(--card); color: var(--text-main); z-index: 97; transform: translateX(-100%); transition: transform .25s ease; padding: 20px; overflow-y: auto; }
     body[dir="ltr"] .side-panel { left: auto; right: 0; transform: translateX(100%); }
     .side-panel.open { transform: translateX(0) !important; }
 
