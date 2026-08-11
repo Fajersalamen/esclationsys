@@ -732,10 +732,10 @@
       </div>`;
     } else if (node.nodeType === 'end') {
       const fieldLabels = isAr
-        ? { solutionAction: 'الإجراء المطلوب', solutionPolicy: 'رقم السياسة', solutionSteps: 'الخطوات داخل النظام' }
-        : { solutionAction: 'Required Action', solutionPolicy: 'Policy Number', solutionSteps: 'System Steps' };
+        ? { solutionAction: 'الإجراء المطلوب' }
+        : { solutionAction: 'Required Action' };
       const emptyText = isAr ? 'سيتم إضافة المحتوى قريباً' : 'Content coming soon';
-      const fieldHtml = ['solutionAction', 'solutionPolicy', 'solutionSteps'].map(fk => {
+      const fieldHtml = ['solutionAction'].map(fk => {
         const val = trainingSolutionField(node, isAr, fk);
         return `<div class="training-end-field">
           <span class="lbl">${escapeHtml(fieldLabels[fk])}</span>
@@ -1026,18 +1026,6 @@
           <textarea id="tbn-${node.id}-actAr" rows="2">${escapeHtml(node.solutionActionAr)}</textarea>
           <label>Required Action (English)</label>
           <textarea id="tbn-${node.id}-act" rows="2">${escapeHtml(node.solutionAction)}</textarea>
-        </div>
-        <div class="tb-field-row">
-          <label>رقم السياسة</label>
-          <input type="text" id="tbn-${node.id}-polAr" value="${escapeHtml(node.solutionPolicyAr)}">
-          <label>Policy Number</label>
-          <input type="text" id="tbn-${node.id}-pol" value="${escapeHtml(node.solutionPolicy)}">
-        </div>
-        <div class="tb-field-row">
-          <label>الخطوات داخل النظام</label>
-          <textarea id="tbn-${node.id}-stepsAr" rows="2">${escapeHtml(node.solutionStepsAr)}</textarea>
-          <label>System Steps</label>
-          <textarea id="tbn-${node.id}-steps" rows="2">${escapeHtml(node.solutionSteps)}</textarea>
         </div>`;
     } else {
       inner = `
@@ -1194,9 +1182,7 @@
     const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     if (node.nodeType === 'end') {
       return {
-        solution_action: g(`tbn-${node.id}-act`), solution_action_ar: g(`tbn-${node.id}-actAr`),
-        solution_policy: g(`tbn-${node.id}-pol`), solution_policy_ar: g(`tbn-${node.id}-polAr`),
-        solution_steps: g(`tbn-${node.id}-steps`), solution_steps_ar: g(`tbn-${node.id}-stepsAr`)
+        solution_action: g(`tbn-${node.id}-act`), solution_action_ar: g(`tbn-${node.id}-actAr`)
       };
     }
     return { question: g(`tbn-${node.id}-q`), question_ar: g(`tbn-${node.id}-qAr`) };
@@ -1343,9 +1329,7 @@
     } else if (node.nodeType === 'end') {
       const emptyText = 'سيتم إضافة المحتوى قريباً';
       const fields = [
-        ['الإجراء المطلوب', node.solutionActionAr || node.solutionAction],
-        ['رقم السياسة', node.solutionPolicyAr || node.solutionPolicy],
-        ['الخطوات داخل النظام', node.solutionStepsAr || node.solutionSteps]
+        ['الإجراء المطلوب', node.solutionActionAr || node.solutionAction]
       ];
       html += `<div class="training-end-card">
         <div class="training-end-badge">🎉</div>
