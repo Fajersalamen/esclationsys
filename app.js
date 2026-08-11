@@ -619,6 +619,7 @@
 
   function openTrainingPage() {
     closePanels();
+    closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
   }
@@ -1920,6 +1921,7 @@
 
   function openTechPage() {
     closePanels();
+    closeTrainingPage();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
     const searchEl = document.getElementById('techRecordSearch');
