@@ -2689,6 +2689,33 @@
 
   applyLanguage();
   setupKeyboardShortcuts();
+  setupCardTilt();
+
+  // Subtle cursor-reactive tilt + glow for .card elements (event-delegated so it
+  // keeps working across re-renders without rebinding per card).
+  function setupCardTilt() {
+    let activeCard = null;
+    document.addEventListener('mousemove', (e) => {
+      const card = e.target.closest('.card');
+      if (card !== activeCard) {
+        if (activeCard) resetTilt(activeCard);
+        activeCard = card;
+      }
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--rx', ((0.5 - py) * 4) + 'deg');
+      card.style.setProperty('--ry', ((px - 0.5) * -4) + 'deg');
+      card.style.setProperty('--mx', (px * 100) + '%');
+      card.style.setProperty('--my', (py * 100) + '%');
+    });
+    document.addEventListener('mouseleave', () => { if (activeCard) { resetTilt(activeCard); activeCard = null; } }, true);
+    function resetTilt(card) {
+      card.style.removeProperty('--rx'); card.style.removeProperty('--ry');
+      card.style.removeProperty('--mx'); card.style.removeProperty('--my');
+    }
+  }
 
   async function bootApp(userId) {
     checkFirstVisitToday();
