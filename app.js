@@ -31,7 +31,7 @@
   let activeCat = null;
   let renderSequence = 0;
   let previousVisibleCount = -1;
-  let currentLang = localStorage.getItem('fajer_lang_v2') || 'ar';
+  let currentLang = localStorage.getItem('fajer_lang_v2') || 'en';
 
   // ====== Supabase Authentication ======
   // ⚠️ عدّل القيمتين التاليتين ببيانات مشروعك من Supabase:
@@ -275,53 +275,6 @@
   })();
   // ====== End chat bubbles animation ======
 
-  // ====== Site-wide keyboard background: random key presses drop matching letters ======
-  (function () {
-    const container = document.getElementById('fallingLetters');
-    const scene = document.querySelector('.site-bg-scene');
-    if (!container || !scene) return;
-
-    function isSceneVisible() {
-      return window.innerWidth > 760;
-    }
-
-    function pressKey(keyEl) {
-      if (!isSceneVisible()) return;
-      const rect = keyEl.getBoundingClientRect();
-      if (!rect.width) return;
-
-      keyEl.classList.add('pressed');
-      setTimeout(function () { keyEl.classList.remove('pressed'); }, 140);
-
-      const letter = keyEl.getAttribute('data-letter');
-      if (!letter) return; // space bar / no-letter keys don't drop a letter
-
-      const el = document.createElement('span');
-      el.className = 'falling-letter';
-      el.textContent = letter;
-      const size = 16 + Math.random() * 14;
-      el.style.fontSize = size + 'px';
-      el.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
-      el.style.top = (rect.top - size * 0.4) + 'px';
-      const duration = 7 + Math.random() * 6;
-      el.style.animationDuration = duration + 's';
-      el.style.setProperty('--fl-rot', (Math.random() > 0.5 ? '' : '-') + (150 + Math.random() * 160) + 'deg');
-      el.style.setProperty('--fl-opacity', 1);
-      container.appendChild(el);
-      setTimeout(function () { el.remove(); }, duration * 1000 + 200);
-    }
-
-    function loop() {
-      const keyEls = scene.querySelectorAll('.kb-key[data-letter]');
-      if (keyEls.length) {
-        const randomKey = keyEls[Math.floor(Math.random() * keyEls.length)];
-        pressKey(randomKey);
-      }
-      setTimeout(loop, 160 + Math.random() * 220);
-    }
-    loop();
-  })();
-  // ====== End falling-letters animation ======
 
   const DEFAULT_CATEGORIES = [
     { key:'delivery', label:'Delivery & Shipping', labelAr:'التوصيل والشحن', color:'#2563EB' },
