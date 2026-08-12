@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Service Scripts — FAJER AL SALAMEEN</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2314506B%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%232E8C82%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Georgia%2C%20serif%27%20font-weight%3D%27700%27%20font-size%3D%2734%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
@@ -78,7 +78,7 @@
 
         <label for="techNumberInput" id="techNumLabel" class="tech-hero-num-label">أدخل رقم البوليصة أو رقم المكالمة</label>
         <div class="tech-number-row">
-          <input type="text" id="techNumberInput" inputmode="tel" placeholder="">
+          <input type="text" id="techNumberInput" inputmode="tel" maxlength="40" placeholder="">
           <button id="techAttachBtn">إرفاق</button>
         </div>
 
@@ -203,7 +203,7 @@
     <span id="lblSuggestAs">سيصل الاقتراح باسم:</span>
     <span id="suggestSenderEmail" style="font-weight:700; color:var(--text-main);">—</span>
   </div>
-  <textarea id="suggestText" rows="5" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
+  <textarea id="suggestText" rows="5" maxlength="2000" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
   <button id="btnSubmitSuggest" style="width:100%; background:#be185d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال الاقتراح</button>
 </div>
 
