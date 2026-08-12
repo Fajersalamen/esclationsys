@@ -14,10 +14,7 @@
 </head>
 <body>
 
-<div class="ambient-glow" aria-hidden="true">
-  <div class="ambient-mesh"></div>
-  <div class="ambient-blob a2"></div>
-</div>
+<canvas class="orbit-canvas" id="orbitCanvasHome" aria-hidden="true"></canvas>
 <div class="ambient-grain" aria-hidden="true"></div>
 
 <div class="login-gate" id="loginGate" dir="rtl">
@@ -62,6 +59,7 @@
 
 <!-- Technical Issue Page -->
 <div class="tech-page" id="techPage">
+  <canvas class="orbit-canvas" id="orbitCanvasTech" aria-hidden="true"></canvas>
   <div class="tech-page-inner">
     <div class="tech-page-head">
       <button class="tech-back-btn" id="techBackBtn" aria-label="Back" title="Back">×</button>
@@ -132,6 +130,7 @@
 
 <!-- Training Center Page -->
 <div class="training-page" id="trainingPage">
+  <canvas class="orbit-canvas" id="orbitCanvasTraining" aria-hidden="true"></canvas>
   <div class="training-page-inner">
     <div class="training-page-head">
       <span class="training-head-chip" id="trainingHeadCount"></span>
