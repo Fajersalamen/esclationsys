@@ -204,7 +204,7 @@
 
     header {
       min-height: 84px; padding: 16px clamp(18px,4vw,56px); flex-wrap: nowrap;
-      background: linear-gradient(120deg, #050b12 0%, #0a2a3d 40%, #0d3f45 75%, #0f4a42 100%); border-bottom: 1px solid rgba(16,185,129,.35); overflow: visible;
+      background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%); border-bottom: 1px solid rgba(16,185,129,.45); overflow: visible;
     }
     .brand { flex-wrap: nowrap; gap: 14px; cursor: default; }
     .nova-wordmark { min-width: 104px; border-radius: 6px; padding: 7px 16px 8px; box-shadow: none; }
@@ -594,8 +594,8 @@
     }
     /* Animated typing chat-bubbles overlay on the login image panel */
     .chat-animation {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end;
-      padding: 60px 32px; pointer-events: none; overflow: hidden;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-start;
+      direction: ltr; padding: 60px 0 60px 100px; pointer-events: none; overflow: hidden;
     }
     .chat-bubble-track {
       display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px;
@@ -851,17 +851,22 @@
     }
     .bb-home .bb-icon {
       width: 54px; height: 54px; border-radius: 50%; position: relative;
-      background:
-        radial-gradient(circle at 35% 28%, rgba(255,255,255,.95), rgba(255,255,255,0) 24%),
-        radial-gradient(circle at 50% 55%, #14B8A6 0%, #0B84FF 45%, #0A6DCC 100%);
+      background: radial-gradient(circle at 50% 50%, #17C9A6 0%, #0B84FF 60%, #0864C9 100%);
+      box-shadow: inset -7px -7px 14px rgba(0,0,0,.4), inset 4px 4px 10px rgba(255,255,255,.3);
       color: #fff; transform: scale(1);
       animation: bbHomeGlow 2.6s ease-in-out infinite, bbHomeBreathe 2.6s ease-in-out infinite;
     }
+    .bb-planet-surface { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
     .bb-planet-ring {
-      position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-      background: conic-gradient(from 0deg, #10B981, #0B84FF, #22D3EE, #14B8A6, #10B981);
-      opacity: .3; mix-blend-mode: soft-light;
-      animation: bbPlanetSpin 7s linear infinite;
+      position: absolute; inset: -3px; border-radius: 50%; pointer-events: none;
+      background: conic-gradient(from 0deg, #10B981 0%, #0B84FF 22%, #062A52 38%, #0B84FF 55%, #22D3EE 72%, #10B981 88%, #10B981 100%);
+      opacity: .8; mix-blend-mode: overlay;
+      animation: bbPlanetSpin 5s linear infinite;
+    }
+    .bb-planet-highlight {
+      position: absolute; top: 8%; left: 22%; width: 44%; height: 30%; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.85), rgba(255,255,255,0) 70%);
+      pointer-events: none; filter: blur(1px);
     }
     @keyframes bbPlanetSpin { to { transform: rotate(360deg); } }
     body.dark-mode .bb-home .bb-icon { animation: bbHomeGlowDark 2.6s ease-in-out infinite, bbHomeBreathe 2.6s ease-in-out infinite; }
@@ -1176,7 +1181,7 @@
     .training-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
       margin: -18px -16px 24px; padding: 30px 20px 34px;
-      background: linear-gradient(120deg, #050b12 0%, #0a2a3d 40%, #0d3f45 75%, #0f4a42 100%);
+      background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
       position: relative; overflow: hidden;
     }
     .training-page-head::before {
