@@ -848,22 +848,34 @@
     }
     .bb-home .bb-icon {
       width: 54px; height: 54px; border-radius: 50%; position: relative;
-      background: radial-gradient(circle at 50% 50%, #17C9A6 0%, #0B84FF 60%, #0864C9 100%);
-      box-shadow: inset -7px -7px 14px rgba(0,0,0,.4), inset 4px 4px 10px rgba(255,255,255,.3);
+      background: radial-gradient(circle at 34% 30%, #6FE9D0 0%, #17C9A6 22%, #0B84FF 62%, #064B9E 100%);
+      box-shadow: inset -9px -9px 16px rgba(0,10,30,.55), inset 5px 5px 12px rgba(255,255,255,.35),
+                  0 0 0 4px var(--bg), 0 0 18px 2px rgba(11,132,255,.45);
       color: #fff; transform: scale(1);
       animation: bbHomeGlow 2.6s ease-in-out infinite, bbHomeBreathe 2.6s ease-in-out infinite;
     }
     .bb-planet-surface { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+    .bb-planet-bands {
+      position: absolute; inset: -25%; pointer-events: none;
+      background: repeating-linear-gradient(102deg,
+        rgba(255,255,255,.16) 0 3px, rgba(255,255,255,0) 3px 9px,
+        rgba(3,30,60,.28) 9px 13px, rgba(255,255,255,0) 13px 20px);
+      animation: bbPlanetSpin 6s linear infinite;
+    }
     .bb-planet-ring {
-      position: absolute; inset: -3px; border-radius: 50%; pointer-events: none;
-      background: conic-gradient(from 0deg, #10B981 0%, #0B84FF 22%, #062A52 38%, #0B84FF 55%, #22D3EE 72%, #10B981 88%, #10B981 100%);
+      position: absolute; inset: -20%; border-radius: 50%; pointer-events: none;
+      background: conic-gradient(from 0deg, #10B981 0%, #0B84FF 25%, #041F42 45%, #22D3EE 65%, #10B981 100%);
       opacity: .8; mix-blend-mode: overlay;
       animation: bbPlanetSpin 5s linear infinite;
     }
+    .bb-planet-term {
+      position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle at 30% 26%, rgba(255,255,255,0) 40%, rgba(0,8,25,.55) 88%);
+    }
     .bb-planet-highlight {
-      position: absolute; top: 8%; left: 22%; width: 44%; height: 30%; border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,.85), rgba(255,255,255,0) 70%);
-      pointer-events: none; filter: blur(1px);
+      position: absolute; top: 9%; left: 20%; width: 40%; height: 27%; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,255,255,0) 68%);
+      pointer-events: none; filter: blur(.6px);
     }
     @keyframes bbPlanetSpin { to { transform: rotate(360deg); } }
     body.dark-mode .bb-home .bb-icon { animation: bbHomeGlowDark 2.6s ease-in-out infinite, bbHomeBreathe 2.6s ease-in-out infinite; }
@@ -898,15 +910,33 @@
       0% { transform: scale(.6); opacity: .9; border-color: rgba(16,185,129,.8); }
       100% { transform: scale(2.2); opacity: 0; border-color: rgba(11,132,255,0); }
     }
-    .bb-tech { color: var(--brand-teal); }
-    .bb-tech .bb-icon { background: color-mix(in srgb, var(--brand-teal) 14%, transparent); }
-    .bb-tech:hover { background: color-mix(in srgb, var(--brand-teal) 8%, transparent); }
-    .bb-tech:hover .bb-icon { background: color-mix(in srgb, var(--brand-teal) 22%, transparent); }
-    .bb-training { color: #6E5A9E; }
-    .bb-training .bb-icon { background: color-mix(in srgb, #6E5A9E 14%, transparent); }
-    .bb-training:hover { background: color-mix(in srgb, #6E5A9E 8%, transparent); }
-    .bb-training:hover .bb-icon { background: color-mix(in srgb, #6E5A9E 22%, transparent); }
-    body.dark-mode .bb-training { color: #A996D6; }
+    /* Side nav buttons: frosted glass tile with a hairline gradient border, matching
+       the Nova brand gradient (blue for tech, teal/green for training) */
+    .bb-tech { color: #3BB4F5; }
+    .bb-tech .bb-icon {
+      border-radius: 12px; position: relative; background: rgba(11,132,255,.07);
+    }
+    .bb-tech .bb-icon::before {
+      content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px;
+      background: linear-gradient(140deg, #0B84FF, #22D3EE);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+    }
+    .bb-tech:hover { background: color-mix(in srgb, #0B84FF 8%, transparent); }
+    .bb-tech:hover .bb-icon { background: rgba(11,132,255,.16); }
+
+    .bb-training { color: #2ED8A7; }
+    .bb-training .bb-icon {
+      border-radius: 12px; position: relative; background: rgba(16,185,129,.07);
+    }
+    .bb-training .bb-icon::before {
+      content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px;
+      background: linear-gradient(140deg, #10B981, #14B8A6);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+    }
+    .bb-training:hover { background: color-mix(in srgb, #10B981 8%, transparent); }
+    .bb-training:hover .bb-icon { background: rgba(16,185,129,.16); }
     .bb-divider { width: 1px; align-self: center; height: 30px; background: var(--border); flex-shrink: 0; }
     @media (max-width: 560px) {
       .bottom-bar-inner { height: 62px; gap: 4px; padding: 5px; }
