@@ -210,39 +210,11 @@
     .tab.active { background: color-mix(in srgb, var(--brand-blue) 12%, var(--card)); color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); }
     .tab.active .dot { background: var(--brand-blue) !important; }
 
-    /* Quick tools — segmented control inside the profile dropdown, under the account name */
-    .quick-tools {
-      display: flex; background: var(--surface-soft); border: 1px solid var(--border);
-      border-radius: 10px; overflow: hidden; padding: 0; margin: 0 4px 12px;
-    }
+    /* Quick tools — now rendered as the edge rail, see #edgeRail below. .qt-btn class kept for JS hooks. */
     .qt-btn {
       position: relative; flex: 1; height: 42px; padding: 0; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center; background: transparent;
       color: var(--slate); transition: background .15s ease, color .15s ease;
-    }
-    .qt-btn + .qt-btn { border-inline-start: 1px solid var(--border); }
-    .qt-btn:hover { background: color-mix(in srgb, var(--brand-blue) 9%, transparent); color: var(--brand-blue); }
-    .qt-btn:active { background: color-mix(in srgb, var(--brand-blue) 16%, transparent); }
-    .qt-icon { width: 17px; height: 17px; position: relative; z-index: 1; }
-    .qt-icon svg { width: 100%; height: 100%; display: block; }
-    .qt-label {
-      position: absolute; top: calc(100% + 8px); inset-inline-start: 50%; transform: translateX(-50%) translateY(4px);
-      background: #17212b; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .01em;
-      white-space: nowrap; padding: 6px 10px; border-radius: 6px; opacity: 0; pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease; box-shadow: 0 10px 24px rgba(0,0,0,.28); z-index: 5;
-    }
-    .qt-btn:hover .qt-label { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    .qt-badge {
-      position: absolute; top: 4px; inset-inline-end: 8px; min-width: 15px; height: 15px; padding: 0 3px;
-      border-radius: 999px; background: #e5484d; color: #fff; font-size: 8.5px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface-soft); z-index: 2;
-      animation: qtBadgePop .32s cubic-bezier(.3,1.4,.4,1), qtBadgeGlow 1.8s ease-in-out .32s infinite;
-    }
-    @keyframes qtBadgePop { from { transform: scale(0); } to { transform: scale(1); } }
-    @keyframes qtBadgeGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(229,72,77,.55); }
-      50% { box-shadow: 0 0 0 5px rgba(229,72,77,0); }
     }
 
     main { max-width: 1352px; padding: 28px clamp(18px,4vw,56px) 64px; }
@@ -410,7 +382,6 @@
       .workspace-head p { display: none; }
       .grid { grid-template-columns: 1fr; }
       .card { min-height: 0; }
-      .qt-label { display: none; }
       footer { padding: 18px 14px 72px; }
     }
 
@@ -931,6 +902,43 @@
     }
     @media (max-width: 340px) {
       .bb-btn { font-size: 8.5px; }
+    }
+
+    /* Edge quick-tools rail */
+    #edgeRail {
+      position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 12px; z-index: 80;
+    }
+    #edgeRail .edge-tab {
+      display: flex; flex: none; align-items: center; justify-content: flex-start; gap: 10px;
+      height: 46px; padding: 0 14px 0 16px; border-radius: 23px 0 0 23px;
+      cursor: pointer; font-family: inherit; border: 1px solid rgba(255,255,255,.14); border-right: none;
+      background: linear-gradient(120deg, rgba(11,132,255,.92), rgba(16,185,129,.92));
+      box-shadow: -8px 8px 24px -10px rgba(0,0,0,.55);
+      transform: translateX(58%);
+      transition: transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .32s;
+      position: relative;
+    }
+    #edgeRail .edge-tab:hover, #edgeRail .edge-tab:focus-visible {
+      transform: translateX(0); box-shadow: -12px 10px 30px -8px rgba(11,132,255,.5);
+      background: linear-gradient(120deg, rgba(11,132,255,.92), rgba(16,185,129,.92)); color: #fff;
+    }
+    #edgeRail .edge-tab .et-icon { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    #edgeRail .edge-tab .et-icon svg { width: 20px; height: 20px; stroke: #fff; }
+    #edgeRail .edge-tab .et-label { position: static; opacity: 1; transform: none; padding: 0; background: none; box-shadow: none; font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; letter-spacing: .01em; }
+    #edgeRail .edge-tab.qt-critical, #edgeRail .edge-tab.qt-critical:hover, #edgeRail .edge-tab.qt-critical:focus-visible {
+      background: linear-gradient(120deg, #F0424A, #FF8A65);
+    }
+    #edgeRail .edge-tab .et-dot {
+      position: absolute; top: -3px; left: -3px; width: 16px; height: 16px; padding: 0; border-radius: 50%;
+      background: #fff; color: #F0424A; font-size: 9px; font-weight: 900;
+      align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--bg);
+    }
+    @media (max-width: 640px) {
+      #edgeRail .edge-tab { height: 42px; padding: 0 11px 0 13px; gap: 8px; }
+      #edgeRail .edge-tab .et-label { font-size: 11.5px; }
+      #edgeRail .edge-tab .et-icon svg { width: 18px; height: 18px; }
+      #edgeRail { gap: 9px; }
     }
     /* Rotating tip bar — one line above the tabs, sourced from Critical mistakes / Etiquette items */
     .dash-tip {
