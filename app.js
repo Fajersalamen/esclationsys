@@ -1538,37 +1538,9 @@
       }
     }
 
-    updateThemeIcon();
   }
 
-  function updateThemeIcon() {
-    const isDark = document.body.classList.contains('dark-mode');
-    document.getElementById('themeIconMoon').style.display = isDark ? 'block' : 'none';
-    document.getElementById('themeIconSun').style.display = isDark ? 'none' : 'block';
-    const btn = document.getElementById('themeToggleBtn');
-    const isAr = (typeof currentLang !== 'undefined') && currentLang === 'ar';
-    const label = isDark
-      ? (isAr ? 'التبديل إلى الوضع الفاتح' : 'Switch to Light Mode')
-      : (isAr ? 'التبديل إلى الوضع الداكن' : 'Switch to Dark Mode');
-    btn.setAttribute('title', label);
-    btn.setAttribute('aria-label', label);
-    const shortLabel = isDark ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الداكن' : 'Dark Mode');
-    const themeTextEl = document.getElementById('profileThemeText');
-    const themeIconEl = document.getElementById('profileThemeIcon');
-    if (themeTextEl) themeTextEl.textContent = shortLabel;
-    if (themeIconEl) themeIconEl.textContent = isDark ? '☀️' : '🌙';
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('fajer_dark_mode', document.body.classList.contains('dark-mode'));
-    updateThemeIcon();
-  }
-
-  if (localStorage.getItem('fajer_dark_mode') !== 'false') {
-    document.body.classList.add('dark-mode');
-  }
-  updateThemeIcon();
+  document.body.classList.add('dark-mode');
 
   let dashTipItem = null;
   function pickDashTip() {
@@ -2569,9 +2541,7 @@
     on('btnCloseAdmin', 'click', closeAdminModal);
 
     on('novaWordmark', 'dblclick', openAdminModal);
-    on('themeToggleBtn', 'click', toggleTheme);
     on('profileBtn', 'click', toggleProfileMenu);
-    on('profileThemeBtn', 'click', toggleTheme);
     on('profileLangBtn', 'click', toggleLanguage);
     on('logoutBtn', 'click', employeeLogout);
     on('searchInput', 'input', render);
