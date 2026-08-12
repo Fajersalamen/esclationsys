@@ -1538,9 +1538,29 @@
       }
     }
 
+    updateThemeIcon();
   }
 
-  document.body.classList.add('dark-mode');
+  function updateThemeIcon() {
+    const isDark = document.body.classList.contains('dark-mode');
+    const isAr = (typeof currentLang !== 'undefined') && currentLang === 'ar';
+    const shortLabel = isDark ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الداكن' : 'Dark Mode');
+    const themeTextEl = document.getElementById('profileThemeText');
+    const themeIconEl = document.getElementById('profileThemeIcon');
+    if (themeTextEl) themeTextEl.textContent = shortLabel;
+    if (themeIconEl) themeIconEl.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('fajer_dark_mode', document.body.classList.contains('dark-mode'));
+    updateThemeIcon();
+  }
+
+  if (localStorage.getItem('fajer_dark_mode') !== 'false') {
+    document.body.classList.add('dark-mode');
+  }
+  updateThemeIcon();
 
   let dashTipItem = null;
   function pickDashTip() {
@@ -2542,6 +2562,7 @@
 
     on('novaWordmark', 'dblclick', openAdminModal);
     on('profileBtn', 'click', toggleProfileMenu);
+    on('profileThemeBtn', 'click', toggleTheme);
     on('profileLangBtn', 'click', toggleLanguage);
     on('logoutBtn', 'click', employeeLogout);
     on('searchInput', 'input', render);
