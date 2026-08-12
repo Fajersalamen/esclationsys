@@ -54,7 +54,7 @@
       background: linear-gradient(90deg, #14B8A6, #10B981);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .nv-o-ring { width: .66em; height: .66em; margin: 0 .02em; flex-shrink: 0; overflow: visible; }
+    .nv-o-ring { width: .8em; height: .8em; margin: 0 .02em; flex-shrink: 0; overflow: visible; align-self: center; }
     @keyframes novaORingSpin { to { transform: rotate(360deg); } }
     .nova-sub { font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #55697A; margin-top: 2px; text-transform: uppercase; }
     .brand-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.3); display: none; }
