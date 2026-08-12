@@ -48,7 +48,7 @@
     }
     .brand { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
     .nova-wordmark { cursor: pointer; background: #fff; border-radius: 12px; padding: 8px 18px 9px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); display: flex; flex-direction: column; align-items: center; line-height: 1; }
-    .nova-text { font-family: 'Fraunces', 'Amiri', serif; font-weight: 700; font-size: 26px; letter-spacing: -0.01em; display: inline-flex; align-items: center; direction: ltr; }
+    .nova-text { font-family: 'Baloo 2', 'Fraunces', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.01em; display: inline-flex; align-items: center; direction: ltr; }
     .nova-text .nv-n { color: #0B84FF; }
     .nova-text .nv-va {
       background: linear-gradient(90deg, #14B8A6, #10B981);
@@ -204,7 +204,7 @@
 
     header {
       min-height: 84px; padding: 16px clamp(18px,4vw,56px); flex-wrap: nowrap;
-      background: linear-gradient(120deg, #08070f 0%, #171233 40%, #241a45 75%, #322256 100%); border-bottom: 1px solid rgba(16,185,129,.35); overflow: visible;
+      background: linear-gradient(120deg, #050b12 0%, #0a2a3d 40%, #0d3f45 75%, #0f4a42 100%); border-bottom: 1px solid rgba(16,185,129,.35); overflow: visible;
     }
     .brand { flex-wrap: nowrap; gap: 14px; cursor: default; }
     .nova-wordmark { min-width: 104px; border-radius: 6px; padding: 7px 16px 8px; box-shadow: none; }
@@ -371,7 +371,7 @@
     /* First-visit-of-the-day splash */
     .splash-overlay {
       position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(120deg, #08070f 0%, #171233 40%, #241a45 75%, #322256 100%);
+      background: linear-gradient(120deg, #050b12 0%, #0a2a3d 40%, #0d3f45 75%, #0f4a42 100%);
       opacity: 1; transition: opacity .5s ease; overflow: hidden;
     }
     .splash-overlay::before {
@@ -508,7 +508,7 @@
       flex: 1 1 55%; min-width: 0;
       background:
         radial-gradient(1px 1px at center, rgba(255,255,255,.06) 1px, transparent 1px) 0 0/28px 28px,
-        linear-gradient(150deg, #08070f 0%, #14102b 45%, #241a45 75%, #322256 100%);
+        linear-gradient(150deg, #050b12 0%, #0a2436 45%, #0d3f45 75%, #0f4a42 100%);
       position: relative; overflow: hidden;
     }
     .login-image-panel .login-orb {
@@ -593,11 +593,11 @@
     }
     /* Animated typing chat-bubbles overlay on the login image panel */
     .chat-animation {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      padding: 60px; pointer-events: none; overflow: hidden;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end;
+      padding: 60px 32px; pointer-events: none; overflow: hidden;
     }
     .chat-bubble-track {
-      display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px;
+      display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px;
     }
     .chat-bubble {
       align-self: flex-start; max-width: 82%; padding: 12px 17px; border-radius: 16px 16px 16px 4px;
@@ -1175,7 +1175,7 @@
     .training-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
       margin: -18px -16px 24px; padding: 30px 20px 34px;
-      background: linear-gradient(120deg, #08070f 0%, #171233 40%, #241a45 75%, #322256 100%);
+      background: linear-gradient(120deg, #050b12 0%, #0a2a3d 40%, #0d3f45 75%, #0f4a42 100%);
       position: relative; overflow: hidden;
     }
     .training-page-head::before {
