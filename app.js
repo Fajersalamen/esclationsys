@@ -2201,7 +2201,7 @@
       <div class="card-title">${escapeHtml(title)}</div>
       <div class="card-text">${escapeHtml(text)}</div>
       <div class="track-row">
-        <input type="text" class="track-input" placeholder="${escapeHtml(trackPlaceholder)}" aria-label="${escapeHtml(trackPlaceholder)}">
+        <input type="text" class="track-input" maxlength="60" placeholder="${escapeHtml(trackPlaceholder)}" aria-label="${escapeHtml(trackPlaceholder)}">
       </div>
       <div class="card-actions">
         <button class="copy-btn" type="button">${iconCopy}${copyTxt}</button>
