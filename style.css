@@ -54,7 +54,7 @@
       background: linear-gradient(90deg, #14B8A6, #10B981);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .nv-o-ring { width: .66em; height: .66em; margin: 0 .02em; flex-shrink: 0; animation: novaORingSpin 9s linear infinite; transform-origin: 50% 50%; }
+    .nv-o-ring { width: .66em; height: .66em; margin: 0 .02em; flex-shrink: 0; overflow: visible; }
     @keyframes novaORingSpin { to { transform: rotate(360deg); } }
     .nova-sub { font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #55697A; margin-top: 2px; text-transform: uppercase; }
     .brand-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.3); display: none; }
@@ -501,14 +501,13 @@
 
     .login-gate {
       position: fixed; inset: 0; z-index: 10000;
-      display: flex; background: var(--card);
+      display: flex;
+      background: linear-gradient(150deg, #050b12 0%, #0a2436 45%, #0d3f45 75%, #0f4a42 100%);
     }
     .login-gate.hide { display: none; }
     .login-image-panel {
       flex: 1 1 55%; min-width: 0;
-      background:
-        radial-gradient(1px 1px at center, rgba(255,255,255,.06) 1px, transparent 1px) 0 0/28px 28px,
-        linear-gradient(150deg, #050b12 0%, #0a2436 45%, #0d3f45 75%, #0f4a42 100%);
+      background: radial-gradient(1px 1px at center, rgba(255,255,255,.06) 1px, transparent 1px) 0 0/28px 28px;
       position: relative; overflow: hidden;
     }
     .login-image-panel .login-orb {
@@ -548,7 +547,8 @@
     .login-form-panel {
       flex: 0 0 460px; max-width: 100%; display: flex; flex-direction: column;
       justify-content: center; padding: 48px 56px; overflow-y: auto;
-      background: var(--card); position: relative; z-index: 1;
+      background: rgba(255,255,255,.07); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);
+      position: relative; z-index: 1;
       animation: modalEnter .4s cubic-bezier(.2,.75,.25,1) both;
     }
     .login-card { width: 100%; text-align: center; }
@@ -557,17 +557,18 @@
       display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
     }
     .login-wordmark .nova-text { font-size: 34px; }
-    .login-wordmark .nova-sub { font-size: 10px; margin-top: 3px; color: var(--slate); }
-    .login-card h2 { margin: 0 0 8px; font-size: 22px; color: var(--text-main); }
-    .login-card p { margin: 0 0 28px; font-size: 13.5px; color: var(--slate); }
+    .login-wordmark .nova-sub { font-size: 10px; margin-top: 3px; color: #6B7480; }
+    .login-card h2 { margin: 0 0 8px; font-size: 22px; color: #F5F7FA; }
+    .login-card p { margin: 0 0 28px; font-size: 13.5px; color: rgba(245,247,250,.65); }
     .login-card form { text-align: start; }
-    .login-card label { display: block; font-size: 12.5px; font-weight: 700; color: var(--slate); margin: 16px 0 7px; }
+    .login-card label { display: block; font-size: 12.5px; font-weight: 700; color: rgba(245,247,250,.7); margin: 16px 0 7px; }
     .login-card input {
       width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: 9px;
-      border: 1px solid var(--border); background: var(--surface-soft); color: var(--text-main);
+      border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #fff;
       font-size: 14.5px; font-family: inherit;
     }
-    .login-card input:focus { outline: none; border-color: var(--brand-blue); }
+    .login-card input::placeholder { color: rgba(245,247,250,.4); }
+    .login-card input:focus { outline: none; border-color: var(--brand-blue); background: rgba(255,255,255,.1); }
     .login-card button[type="submit"] {
       width: 100%; margin-top: 26px; padding: 14px; border: none; border-radius: 9px;
       background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-teal) 100%);
