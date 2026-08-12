@@ -109,25 +109,6 @@
     footer { text-align: center; padding: 20px; color: var(--slate-soft); font-size: 11.5px; border-top: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
     .admin-trigger, .lang-btn-foot { background: none; border: none; color: var(--slate-soft); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; }
 
-    /* Theme toggle, placed right next to the nova logo, slightly to its left */
-    .theme-toggle-fixed {
-      position: relative; z-index: 5; flex-shrink: 0; margin-inline-start: -4px;
-      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
-      background: var(--card); box-shadow: 0 3px 10px rgba(0,0,0,0.16);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; padding: 0;
-      transition: background 0.3s, transform 0.2s;
-    }
-    .theme-toggle-fixed:hover { transform: scale(1.08); }
-    .theme-toggle-fixed svg { width: 18px; height: 18px; display: block; }
-    .theme-toggle-fixed .icon-sun { color: #F59E0B; }
-    .theme-toggle-fixed .icon-moon { color: #64748B; }
-    body.dark-mode .theme-toggle-fixed .icon-moon { color: #CBD5E1; }
-    @media (max-width: 640px) {
-      .theme-toggle-fixed { width: 32px; height: 32px; }
-      .theme-toggle-fixed svg { width: 16px; height: 16px; }
-    }
-
     /* Side Panels */
     
     .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 96; }
