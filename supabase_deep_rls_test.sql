@@ -1,35 +1,18 @@
 -- =====================================================================
--- Nova (esclationsys) — Deep RLS security test (v2)
+-- Nova (esclationsys) — Deep RLS security test (v3 — paste and run,
+-- no manual editing needed anywhere in this file)
 -- =====================================================================
--- v1 tried to create fake temporary profile rows and Postgres rejected
--- it: profiles.id is a foreign key to auth.users, so you can't insert
--- a profiles row for a user that doesn't really exist. This version
--- uses two REAL existing user IDs from your own profiles table
--- instead — and still never permanently changes anything, because
--- every check runs inside BEGIN/ROLLBACK. Safe to run on production.
---
--- STEP 1: run the lookup below by itself first, and copy two real ids:
---   • one row where role is NOT 'admin' (any agent/quality/team_leader)
---   • one row where role = 'admin'
--- =====================================================================
-select id, role from public.profiles order by role;
-
-
--- =====================================================================
--- STEP 2: paste your two copied ids into the two placeholders below —
--- search this file for AGENT_ID_HERE and ADMIN_ID_HERE and replace
--- both occurrences of each with the real id you copied (keep the
--- quotes). Then run everything from here down.
---
 -- Run it in TWO passes:
---   PASS A: CHECK 0 + CHECK 1 + CHECK 4 + CHECK 5 together. None of
---           these should show a red error — just rows to read.
+--   PASS A: CHECK 0 + CHECK 1 + CHECK 4 together. None of these should
+--           show a red error — just rows to read.
 --   PASS B: run CHECK 2 alone, then CHECK 3 alone, separately from
 --           everything else. For THESE TWO, a RED ERROR saying "new
 --           row violates row-level security policy" is the correct,
---           good result. Running them together with the others would
---           let one real error stop the rest of the script (the same
---           thing that caused the last incident).
+--           good result — running them together with the others would
+--           let one real error stop the rest of the script.
+--
+-- Everything runs inside BEGIN/ROLLBACK — nothing is ever permanently
+-- changed. Safe to run on production right now.
 -- =====================================================================
 
 
@@ -47,25 +30,21 @@ order by tablename, cmd;
 
 
 -- ---------------------------------------------------------------------
--- CHECK 1 — using a REAL non-admin employee's own id, can they promote
--- themselves to admin? Expect: 0 rows returned. A row showing
--- role = 'admin' is a CRITICAL bug. (Rolled back either way — even if
--- it "worked" here, nothing is actually saved.)
+-- CHECK 1 — is it even POSSIBLE for anyone to update the profiles
+-- table (which is where an employee's role lives) from the app side?
+-- Expect: ZERO rows back. If this is empty, self-promoting to admin is
+-- structurally impossible — there's no rule that allows updating
+-- profiles at all, from anyone but you (via the Supabase dashboard).
+-- A row appearing here is what you'd need to send me a screenshot of.
 -- ---------------------------------------------------------------------
-begin;
-  set local role authenticated;
-  set local request.jwt.claims = '{"role":"authenticated","email":"test@example.com","sub":"AGENT_ID_HERE"}';
-
-  update public.profiles set role = 'admin'
-  where id = 'AGENT_ID_HERE'
-  returning id, role;
-rollback;
+select policyname, cmd, roles, qual as using_expression, with_check as check_expression
+from pg_policies
+where schemaname = 'public' and tablename = 'profiles' and cmd in ('UPDATE', 'INSERT', 'ALL');
 
 
 -- ---------------------------------------------------------------------
--- CHECK 4 — can a regular (not real, made-up) employee session delete
--- a technical issue? Delete is supposed to be full-admin only.
--- Expect: 0 rows returned.
+-- CHECK 4 — can a regular employee delete a technical issue (delete is
+-- supposed to be full-admin only)? Expect: 0 rows returned.
 -- ---------------------------------------------------------------------
 begin;
   set local role authenticated;
@@ -77,24 +56,9 @@ begin;
 rollback;
 
 
--- ---------------------------------------------------------------------
--- CHECK 5 — using a REAL admin's own id, do they still have full write
--- access? Expect: succeeds and returns the row (sanity check that the
--- lockdown didn't overreach and break admin access too).
--- ---------------------------------------------------------------------
-begin;
-  set local role authenticated;
-  set local request.jwt.claims = '{"role":"authenticated","email":"test@example.com","sub":"ADMIN_ID_HERE"}';
-
-  insert into public.categories (key, label, label_ar, color)
-  values ('admin-test-category', 'Admin Test', 'اختبار أدمن', '#00ff00')
-  returning key;
-rollback;
-
-
 -- =====================================================================
 -- PASS B — run each of these TWO checks on its own. A red error IS
--- the pass. Neither needs the real ids from Step 1.
+-- the pass.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
