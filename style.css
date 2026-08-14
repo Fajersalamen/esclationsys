@@ -938,6 +938,11 @@
       border: 1px solid rgba(255,255,255,.2); padding: 6px 13px; border-radius: 20px;
     }
     .nvh-meta { font-size: 10.5px; color: rgba(255,255,255,.72); font-weight: 600; white-space: nowrap; }
+    .nvh-badge {
+      position: absolute; top: 12px; inset-inline-start: 12px; z-index: 4; min-width: 22px; height: 22px; padding: 0 7px;
+      border-radius: 12px; background: #fff; color: #0B84FF; font-size: 11px; font-weight: 900;
+      align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.35);
+    }
     .nvh-star {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
       z-index: 1; width: 74px; height: 74px; filter: drop-shadow(0 6px 22px rgba(0,0,0,.28));
@@ -970,6 +975,8 @@
       overflow-y: auto;
     }
     .tools-overlay.open { display: flex; animation: toolsFadeIn .25s ease; }
+    /* Stays visible (dimmed, inert) behind a tool panel instead of disappearing back to the home page. */
+    .tools-overlay.open.behind { z-index: 90; pointer-events: none; }
     @keyframes toolsFadeIn { from { opacity: 0; } to { opacity: 1; } }
     .tools-sheet { position: relative; width: 100%; max-width: 960px; }
     .tools-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
