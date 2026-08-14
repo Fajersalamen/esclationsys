@@ -1671,6 +1671,7 @@
   let novaHeroTimer = null;
   let novaHeroLayout = null;
   function setupNovaHero() {
+    const heroSection = document.getElementById('novaHero');
     const track = document.getElementById('nvhTrack');
     const dotsWrap = document.getElementById('nvhDots');
     if (!track || !dotsWrap) return;
@@ -1721,9 +1722,10 @@
       });
     });
 
-    // Scrolling over the carousel steps through the slides instead of scrolling the page.
+    // Scrolling anywhere over the hero (not just the narrow card stack) steps through the
+    // slides instead of scrolling the page — matches the whole "Every tool in one place" section.
     let wheelLock = false;
-    track.addEventListener('wheel', (e) => {
+    (heroSection || track).addEventListener('wheel', (e) => {
       e.preventDefault();
       if (wheelLock) return;
       wheelLock = true;
