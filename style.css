@@ -889,6 +889,76 @@
       .bb-btn { font-size: 8.5px; }
     }
 
+    /* ===== Nova hero — 3D rotating carousel of the site's sections ===== */
+    .nova-hero {
+      position: relative; z-index: 1; min-height: min(88vh, 780px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 20px 48px; overflow: hidden;
+    }
+    .nvh-headline {
+      position: absolute; top: 50%; inset-inline-start: 0; width: 100%; transform: translateY(-50%);
+      text-align: center; font-size: clamp(30px, 5.6vw, 68px); font-weight: 300; line-height: 1.05;
+      letter-spacing: -.02em; white-space: nowrap; z-index: 1; pointer-events: none;
+      color: var(--text-main); opacity: .92; margin: 0;
+    }
+    .nvh-headline .grad {
+      font-weight: 700;
+      background: linear-gradient(120deg, #0B84FF, #14B8A6 55%, #10B981);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .nvh-carousel {
+      position: relative; z-index: 2; width: 100%; max-width: 340px; height: 440px;
+      perspective: 1500px; margin-bottom: 32px;
+    }
+    .nvh-track { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+    .nvh-slide {
+      position: absolute; top: 0; left: 50%; width: 290px; height: 100%; margin-left: -145px;
+      border: none; padding: 0; border-radius: 24px; overflow: hidden; cursor: pointer;
+      font-family: inherit; text-align: start; background: none;
+      transition: transform .85s cubic-bezier(.22,.85,.25,1), opacity .85s ease, filter .85s ease;
+      box-shadow: 0 50px 90px -30px rgba(0,0,0,.8);
+    }
+    .nvh-face {
+      position: absolute; inset: 0; padding: 22px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      background: linear-gradient(160deg, var(--c1), var(--c2) 55%, var(--c3));
+    }
+    .nvh-face::before {
+      content: ''; position: absolute; top: 44%; left: 50%; width: 270px; height: 270px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,255,255,.5), rgba(255,255,255,0) 62%);
+      pointer-events: none;
+    }
+    .nvh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; position: relative; z-index: 1; }
+    .nvh-tag {
+      font-size: 11px; font-weight: 700; color: #fff; background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.2); padding: 6px 13px; border-radius: 20px;
+    }
+    .nvh-meta { font-size: 10.5px; color: rgba(255,255,255,.72); font-weight: 600; white-space: nowrap; }
+    .nvh-star {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      z-index: 1; width: 74px; height: 74px; filter: drop-shadow(0 6px 22px rgba(0,0,0,.28));
+    }
+    .nvh-bottom { position: relative; z-index: 1; }
+    .nvh-title { display: block; font-size: 24px; font-weight: 800; line-height: 1.25; color: #fff; }
+    .nvh-sub { display: block; font-size: 11.5px; color: rgba(255,255,255,.75); margin-top: 7px; font-weight: 600; }
+    .nvh-dots { position: relative; z-index: 3; display: flex; gap: 7px; }
+    .nvh-dots button {
+      width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; cursor: pointer;
+      background: color-mix(in srgb, var(--text-main) 26%, transparent);
+      transition: background .3s ease, width .3s ease;
+    }
+    .nvh-dots button.on { background: linear-gradient(120deg, #0B84FF, #10B981); width: 24px; border-radius: 8px; }
+    @media (max-width: 720px) {
+      .nova-hero { min-height: 76vh; padding: 24px 14px 34px; }
+      .nvh-headline { font-size: clamp(26px, 10vw, 46px); }
+      .nvh-carousel { height: 380px; margin-bottom: 26px; }
+      .nvh-slide { width: 224px; margin-left: -112px; }
+      .nvh-title { font-size: 20px; }
+      .nvh-face { padding: 17px; }
+      .nvh-star { width: 62px; height: 62px; }
+    }
+
     /* Edge quick-tools rail */
     #edgeRail {
       position: fixed; top: 50%; right: 0; transform: translateY(-50%);

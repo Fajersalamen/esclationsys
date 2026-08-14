@@ -1521,6 +1521,32 @@
     document.getElementById('techEmptySub').textContent = isAr ? 'ستظهر المشاكل هنا فور تسجيلها' : 'Logged issues will appear here';
     if (TECH_ISSUES.length) renderTechSheet();
 
+    // Hero carousel
+    const heroText = {
+      nvhHeadA: ['أدواتك كلها', 'Everything'],
+      nvhHeadB: ['بمكان واحد', 'in one place'],
+      nvhTag1: ['الصفحة الرئيسية', 'Home'],
+      nvhTitle1: ['مكتبة السكريبتات', 'Script Library'],
+      nvhSub1: ['تصعيد · متابعة · إغلاق التذكرة', 'Escalation · Follow-up · Closing'],
+      nvhTag2: ['الدعم الفني', 'Support'],
+      nvhMeta2: ['مباشر ●', 'Live ●'],
+      nvhTitle2: ['مشاكل تقنية', 'Technical Issues'],
+      nvhSub2: ['سجّل العطل وتابع الحالة لحظياً', 'Log an issue, track it live'],
+      nvhTag3: ['التطوير', 'Development'],
+      nvhTitle3: ['مركز التدريب', 'Training Center'],
+      nvhSub3: ['سيناريوهات تفاعلية خطوة بخطوة', 'Interactive step-by-step scenarios'],
+      nvhTag4: ['أدوات سريعة', 'Quick Tools'],
+      nvhMeta4: ['5 أدوات', '5 tools'],
+      nvhTitle4: ['معلومات وأدوات', 'Info & Tools'],
+      nvhSub4: ['أخطاء حرجة · آداب المكالمة · تحديثات', 'Critical mistakes · Etiquette · Updates']
+    };
+    Object.keys(heroText).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = isAr ? heroText[id][0] : heroText[id][1];
+    });
+    refreshHeroCounts();
+    if (novaHeroLayout) novaHeroLayout();
+
     document.getElementById('bbTrainingLabel').textContent = isAr ? '🎓 مركز التدريب' : '🎓 Training Center';
     document.getElementById('trainingPageTitle').textContent = isAr ? 'مركز التدريب' : 'Training Center';
     document.getElementById('trainingPageSub').textContent = isAr ? 'دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة' : 'Your guide to handling every customer issue step by step';
@@ -1627,6 +1653,83 @@
     }
   }
   ['orbitCanvasHome', 'orbitCanvasTech', 'orbitCanvasTraining'].forEach(initOrbitField);
+
+  // ====== Hero: 3D rotating carousel of the site's sections ======
+  let novaHeroTimer = null;
+  let novaHeroLayout = null;
+  function setupNovaHero() {
+    const track = document.getElementById('nvhTrack');
+    const dotsWrap = document.getElementById('nvhDots');
+    if (!track || !dotsWrap) return;
+    const slides = Array.from(track.querySelectorAll('.nvh-slide'));
+    if (!slides.length) return;
+    let active = 0;
+
+    dotsWrap.innerHTML = '';
+    slides.forEach((s, i) => {
+      const d = document.createElement('button');
+      d.type = 'button';
+      const label = s.querySelector('.nvh-title');
+      d.setAttribute('aria-label', label ? label.textContent : String(i + 1));
+      d.addEventListener('click', () => { active = i; layout(); restart(); });
+      dotsWrap.appendChild(d);
+    });
+    const dots = Array.from(dotsWrap.children);
+
+    function layout() {
+      const n = slides.length;
+      const fan = window.innerWidth <= 720 ? 74 : 128;
+      slides.forEach((s, i) => {
+        let off = i - active;
+        if (off > n / 2) off -= n;
+        if (off < -n / 2) off += n;
+        const abs = Math.abs(off);
+        s.style.transform =
+          `translateX(${off * fan}px) translateZ(${-abs * 150}px) rotateY(${off * -30}deg) scale(${1 - abs * 0.08})`;
+        s.style.opacity = abs > 2 ? '0' : (off === 0 ? '1' : '0.8');
+        s.style.filter = off === 0 ? 'none' : 'brightness(.62)';
+        s.style.zIndex = String(50 - abs);
+        s.style.pointerEvents = abs > 2 ? 'none' : 'auto';
+      });
+      dots.forEach((d, i) => d.classList.toggle('on', i === active));
+    }
+    novaHeroLayout = layout;
+
+    function restart() {
+      clearInterval(novaHeroTimer);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      novaHeroTimer = setInterval(() => { active = (active + 1) % slides.length; layout(); }, 3600);
+    }
+
+    slides.forEach((s, i) => {
+      s.addEventListener('click', () => {
+        if (i !== active) { active = i; layout(); restart(); return; }
+        goToHeroSection(s.dataset.go);
+      });
+    });
+
+    layout();
+    window.addEventListener('resize', layout);
+    restart();
+  }
+
+  function goToHeroSection(key) {
+    if (key === 'tech') { openTechPage(); return; }
+    if (key === 'training') { openTrainingPage(); return; }
+    if (key === 'tools') { openPanel('general'); return; }
+    const controls = document.querySelector('.controls');
+    if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Keeps the hero cards' counters in sync with the real data.
+  function refreshHeroCounts() {
+    const isAr = currentLang === 'ar';
+    const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    set('nvhMeta1', SCRIPTS.length ? (isAr ? `${SCRIPTS.length} سكريبت` : `${SCRIPTS.length} scripts`) : '—');
+    set('nvhMeta3', TRAINING_PROBLEMS.length
+      ? (isAr ? `${TRAINING_PROBLEMS.length} مواضيع` : `${TRAINING_PROBLEMS.length} topics`)
+      : '—');
+  }
 
   let dashTipItem = null;
   function pickDashTip() {
@@ -2700,6 +2803,7 @@
   applyLanguage();
   setupKeyboardShortcuts();
   setupCardTilt();
+  setupNovaHero();
 
   function launchHomePlanet() {
     const icon = document.getElementById('bbHomeIcon');
@@ -2745,6 +2849,7 @@
     await loadAllData();
     pickDashTip();
     render();
+    refreshHeroCounts();
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
   }
