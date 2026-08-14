@@ -572,6 +572,7 @@
 
   function openTrainingPage() {
     closePanels();
+    closeToolsOverlay();
     closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
@@ -1821,10 +1822,26 @@
   function closeToolsOverlay() {
     const ov = document.getElementById('toolsOverlay');
     if (!ov) return;
-    ov.classList.remove('open');
+    ov.classList.remove('open', 'behind');
     ov.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     if (toolsFanCtrl) toolsFanCtrl.stop();
+  }
+  // Keep the Quick Tools fan visible (dimmed, non-interactive) behind a panel opened from it,
+  // instead of dropping all the way back to the home page.
+  function sendToolsOverlayBehind() {
+    const ov = document.getElementById('toolsOverlay');
+    if (!ov) return;
+    ov.classList.add('behind');
+    ov.setAttribute('aria-hidden', 'true');
+    if (toolsFanCtrl) toolsFanCtrl.stop();
+  }
+  function bringToolsOverlayFront() {
+    const ov = document.getElementById('toolsOverlay');
+    if (!ov) return;
+    ov.classList.remove('behind');
+    ov.setAttribute('aria-hidden', 'false');
+    if (toolsFanCtrl) { toolsFanCtrl.layout(); toolsFanCtrl.start(); }
   }
 
   function goToHeroSection(key) {
@@ -1990,16 +2007,18 @@
   }
 
   function updateNotificationBadge() {
-    const badge = document.getElementById('updateBadge');
-    if (!badge) return;
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     const unseenCount = UPDATES.filter(u => u.id > lastSeen).length;
-    if (unseenCount > 0) {
-      badge.textContent = unseenCount > 9 ? '9+' : String(unseenCount);
-      badge.style.display = 'flex';
-    } else {
-      badge.style.display = 'none';
-    }
+    const label = unseenCount > 9 ? '9+' : String(unseenCount);
+    [document.getElementById('updateBadge'), document.getElementById('nvhToolsBadge')].forEach(badge => {
+      if (!badge) return;
+      if (unseenCount > 0) {
+        badge.textContent = label;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    });
   }
 
   async function addUpdate() {
@@ -2204,6 +2223,7 @@
 
   function goHome() {
     closePanels();
+    closeToolsOverlay();
     closeTechPage();
     closeTrainingPage();
     closeAdminModal();
@@ -2216,6 +2236,7 @@
 
   function openTechPage() {
     closePanels();
+    closeToolsOverlay();
     closeTrainingPage();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
@@ -2806,7 +2827,8 @@
   let panelOpenedFromTools = false;
   function openPanel(type, opts) {
     panelOpenedFromTools = !!(opts && opts.fromTools);
-    closeToolsOverlay();
+    if (panelOpenedFromTools) sendToolsOverlayBehind();
+    else closeToolsOverlay();
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
     if (type === 'newUpdate') {
@@ -2825,7 +2847,7 @@
   function closePanelsByUser() {
     const returnToTools = panelOpenedFromTools;
     closePanels();
-    if (returnToTools) openToolsOverlay();
+    if (returnToTools) bringToolsOverlayFront();
   }
 
   // ===== ربط كل الأحداث برمجيًا (بدون onclick= داخل HTML) — مطلوب لتفعيل CSP بدون 'unsafe-inline' لـ script-src =====
