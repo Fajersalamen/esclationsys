@@ -943,10 +943,25 @@
       border-radius: 12px; background: #fff; color: #0B84FF; font-size: 11px; font-weight: 900;
       align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.35);
     }
-    .nvh-star {
+    .nvh-cube-stage {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      z-index: 1; width: 74px; height: 74px; filter: drop-shadow(0 6px 22px rgba(0,0,0,.28));
+      z-index: 1; width: 108px; height: 108px; perspective: 640px;
+      filter: drop-shadow(0 14px 26px rgba(0,0,0,.32));
     }
+    .nvh-cube {
+      display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+      animation: nvhCubeSpin 10s linear infinite;
+    }
+    .nvh-cube-face {
+      position: absolute; inset: 0; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+      backface-visibility: hidden; border: 1px solid rgba(255,255,255,.25);
+    }
+    .nvh-cube-face.front { background: linear-gradient(160deg, rgba(255,255,255,.32), rgba(255,255,255,.02)); transform: translateZ(38px); }
+    .nvh-cube-face.right { width: 76px; left: auto; right: -38px; background: rgba(0,0,0,.32); transform: rotateY(90deg) translateZ(38px); }
+    .nvh-cube-face.left { width: 76px; right: auto; left: -38px; background: rgba(0,0,0,.22); transform: rotateY(-90deg) translateZ(38px); }
+    .nvh-cube-face svg { width: 38px; height: 38px; stroke: #fff; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    @keyframes nvhCubeSpin { from { transform: rotateY(0deg) rotateX(-10deg); } to { transform: rotateY(360deg) rotateX(-10deg); } }
+    @media (prefers-reduced-motion: reduce) { .nvh-cube { animation: none; transform: rotateY(-28deg) rotateX(-10deg); } }
     .nvh-bottom { position: relative; z-index: 1; }
     .nvh-title { display: block; font-size: 24px; font-weight: 800; line-height: 1.25; color: #fff; }
     .nvh-sub { display: block; font-size: 11.5px; color: rgba(255,255,255,.75); margin-top: 7px; font-weight: 600; }
@@ -964,7 +979,14 @@
       .nvh-slide { width: 224px; margin-left: -112px; }
       .nvh-title { font-size: 20px; }
       .nvh-face { padding: 17px; }
-      .nvh-star { width: 62px; height: 62px; }
+      .nvh-cube-stage { width: 84px; height: 84px; }
+      .nvh-cube-face.right, .nvh-cube-face.left { width: 60px; }
+      .nvh-cube-face.right { right: -30px; }
+      .nvh-cube-face.left { left: -30px; }
+      .nvh-cube-face.front { transform: translateZ(30px); }
+      .nvh-cube-face.right { transform: rotateY(90deg) translateZ(30px); }
+      .nvh-cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
+      .nvh-cube-face svg { width: 30px; height: 30px; }
     }
 
     /* ===== Quick-tools overlay — 3D fan of the five helper tools ===== */
