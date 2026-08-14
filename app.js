@@ -1721,6 +1721,18 @@
       });
     });
 
+    // Scrolling over the carousel steps through the slides instead of scrolling the page.
+    let wheelLock = false;
+    track.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (wheelLock) return;
+      wheelLock = true;
+      active = (active + (e.deltaY > 0 ? 1 : -1) + slides.length) % slides.length;
+      layout();
+      restart();
+      setTimeout(() => { wheelLock = false; }, 450);
+    }, { passive: false });
+
     layout();
     window.addEventListener('resize', layout);
     restart();
@@ -2789,7 +2801,9 @@
     }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد اقتراحات بعد.</div>`;
   }
 
-  function openPanel(type) {
+  let panelOpenedFromTools = false;
+  function openPanel(type, opts) {
+    panelOpenedFromTools = !!(opts && opts.fromTools);
     closeToolsOverlay();
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
@@ -2799,23 +2813,31 @@
       updateNotificationBadge();
     }
   }
+  // Plain close: used by page-navigation cleanup (goHome, openTechPage, Escape, ...) — never re-opens Quick Tools.
   function closePanels() {
+    panelOpenedFromTools = false;
     document.getElementById('overlay').classList.remove('show');
     document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+  }
+  // User-initiated close (X button / backdrop click): returns to the Quick Tools list if the panel came from there.
+  function closePanelsByUser() {
+    const returnToTools = panelOpenedFromTools;
+    closePanels();
+    if (returnToTools) openToolsOverlay();
   }
 
   // ===== ربط كل الأحداث برمجيًا (بدون onclick= داخل HTML) — مطلوب لتفعيل CSP بدون 'unsafe-inline' لـ script-src =====
   function bindStaticEvents() {
     const on = (id, evt, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
-    document.querySelector('.qt-general').addEventListener('click', () => openPanel('general'));
-    document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical'));
-    document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette'));
-    document.querySelector('.qt-update').addEventListener('click', () => openPanel('newUpdate'));
-    document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest'));
+    document.querySelector('.qt-general').addEventListener('click', () => openPanel('general', { fromTools: true }));
+    document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical', { fromTools: true }));
+    document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette', { fromTools: true }));
+    document.querySelector('.qt-update').addEventListener('click', () => openPanel('newUpdate', { fromTools: true }));
+    document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest', { fromTools: true }));
 
-    on('overlay', 'click', closePanels);
-    document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanels));
+    on('overlay', 'click', closePanelsByUser);
+    document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
 
     on('btnSubmitSuggest', 'click', submitSuggestion);
 
