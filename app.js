@@ -1497,7 +1497,6 @@
     if (PRESENCE_USERS.length) renderPresenceList();
 
     document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
-    document.getElementById('bbTechLabel').textContent = isAr ? 'مشاكل تقنية' : 'Technical Issues';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
     document.getElementById('techLiveLabel').textContent = isAr ? 'مباشر' : 'Live';
     document.getElementById('techFormHeadTitle').textContent = isAr ? 'تسجيل مشكلة' : 'Log an Issue';
@@ -1547,7 +1546,21 @@
     refreshHeroCounts();
     if (novaHeroLayout) novaHeroLayout();
 
-    document.getElementById('bbTrainingLabel').textContent = isAr ? '🎓 مركز التدريب' : '🎓 Training Center';
+    // Quick-tools overlay
+    const toolsText = {
+      toolsOverlayTitle: ['أدوات سريعة', 'Quick Tools'],
+      toolsOverlaySub: ['كل الأدوات المساعدة بمكان واحد', 'Every helper tool in one place'],
+      lblToolTagGen: ['معلومات', 'Info'],
+      lblToolTagCrit: ['تحذير', 'Warning'],
+      lblToolTagEtiq: ['بروتوكول', 'Protocol'],
+      lblToolTagUpd: ['جديد', 'New'],
+      lblToolTagSug: ['شاركنا', 'Share']
+    };
+    Object.keys(toolsText).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = isAr ? toolsText[id][0] : toolsText[id][1];
+    });
+
     document.getElementById('trainingPageTitle').textContent = isAr ? 'مركز التدريب' : 'Training Center';
     document.getElementById('trainingPageSub').textContent = isAr ? 'دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة' : 'Your guide to handling every customer issue step by step';
     document.getElementById('trainingSearchInput').placeholder = isAr ? 'ابحث عن سيناريو تدريبي...' : 'Search training scenarios...';
@@ -1713,10 +1726,24 @@
     restart();
   }
 
+  // ====== Quick-tools overlay (3D fan of the five helper tools) ======
+  function openToolsOverlay() {
+    const ov = document.getElementById('toolsOverlay');
+    if (!ov) return;
+    ov.classList.add('open');
+    ov.setAttribute('aria-hidden', 'false');
+  }
+  function closeToolsOverlay() {
+    const ov = document.getElementById('toolsOverlay');
+    if (!ov) return;
+    ov.classList.remove('open');
+    ov.setAttribute('aria-hidden', 'true');
+  }
+
   function goToHeroSection(key) {
     if (key === 'tech') { openTechPage(); return; }
     if (key === 'training') { openTrainingPage(); return; }
-    if (key === 'tools') { openPanel('general'); return; }
+    if (key === 'tools') { openToolsOverlay(); return; }
     const controls = document.querySelector('.controls');
     if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -2026,6 +2053,7 @@
         closeAdminModal();
         closeTechPage();
         closeTrainingPage();
+        closeToolsOverlay();
       }
     });
   }
@@ -2689,6 +2717,7 @@
   }
 
   function openPanel(type) {
+    closeToolsOverlay();
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
     if (type === 'newUpdate') {
@@ -2771,8 +2800,8 @@
 
     // الشريط السفلي الثابت
     on('bbHomeBtn', 'click', () => { launchHomePlanet(); goHome(); });
-    on('bbTechBtn', 'click', openTechPage);
-    on('bbTrainingBtn', 'click', openTrainingPage);
+    on('toolsCloseBtn', 'click', closeToolsOverlay);
+    on('toolsOverlay', 'click', (e) => { if (e.target && e.target.id === 'toolsOverlay') closeToolsOverlay(); });
 
     // صفحة المشاكل التقنية
     on('techBackBtn', 'click', closeTechPage);
