@@ -1775,6 +1775,19 @@
       timer = setInterval(() => { active = (active + 1) % n; layout(); }, 3600);
     }
 
+    // Scrolling over the fan steps through the cards instead of scrolling the page behind it.
+    let wheelLock = false;
+    fan.addEventListener('wheel', (e) => {
+      if (gridQuery.matches) return;
+      e.preventDefault();
+      if (wheelLock) return;
+      wheelLock = true;
+      active = (active + (e.deltaY > 0 ? 1 : -1) + n) % n;
+      layout();
+      start();
+      setTimeout(() => { wheelLock = false; }, 450);
+    }, { passive: false });
+
     layout();
     window.addEventListener('resize', layout);
     gridQuery.addEventListener('change', () => { layout(); start(); });
@@ -1787,6 +1800,7 @@
     if (!ov) return;
     ov.classList.add('open');
     ov.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
     if (!toolsFanCtrl) toolsFanCtrl = setupToolsFan();
     if (toolsFanCtrl) { toolsFanCtrl.layout(); toolsFanCtrl.start(); }
   }
@@ -1795,6 +1809,7 @@
     if (!ov) return;
     ov.classList.remove('open');
     ov.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
     if (toolsFanCtrl) toolsFanCtrl.stop();
   }
 

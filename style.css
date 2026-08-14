@@ -967,6 +967,7 @@
       position: fixed; inset: 0; z-index: 98; display: none;
       align-items: center; justify-content: center; padding: 20px;
       background: rgba(4,6,10,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      overflow-y: auto;
     }
     .tools-overlay.open { display: flex; animation: toolsFadeIn .25s ease; }
     @keyframes toolsFadeIn { from { opacity: 0; } to { opacity: 1; } }
