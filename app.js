@@ -1726,18 +1726,76 @@
     restart();
   }
 
-  // ====== Quick-tools overlay (3D fan of the five helper tools) ======
+  // ====== Quick-tools overlay: vertical auto-rotating fan (mirrors setupNovaHero, but on the vertical axis) ======
+  let toolsFanCtrl = null;
+  function setupToolsFan() {
+    const fan = document.getElementById('toolsFan');
+    const dotsWrap = document.getElementById('toolsFanDots');
+    if (!fan || !dotsWrap) return null;
+    const cards = Array.from(fan.querySelectorAll('.tool-card'));
+    if (!cards.length) return null;
+    const n = cards.length;
+    let active = 0;
+    let timer = null;
+    const gridQuery = window.matchMedia('(max-width: 860px)');
+
+    dotsWrap.innerHTML = '';
+    cards.forEach(() => dotsWrap.appendChild(document.createElement('span')));
+    const dots = Array.from(dotsWrap.children);
+
+    function layout() {
+      if (gridQuery.matches) {
+        cards.forEach(c => {
+          c.style.transform = ''; c.style.opacity = ''; c.style.filter = '';
+          c.style.zIndex = ''; c.style.pointerEvents = '';
+        });
+        dots.forEach(d => d.classList.remove('on'));
+        return;
+      }
+      const fanY = window.innerWidth <= 720 ? 74 : 118;
+      cards.forEach((card, i) => {
+        let off = i - active;
+        if (off > n / 2) off -= n;
+        if (off < -n / 2) off += n;
+        const abs = Math.abs(off);
+        card.style.transform =
+          `translateY(${off * fanY}px) translateZ(${-abs * 150}px) rotateX(${off * 22}deg) scale(${1 - abs * 0.1})`;
+        card.style.opacity = abs > 2 ? '0' : (off === 0 ? '1' : String(0.85 - abs * 0.12));
+        card.style.filter = off === 0 ? 'none' : 'brightness(.6)';
+        card.style.zIndex = String(50 - abs);
+        card.style.pointerEvents = abs > 2 ? 'none' : 'auto';
+      });
+      dots.forEach((d, i) => d.classList.toggle('on', i === active));
+    }
+
+    function stop() { clearInterval(timer); timer = null; }
+    function start() {
+      stop();
+      if (gridQuery.matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      timer = setInterval(() => { active = (active + 1) % n; layout(); }, 3600);
+    }
+
+    layout();
+    window.addEventListener('resize', layout);
+    gridQuery.addEventListener('change', () => { layout(); start(); });
+
+    return { layout, start, stop };
+  }
+
   function openToolsOverlay() {
     const ov = document.getElementById('toolsOverlay');
     if (!ov) return;
     ov.classList.add('open');
     ov.setAttribute('aria-hidden', 'false');
+    if (!toolsFanCtrl) toolsFanCtrl = setupToolsFan();
+    if (toolsFanCtrl) { toolsFanCtrl.layout(); toolsFanCtrl.start(); }
   }
   function closeToolsOverlay() {
     const ov = document.getElementById('toolsOverlay');
     if (!ov) return;
     ov.classList.remove('open');
     ov.setAttribute('aria-hidden', 'true');
+    if (toolsFanCtrl) toolsFanCtrl.stop();
   }
 
   function goToHeroSection(key) {

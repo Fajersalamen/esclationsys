@@ -990,22 +990,27 @@
       background: radial-gradient(ellipse, rgba(11,132,255,.4), rgba(16,185,129,.26) 48%, transparent 72%);
       filter: blur(46px);
     }
+    .tools-fan { transform-style: preserve-3d; }
     .tools-fan .tool-card {
       position: absolute; top: 50%; left: 50%; width: 172px; height: 250px; margin: -125px 0 0 -86px;
       border-radius: 20px; overflow: hidden; cursor: pointer; border: none; padding: 0;
       font-family: inherit; text-align: start; color: #fff; background: none;
       box-shadow: 0 26px 50px -20px rgba(0,0,0,.75);
-      transition: transform .3s cubic-bezier(.22,.85,.25,1), box-shadow .3s;
+      transition: transform .85s cubic-bezier(.22,.85,.25,1), opacity .8s ease, filter .8s ease, box-shadow .3s;
     }
-    .tools-fan .tool-card:nth-child(2) { transform: translateX(-330px) translateZ(-190px) rotateY(34deg) rotate(-8deg); }
-    .tools-fan .tool-card:nth-child(3) { transform: translateX(-168px) translateZ(-80px) rotateY(18deg) rotate(-4deg); }
-    .tools-fan .tool-card:nth-child(4) { transform: translateZ(20px); }
-    .tools-fan .tool-card:nth-child(5) { transform: translateX(168px) translateZ(-80px) rotateY(-18deg) rotate(4deg); }
-    .tools-fan .tool-card:nth-child(6) { transform: translateX(330px) translateZ(-190px) rotateY(-34deg) rotate(8deg); }
     .tools-fan .tool-card:hover, .tools-fan .tool-card:focus-visible {
-      transform: translateZ(70px) scale(1.06); z-index: 9;
       box-shadow: 0 34px 62px -20px rgba(0,0,0,.85);
     }
+    .tools-fan-dots {
+      position: absolute; top: 50%; inset-inline-end: 14px; transform: translateY(-50%);
+      z-index: 5; display: flex; flex-direction: column; gap: 7px;
+    }
+    .tools-fan-dots span {
+      width: 6px; height: 6px; border-radius: 50%; display: block;
+      background: rgba(255,255,255,.28);
+      transition: background .3s ease, height .3s ease;
+    }
+    .tools-fan-dots span.on { background: linear-gradient(180deg, #0B84FF, #10B981); height: 20px; border-radius: 8px; }
     .tool-face {
       position: absolute; inset: 0; padding: 18px;
       display: flex; flex-direction: column; justify-content: space-between;
@@ -1044,6 +1049,7 @@
       }
       .tools-fan .tool-card:hover, .tools-fan .tool-card:focus-visible { transform: translateY(-5px); }
       .tools-fan-glow { display: none; }
+      .tools-fan-dots { display: none; }
     }
     /* Rotating tip bar — one line above the tabs, sourced from Critical mistakes / Etiquette items */
     .dash-tip {
