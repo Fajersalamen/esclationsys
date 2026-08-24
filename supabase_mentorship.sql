@@ -3,18 +3,29 @@
 -- =====================================================================
 -- WHY THIS FILE EXISTS
 -- Adds two tables so a trainee can request a specific colleague as
--- their mentor by email, that colleague can accept or decline, and
--- once accepted the pair gets a private Q&A thread. There is no
--- general employee directory in this app (profiles/user_presence are
--- both locked to "own row or admin" by design — see
--- supabase_rls_policies.sql), so a trainee must know and type the
--- mentor's email directly; this file does not change that.
+-- their mentor, that colleague can accept or decline, and once
+-- accepted the pair gets a private Q&A thread. There is no general
+-- employee directory in this app otherwise (profiles/user_presence
+-- are both locked to "own row or admin" by design — see
+-- supabase_rls_policies.sql), so this file also adds a narrow
+-- SECURITY DEFINER function that returns just the email addresses of
+-- every account that can sign in (i.e. every row in auth.users), so
+-- the mentor picker can be a dropdown instead of free-text.
+--
+-- SECURITY NOTE: list_directory_emails() intentionally exposes every
+-- employee's email address to every other signed-in employee (email
+-- only — no password, role, or other profile data). That is a real,
+-- deliberate widening from "each user can only read their own info"
+-- to "any employee can see the email directory." Skip that function
+-- (and adjust the mentor-picker UI back to free-text) if that's not
+-- something you want.
 --
 -- HOW TO APPLY
 -- Run this once in the Supabase project's SQL Editor. Safe to re-run:
--- CREATE TABLE IF NOT EXISTS, and each policy is dropped before being
--- recreated. Assumes supabase_rls_policies.sql has already been
--- applied (reuses public.is_full_admin()).
+-- CREATE TABLE IF NOT EXISTS, CREATE OR REPLACE FUNCTION, and each
+-- policy is dropped before being recreated. Assumes
+-- supabase_rls_policies.sql has already been applied (reuses
+-- public.is_full_admin()).
 -- =====================================================================
 
 create table if not exists public.mentor_requests (
@@ -100,3 +111,26 @@ create policy "mentor_messages_select_own_thread" on public.mentor_messages
 drop policy if exists "mentor_messages_delete_full_admin" on public.mentor_messages;
 create policy "mentor_messages_delete_full_admin" on public.mentor_messages
   for delete using (public.is_full_admin());
+
+
+-- ---------------------------------------------------------------------
+-- Mentor picker directory: every email address that can sign in.
+-- SECURITY DEFINER so it can read auth.users (not otherwise exposed
+-- to PostgREST) while returning nothing but the email column. See
+-- the security note at the top of this file before applying.
+-- ---------------------------------------------------------------------
+create or replace function public.list_directory_emails()
+returns table(email text)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select u.email::text
+  from auth.users u
+  where u.email is not null
+  order by u.email;
+$$;
+
+revoke all on function public.list_directory_emails() from public;
+grant execute on function public.list_directory_emails() to authenticated;

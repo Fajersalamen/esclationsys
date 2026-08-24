@@ -1561,6 +1561,7 @@
     document.getElementById('lblMyOutgoing').textContent = isAr ? 'طلباتي المرسلة:' : 'My sent requests:';
     document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
     document.getElementById('mentorChatInput').placeholder = isAr ? 'اكتب رسالة...' : 'Write a message...';
+    renderMentorEmailOptions();
     if (document.getElementById('mentorshipPage').classList.contains('open')) switchMentorTab(activeMentorTab);
 
     document.getElementById('hSuggest').textContent = isAr ? '💡 اقتراح جديد' : '💡 New Suggestion';
@@ -2472,8 +2473,26 @@
   let activeMentorTab = 'request';
   let openMentorThreadId = null;
   let mentorChatPollTimer = null;
+  let DIRECTORY_EMAILS = [];
 
-  function isValidEmail(str) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str); }
+  // The mentor picker's option list — every email that can sign in (via the
+  // list_directory_emails() RPC), so the trainee doesn't have to type one.
+  async function loadDirectoryEmails() {
+    const { data, error } = await sb.rpc('list_directory_emails');
+    DIRECTORY_EMAILS = error ? [] : (data || []).map(r => r.email).filter(Boolean);
+    renderMentorEmailOptions();
+  }
+
+  function renderMentorEmailOptions() {
+    const sel = document.getElementById('mentorRequestEmail');
+    if (!sel) return;
+    const isAr = currentLang === 'ar';
+    const previous = sel.value;
+    const others = DIRECTORY_EMAILS.filter(e => e !== currentUserEmail);
+    const placeholder = `<option value="">${isAr ? '— اختر زميل —' : '— Select a colleague —'}</option>`;
+    sel.innerHTML = placeholder + others.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+    if (previous && others.includes(previous)) sel.value = previous;
+  }
 
   function mentorStatusLabel(status, isAr) {
     const map = {
@@ -2556,8 +2575,8 @@
       showToast(isAr ? 'تعذّر التعرف على المستخدم، الرجاء تسجيل الدخول مجدداً.' : 'Could not identify the user, please sign in again.', 'error');
       return;
     }
-    if (!isValidEmail(mentorEmail)) {
-      showToast(isAr ? 'يرجى كتابة إيميل صحيح.' : 'Please enter a valid email.', 'error');
+    if (!mentorEmail) {
+      showToast(isAr ? 'يرجى اختيار زميل من القائمة.' : 'Please pick a colleague from the list.', 'error');
       return;
     }
     if (mentorEmail.toLowerCase() === traineeEmail.toLowerCase()) {
@@ -3585,4 +3604,5 @@
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
     startUpdatesPolling();
+    loadDirectoryEmails();
   }

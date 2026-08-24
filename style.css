@@ -1626,7 +1626,7 @@
     .mentorship-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
       margin: -18px -16px 20px; padding: 30px 20px 34px;
-      background: linear-gradient(120deg, #EC4899 0%, #DB2777 55%, #9D174D 100%);
+      background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
       position: relative; overflow: hidden;
     }
     .mentorship-page-head::before {
@@ -1644,8 +1644,8 @@
       padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; cursor: pointer;
       transition: background .18s ease, color .18s ease, border-color .18s ease;
     }
-    .mentorship-tab-btn.active { background: #DB2777; color: #fff; border-color: #DB2777; }
-    .mentorship-tab-btn:hover:not(.active) { border-color: #DB2777; color: #DB2777; }
+    .mentorship-tab-btn.active { background: #0B84FF; color: #fff; border-color: #0B84FF; }
+    .mentorship-tab-btn:hover:not(.active) { border-color: #0B84FF; color: #0B84FF; }
     .mentorship-tab-badge {
       min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px; background: #F0424A; color: #fff;
       font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
@@ -1653,7 +1653,7 @@
 
     .mentorship-field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); }
     .mentorship-primary-btn {
-      width: 100%; background: #DB2777; color: #fff; border: none; padding: 10px; border-radius: 8px;
+      width: 100%; background: #0B84FF; color: #fff; border: none; padding: 10px; border-radius: 8px;
       font-weight: 700; cursor: pointer; transition: opacity .18s ease, transform .15s ease;
     }
     .mentorship-primary-btn:hover { opacity: .92; }
@@ -1686,20 +1686,20 @@
       transition: border-color .18s ease, background .18s ease;
       animation: cardEnter .36s cubic-bezier(.2,.75,.25,1) both;
     }
-    .mentor-chat-card:hover { border-color: color-mix(in srgb, #DB2777 30%, var(--border)); background: color-mix(in srgb, #DB2777 5%, var(--card)); }
+    .mentor-chat-card:hover { border-color: color-mix(in srgb, #0B84FF 30%, var(--border)); background: color-mix(in srgb, #0B84FF 5%, var(--card)); }
     .mentor-chat-card .who { font-size: 13px; font-weight: 700; color: var(--text-main); }
     .mentor-chat-card .role-tag { font-size: 10px; font-weight: 700; color: var(--slate-soft); }
 
-    .mentorship-back-link { background: none; border: none; color: #DB2777; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 0 14px; }
+    .mentorship-back-link { background: none; border: none; color: #0B84FF; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 0 14px; }
     .mentorship-chat-messages { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding: 4px 2px 14px; }
     .mentor-msg { max-width: 78%; padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.5; white-space: pre-line; }
     .mentor-msg .mentor-msg-time { display: block; font-size: 9.5px; opacity: .65; margin-top: 3px; }
-    .mentor-msg.mine { align-self: flex-end; background: #DB2777; color: #fff; border-bottom-right-radius: 4px; }
+    .mentor-msg.mine { align-self: flex-end; background: #0B84FF; color: #fff; border-bottom-right-radius: 4px; }
     .mentor-msg.theirs { align-self: flex-start; background: var(--surface-soft, var(--bg)); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
     .mentorship-chat-input-row { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding-top: 8px; }
     #mentorChatInput { flex: 1; min-height: 42px; }
     #mentorChatSendBtn {
-      width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; border: none; background: #DB2777; color: #fff;
+      width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; border: none; background: #0B84FF; color: #fff;
       font-size: 16px; font-weight: 800; cursor: pointer;
     }
     .mentorship-empty { font-size: 11.5px; color: var(--slate-soft); text-align: center; padding: 20px 10px; }
