@@ -573,6 +573,7 @@
   function openTrainingPage() {
     closePanels();
     closeToolsOverlay();
+    closeUpdatesPage();
     closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
@@ -1466,9 +1467,14 @@
     document.getElementById('hGenInfo').textContent = isAr ? 'ℹ️ معلومات عامة' : 'ℹ️ General Information';
     document.getElementById('hEtiqCall').textContent = isAr ? '📞 بروتوكول المكالمة' : '📞 Etiquette Call';
     document.getElementById('hCritMist').textContent = isAr ? '⚠ الأخطاء الحرجة' : '⚠ Critical Mistakes';
-    document.getElementById('hNewUpdate').textContent = isAr ? '🔔 التحديثات الجديدة' : '🔔 New Updates';
     document.getElementById('lblUpdDesc').textContent = isAr ? 'أضف تحديثاً جديداً — سيظهر إشعار للفريق تلقائياً:' : 'Add a new update — the team gets a notification automatically:';
     document.getElementById('btnAddUpd').textContent = isAr ? '🔔 نشر التحديث للفريق' : '🔔 Publish Update to Team';
+
+    document.getElementById('updatesPageTitle').textContent = isAr ? '🔔 التحديثات الجديدة' : '🔔 New Updates';
+    document.getElementById('updatesPageSub').textContent = isAr ? 'كل شي جديد أو اتغيّر مؤخراً بمكان واحد' : "Everything the team shipped or changed recently, in one place";
+    document.getElementById('updatesSearchInput').placeholder = isAr ? 'ابحث بنص التحديث...' : 'Search updates...';
+    document.getElementById('updatesRecentLabel').textContent = isAr ? 'الأحدث' : 'Recent';
+    if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
 
     document.getElementById('hSuggest').textContent = isAr ? '💡 اقتراح جديد' : '💡 New Suggestion';
     document.getElementById('lblSuggestDesc').textContent = isAr ? 'شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.' : 'Share your suggestion to improve the work — it goes straight to management only.';
@@ -1981,29 +1987,91 @@
       return `<p style="padding:8px; background:rgba(20,91,140,0.1); border-inline-start:3px solid #145b8c; margin-bottom:6px; font-size:13px;">${escapeHtml(text)}</p>`;
     }).join('');
 
-    const sortedUpdates = [...UPDATES].sort((a, b) => b.id - a.id);
-    const updList = document.getElementById('newUpdateList');
-    if (!sortedUpdates.length) {
-      updList.innerHTML = `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حالياً.' : 'No updates yet.'}</div>`;
-    } else {
-      const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
-      const cutoff = Date.now() - ARCHIVE_MS;
-      const recentUpdates = sortedUpdates.filter(u => u.createdAt >= cutoff);
-      const archivedUpdates = sortedUpdates.filter(u => u.createdAt < cutoff);
-      const renderCard = u => {
-        const dateStr = new Date(u.createdAt).toLocaleString(isAr ? 'ar' : 'en', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-        return `<div class="update-card"><div class="update-top"><span class="update-date">${dateStr}</span></div><div class="update-text">${escapeHtml(u.text)}</div></div>`;
-      };
-      let html = recentUpdates.length
-        ? recentUpdates.map(renderCard).join('')
-        : `<div class="info-card" style="border-inline-start-color:#5b3fb0;">${isAr ? 'لا توجد تحديثات حديثة.' : 'No recent updates.'}</div>`;
-      if (archivedUpdates.length) {
-        const archiveLabel = isAr ? `📁 أرشيف التحديثات القديمة (${archivedUpdates.length})` : `📁 Archived Updates (${archivedUpdates.length})`;
-        html += `<details class="update-archive"><summary>${archiveLabel}</summary>${archivedUpdates.map(renderCard).join('')}</details>`;
-      }
-      updList.innerHTML = html;
-    }
     updateNotificationBadge();
+  }
+
+  // ===================== Updates page (full page, replaces the old cramped side-panel) =====================
+  let updatesUnseenAtOpen = new Set();
+
+  function renderUpdatesPage() {
+    const isAr = currentLang === 'ar';
+    const q = (document.getElementById('updatesSearchInput')?.value || '').toLowerCase().trim();
+    const recentSection = document.getElementById('updatesRecentSection');
+    const archiveSection = document.getElementById('updatesArchiveSection');
+    const recentList = document.getElementById('updatesRecentList');
+    const archiveList = document.getElementById('updatesArchiveList');
+    const emptyEl = document.getElementById('updatesEmpty');
+    if (!recentList || !archiveList) return;
+
+    const sortedUpdates = [...UPDATES].filter(u => !q || u.text.toLowerCase().includes(q)).sort((a, b) => b.id - a.id);
+
+    if (!UPDATES.length) {
+      recentSection.style.display = 'none';
+      archiveSection.style.display = 'none';
+      emptyEl.style.display = 'block';
+      document.getElementById('updatesEmptyTitle').textContent = isAr ? 'لا توجد تحديثات بعد' : 'No updates yet';
+      document.getElementById('updatesEmptySub').textContent = isAr ? 'أي إعلان جديد رح يظهر هون' : 'New announcements will show up here';
+      return;
+    }
+    if (!sortedUpdates.length) {
+      recentSection.style.display = 'none';
+      archiveSection.style.display = 'none';
+      emptyEl.style.display = 'block';
+      document.getElementById('updatesEmptyTitle').textContent = isAr ? 'لا توجد نتائج مطابقة' : 'No matching results';
+      document.getElementById('updatesEmptySub').textContent = isAr ? 'جرّب كلمة بحث أخرى.' : 'Try a different search term.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
+    const cutoff = Date.now() - ARCHIVE_MS;
+    const recentUpdates = sortedUpdates.filter(u => u.createdAt >= cutoff);
+    const archivedUpdates = sortedUpdates.filter(u => u.createdAt < cutoff);
+    const renderCard = u => {
+      const dateStr = new Date(u.createdAt).toLocaleString(isAr ? 'ar' : 'en', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const isNew = updatesUnseenAtOpen.has(u.id);
+      const chip = isNew ? `<span class="update-new-chip">${isAr ? 'جديد' : 'New'}</span>` : '';
+      return `<div class="update-card${isNew ? ' is-new' : ''}"><div class="update-top"><span class="update-date">${dateStr}</span>${chip}</div><div class="update-text">${escapeHtml(u.text)}</div></div>`;
+    };
+
+    recentSection.style.display = recentUpdates.length ? 'block' : 'none';
+    recentList.innerHTML = recentUpdates.map(renderCard).join('');
+
+    archiveSection.style.display = archivedUpdates.length ? 'block' : 'none';
+    document.getElementById('updatesArchiveLabel').textContent = isAr ? `📁 الأرشيف (${archivedUpdates.length})` : `📁 Archive (${archivedUpdates.length})`;
+    archiveList.innerHTML = archivedUpdates.map(renderCard).join('');
+  }
+
+  let updatesPageFromTools = false;
+  function openUpdatesPage(opts) {
+    updatesPageFromTools = !!(opts && opts.fromTools);
+    closePanels();
+    closeTechPage();
+    closeTrainingPage();
+    if (updatesPageFromTools) sendToolsOverlayBehind();
+    else closeToolsOverlay();
+
+    const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
+    updatesUnseenAtOpen = new Set(UPDATES.filter(u => u.id > lastSeen).map(u => u.id));
+
+    const input = document.getElementById('updatesSearchInput');
+    if (input) input.value = '';
+    renderUpdatesPage();
+
+    const latestId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
+    localStorage.setItem('fajer_updates_seen_v2', String(latestId));
+    updateNotificationBadge();
+
+    document.getElementById('updatesPage').classList.add('open');
+  }
+  function closeUpdatesPage() {
+    document.getElementById('updatesPage').classList.remove('open');
+    updatesPageFromTools = false;
+  }
+  function closeUpdatesPageByUser() {
+    const returnToTools = updatesPageFromTools;
+    closeUpdatesPage();
+    if (returnToTools) bringToolsOverlayFront();
   }
 
   function updateNotificationBadge() {
@@ -2159,6 +2227,7 @@
         closeAdminModal();
         closeTechPage();
         closeTrainingPage();
+        closeUpdatesPage();
         closeToolsOverlay();
       }
     });
@@ -2224,6 +2293,7 @@
   function goHome() {
     closePanels();
     closeToolsOverlay();
+    closeUpdatesPage();
     closeTechPage();
     closeTrainingPage();
     closeAdminModal();
@@ -2237,6 +2307,7 @@
   function openTechPage() {
     closePanels();
     closeToolsOverlay();
+    closeUpdatesPage();
     closeTrainingPage();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
@@ -2831,11 +2902,6 @@
     else closeToolsOverlay();
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
-    if (type === 'newUpdate') {
-      const latestId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
-      localStorage.setItem('fajer_updates_seen_v2', String(latestId));
-      updateNotificationBadge();
-    }
   }
   // Plain close: used by page-navigation cleanup (goHome, openTechPage, Escape, ...) — never re-opens Quick Tools.
   function closePanels() {
@@ -2857,11 +2923,13 @@
     document.querySelector('.qt-general').addEventListener('click', () => openPanel('general', { fromTools: true }));
     document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical', { fromTools: true }));
     document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette', { fromTools: true }));
-    document.querySelector('.qt-update').addEventListener('click', () => openPanel('newUpdate', { fromTools: true }));
+    document.querySelector('.qt-update').addEventListener('click', () => openUpdatesPage({ fromTools: true }));
     document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest', { fromTools: true }));
 
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
+    on('updatesBackBtn', 'click', closeUpdatesPageByUser);
+    on('updatesSearchInput', 'input', renderUpdatesPage);
 
     on('btnSubmitSuggest', 'click', submitSuggestion);
 
@@ -2987,6 +3055,13 @@
       card.style.removeProperty('--rx'); card.style.removeProperty('--ry');
       card.style.removeProperty('--mx'); card.style.removeProperty('--my');
     }
+  }
+
+  // ====== PWA: install the app-shell service worker (icons/scripts only — Supabase calls pass straight through) ======
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
   }
 
   async function bootApp(userId) {
