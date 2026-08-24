@@ -1220,8 +1220,16 @@
       background: var(--surface-soft);
     }
     #techSheetTable td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    #techSheetTable tbody tr { transition: background .15s ease; }
+    #techSheetTable tbody tr {
+      transition: background .15s ease;
+      animation: cardEnter .4s cubic-bezier(.2,.75,.25,1) both;
+    }
     #techSheetTable tbody tr:hover { background: color-mix(in srgb, var(--brand-blue) 4%, transparent); }
+    #techSheetTable tbody tr:nth-child(2) { animation-delay: 35ms; }
+    #techSheetTable tbody tr:nth-child(3) { animation-delay: 70ms; }
+    #techSheetTable tbody tr:nth-child(4) { animation-delay: 105ms; }
+    #techSheetTable tbody tr:nth-child(5) { animation-delay: 140ms; }
+    #techSheetTable tbody tr:nth-child(n+6) { animation-delay: 170ms; }
     #techSheetTable tr:last-child td { border-bottom: none; }
     .tech-num-cell { display: flex; align-items: center; gap: 10px; font-weight: 700; }
     .tech-num-cell .num-icon {
@@ -1405,6 +1413,10 @@
       align-items: center; gap: 4px; transition: gap .18s ease;
     }
     .training-card:hover .training-card-more { gap: 7px; }
+    .training-card:nth-child(2) { animation-delay: 45ms; }
+    .training-card:nth-child(3) { animation-delay: 90ms; }
+    .training-card:nth-child(4) { animation-delay: 135ms; }
+    .training-card:nth-child(n+5) { animation-delay: 175ms; }
 
     /* Isometric 3D-style illustration banner — reused for grid cards, question stage, and solution stage */
     .training-illus { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
@@ -1450,7 +1462,10 @@
 
     .training-tree-stage { max-width: 620px; margin: 0 auto; }
     .training-trail { display: flex; flex-direction: column; align-items: stretch; }
-    .training-connector { width: 2px; height: 24px; margin: 0 auto; background: linear-gradient(180deg, color-mix(in srgb, var(--training-accent, var(--brand-blue)) 45%, transparent), color-mix(in srgb, var(--training-accent, var(--brand-blue)) 10%, transparent)); position: relative; }
+    .training-connector {
+      width: 2px; height: 24px; margin: 0 auto; background: linear-gradient(180deg, color-mix(in srgb, var(--training-accent, var(--brand-blue)) 45%, transparent), color-mix(in srgb, var(--training-accent, var(--brand-blue)) 10%, transparent)); position: relative;
+      animation: cardEnter .3s ease both;
+    }
     .training-connector::after {
       content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
@@ -1463,6 +1478,11 @@
       backdrop-filter: blur(10px) saturate(150%); -webkit-backdrop-filter: blur(10px) saturate(150%);
       animation: cardEnter .38s cubic-bezier(.2,.75,.25,1) both;
     }
+    /* Each node-card is followed by a .training-connector sibling, so trail steps land on the odd nth-child positions. */
+    .training-trail .training-node-card:nth-child(3) { animation-delay: 55ms; }
+    .training-trail .training-node-card:nth-child(5) { animation-delay: 110ms; }
+    .training-trail .training-node-card:nth-child(7) { animation-delay: 165ms; }
+    .training-trail .training-node-card:nth-child(n+9) { animation-delay: 200ms; }
     .training-node-card.answered {
       opacity: .68; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     }
@@ -1490,6 +1510,7 @@
       background: color-mix(in srgb, var(--training-accent, #16A34A) 8%, var(--card));
       border: 1.5px solid color-mix(in srgb, var(--training-accent, #16A34A) 32%, var(--border));
       border-radius: 18px; padding: 26px 22px; text-align: center; overflow: hidden;
+      animation: cardEnter .4s cubic-bezier(.2,.75,.25,1) both;
     }
     .training-end-title { font-size: 16px; font-weight: 800; color: var(--training-accent, #15803D); margin: 0 0 16px; }
     .training-end-fields { display: flex; flex-direction: column; gap: 10px; text-align: start; margin-bottom: 18px; }
