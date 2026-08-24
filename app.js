@@ -339,6 +339,7 @@
   let ETIQUETTE_ITEMS = [];
   let UPDATES = [];
   let SUGGESTIONS = [];
+  let SCRIPT_SUBMISSIONS = [];
 
   // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول
   async function loadAllData() {
@@ -365,6 +366,13 @@
     } else {
       SUGGESTIONS = [];
     }
+
+    // مساهمات السكريبتات: كل موظف يشوف مساهماته هو، والأدمن يشوفهم كلهم (RLS بتحدد هيك تلقائياً)
+    const subRes = await sb.from('script_submissions').select('*').order('id', { ascending: false });
+    SCRIPT_SUBMISSIONS = subRes.error ? [] : (subRes.data || []).map(s => ({
+      id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar,
+      submittedBy: s.submitted_by, status: s.status, createdAt: new Date(s.created_at).getTime()
+    }));
 
     // بيانات مركز التدريب (Dynamic) — يتم تحميلها لكل المستخدمين (RLS بتحدد شو يوصلهم فعلياً)
     await loadTrainingData();
@@ -1462,6 +1470,7 @@
     document.getElementById('lblSideCrit').textContent = isAr ? 'أخطاء حرجة' : 'CRITICAL MISTAKES';
     document.getElementById('lblSideEtiq').textContent = isAr ? 'بروتوكول المكالمة' : 'ETIQUETTE CALL';
     document.getElementById('lblSideSuggest').textContent = isAr ? 'الاقتراحات' : 'SUGGESTIONS';
+    document.getElementById('lblSideContrib').textContent = isAr ? 'ساهم بحل' : 'CONTRIBUTE A FIX';
 
     document.getElementById('hGenInfo').textContent = isAr ? 'ℹ️ معلومات عامة' : 'ℹ️ General Information';
     document.getElementById('hEtiqCall').textContent = isAr ? '📞 بروتوكول المكالمة' : '📞 Etiquette Call';
@@ -1481,6 +1490,16 @@
     document.getElementById('suggestText').placeholder = isAr ? 'اكتب اقتراحك هنا...' : 'Write your suggestion here...';
     document.getElementById('btnSubmitSuggest').textContent = isAr ? 'إرسال الاقتراح' : 'Submit Suggestion';
     document.getElementById('lblSuggAdminDesc').textContent = isAr ? 'اقتراحات الموظفين — تظهر هنا فقط ولا يراها أحد غيرك:' : "Employee suggestions — visible only here, no one else can see them:";
+
+    document.getElementById('hContribute').textContent = isAr ? '📚 ساهم بحل' : '📚 Contribute a Fix';
+    document.getElementById('lblContribDesc').textContent = isAr ? 'واجهت موقف ما إلو سكريبت جاهز وحليته بنفسك؟ شاركه هون — الأدمن بيراجعه وممكن يضيفه للمكتبة الرسمية.' : "Ran into a situation without a ready script and solved it yourself? Share it here — an admin reviews it and may add it to the official library.";
+    document.getElementById('lblContribCat').textContent = isAr ? 'التصنيف:' : 'Category:';
+    document.getElementById('contributeTitle').placeholder = isAr ? 'عنوان السكريبت...' : 'Script title...';
+    document.getElementById('contributeText').placeholder = isAr ? 'نص الحل...' : 'The solution text...';
+    document.getElementById('btnSubmitContribute').textContent = isAr ? 'إرسال للمراجعة' : 'Submit for Review';
+    document.getElementById('lblMyContribs').textContent = isAr ? 'مساهماتي:' : 'My Contributions:';
+    document.getElementById('lblContribAdminDesc').textContent = isAr ? 'مساهمات الموظفين بحلول جاهزة — راجعها ثم انشرها بمكتبة السكريبتات أو ارفضها:' : 'Employee-contributed solutions — review, then publish to the Script Library or reject:';
+    renderContributePanel();
 
     document.getElementById('hAdminPortal').textContent = isAr ? '⚙️ بوابة إدارة النظام' : '⚙️ Admin Management Portal';
     document.getElementById('lblAdminPass').textContent = isAr ? 'ما عندك صلاحية الوصول لهذه اللوحة.' : "You don't have access to this panel.";
@@ -1524,6 +1543,7 @@
     document.getElementById('techColTime').textContent = isAr ? 'الوقت' : 'Time';
     document.getElementById('techEmptyTitle').textContent = isAr ? 'لا توجد مشاكل مسجلة بعد' : 'No issues logged yet';
     document.getElementById('techEmptySub').textContent = isAr ? 'ستظهر المشاكل هنا فور تسجيلها' : 'Logged issues will appear here';
+    document.getElementById('techExportBtnLabel').textContent = isAr ? 'تصدير' : 'Export';
     if (TECH_ISSUES.length) renderTechSheet();
 
     // Hero carousel
@@ -2268,6 +2288,98 @@
     renderAdminLists();
   }
 
+  // ===================== Contribute a Fix (crowd-sourced script library) =====================
+  function renderContributePanel() {
+    const isAr = currentLang === 'ar';
+    const sel = document.getElementById('contributeCat');
+    if (sel) {
+      sel.innerHTML = CATEGORIES.map(c => `<option value="${c.key}">${escapeHtml((isAr && c.labelAr) ? c.labelAr : c.label)}</option>`).join('');
+    }
+    const list = document.getElementById('myContributionsList');
+    if (!list) return;
+    const statusLabel = {
+      pending: [isAr ? 'قيد المراجعة' : 'Pending', '#D97706'],
+      approved: [isAr ? 'اتنشرت' : 'Published', '#10B981'],
+      rejected: [isAr ? 'مرفوض' : 'Rejected', '#B91C1C']
+    };
+    const mine = SCRIPT_SUBMISSIONS.filter(s => s.submittedBy === currentUserEmail).sort((a, b) => b.id - a.id);
+    list.innerHTML = mine.length ? mine.map(s => {
+      const [label, color] = statusLabel[s.status] || statusLabel.pending;
+      const title = (isAr && s.titleAr) ? s.titleAr : (s.title || s.titleAr);
+      return `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:6px;">
+        <span style="font-size:12px; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(title || '—')}</span>
+        <span style="font-size:10px; font-weight:800; color:${color}; background:color-mix(in srgb, ${color} 14%, transparent); padding:3px 9px; border-radius:999px; flex-shrink:0;">${label}</span>
+      </div>`;
+    }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">${isAr ? 'ما ساهمت بأي حل بعد.' : "You haven't contributed anything yet."}</div>`;
+  }
+
+  async function submitContribution() {
+    const isAr = currentLang === 'ar';
+    const submittedBy = currentUserEmail;
+    const cat = document.getElementById('contributeCat').value;
+    const title = document.getElementById('contributeTitle').value.trim();
+    const text = document.getElementById('contributeText').value.trim();
+    if (!submittedBy) {
+      showToast(isAr ? 'تعذّر التعرف على المستخدم، الرجاء تسجيل الدخول مجدداً.' : 'Could not identify the user, please sign in again.', 'error');
+      return;
+    }
+    if (!title || !text) {
+      showToast(isAr ? 'يرجى كتابة العنوان والنص.' : 'Please fill in a title and the text.', 'error');
+      return;
+    }
+    const payload = { cat, submitted_by: submittedBy, status: 'pending' };
+    if (isAr) { payload.title_ar = title; payload.text_ar = text; }
+    else { payload.title = title; payload.text = text; }
+    const { data, error } = await sb.from('script_submissions').insert(payload).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر إرسال المساهمة.' : 'Could not send the contribution.', 'error');
+      return;
+    }
+    SCRIPT_SUBMISSIONS.unshift({
+      id: data.id, cat: data.cat, title: data.title, titleAr: data.title_ar, text: data.text, textAr: data.text_ar,
+      submittedBy: data.submitted_by, status: data.status, createdAt: new Date(data.created_at).getTime()
+    });
+    document.getElementById('contributeTitle').value = '';
+    document.getElementById('contributeText').value = '';
+    renderContributePanel();
+    if (isAdmin) renderAdminLists();
+    closePanelsByUser();
+    showToast(isAr ? 'شكراً! تم إرسال مساهمتك للمراجعة.' : 'Thanks! Your contribution was sent for review.', 'success');
+  }
+
+  // Set right before switching to the Scripts tab pre-filled with a submission's content;
+  // saveScript() checks this after a successful insert to mark the submission approved.
+  let approvingSubmissionId = null;
+
+  function approveSubmission(id) {
+    const isAr = currentLang === 'ar';
+    const sub = SCRIPT_SUBMISSIONS.find(s => s.id === id);
+    if (!sub) return;
+    approvingSubmissionId = id;
+    switchAdminTab('scripts');
+    document.getElementById('editScriptIndex').value = '-1';
+    document.getElementById('newScriptCat').value = sub.cat;
+    document.getElementById('newScriptTitle').value = sub.title || '';
+    document.getElementById('newScriptTitleAr').value = sub.titleAr || '';
+    document.getElementById('newScriptText').value = sub.text || '';
+    document.getElementById('newScriptTextAr').value = sub.textAr || '';
+    document.getElementById('saveScriptBtn').textContent = isAr ? '✅ نشر السكريبت' : '✅ Publish Script';
+    showToast(isAr ? 'راجع النص أو ترجمه إذا لزم، ثم اضغط نشر.' : 'Review or translate the text, then click Publish.', 'success');
+  }
+
+  async function rejectSubmission(id) {
+    const isAr = currentLang === 'ar';
+    const { error } = await sb.from('script_submissions').update({ status: 'rejected', reviewed_by: currentUserEmail }).eq('id', id);
+    if (error) {
+      showToast(isAr ? 'تعذّر الرفض.' : 'Could not reject.', 'error');
+      return;
+    }
+    const sub = SCRIPT_SUBMISSIONS.find(s => s.id === id);
+    if (sub) sub.status = 'rejected';
+    renderAdminLists();
+    showToast(isAr ? 'تم رفض المساهمة.' : 'Contribution rejected.', 'success');
+  }
+
   function canDelete() {
     if (adminRole === 'full') return true;
     showToast(currentLang === 'ar' ? 'ما عندك صلاحية الحذف — راجع المشرف الكامل.' : "You don't have delete permission — contact the full admin.", 'error');
@@ -2425,6 +2537,38 @@
       const pool = `${t.phoneNumber || ''} ${t.employeeEmail || ''} ${issueText}`.toLowerCase();
       return pool.includes(q);
     });
+  }
+
+  // Plain CSV — opens directly in both Excel and Google Sheets, no extra library needed.
+  function exportTechIssuesCSV() {
+    const isAr = currentLang === 'ar';
+    const filtered = getFilteredTechIssues();
+    if (!filtered.length) {
+      showToast(isAr ? 'لا توجد بيانات لتصديرها.' : 'No data to export.', 'error');
+      return;
+    }
+    const csvCell = (val) => {
+      const s = String(val == null ? '' : val);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const headers = isAr ? ['الرقم', 'المشكلة', 'الموظف', 'الوقت'] : ['Number', 'Issue', 'Employee', 'Time'];
+    const rows = filtered.map(t => {
+      const lbl = TECH_ISSUE_LABELS[t.issueType];
+      const issueText = lbl ? (isAr ? lbl.ar : lbl.en) : (t.issueType || '');
+      const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-US') : '';
+      return [t.phoneNumber || '', issueText, t.employeeEmail || '', dateStr].map(csvCell).join(',');
+    });
+    // Leading BOM so Excel renders Arabic text correctly instead of mojibake.
+    const csv = '\uFEFF' + [headers.map(csvCell).join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `technical-issues-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   function renderTechSheet() {
@@ -2626,6 +2770,7 @@
   }
 
   function switchAdminTab(type) {
+    if (type !== 'scripts') approvingSubmissionId = null;
     document.getElementById('adminTabScripts').style.display = type === 'scripts' ? 'block' : 'none';
     document.getElementById('adminTabCategories').style.display = type === 'categories' ? 'block' : 'none';
     document.getElementById('adminTabPanels').style.display = type === 'panels' ? 'block' : 'none';
@@ -2633,6 +2778,7 @@
     document.getElementById('adminTabSuggestions').style.display = type === 'suggestions' ? 'block' : 'none';
     document.getElementById('adminTabPresence').style.display = type === 'presence' ? 'block' : 'none';
     document.getElementById('adminTabTraining').style.display = type === 'training' ? 'block' : 'none';
+    document.getElementById('adminTabContributions').style.display = type === 'contributions' ? 'block' : 'none';
 
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
@@ -2641,6 +2787,7 @@
     document.getElementById('btnTab5').classList.toggle('active', type === 'suggestions');
     document.getElementById('btnTab6').classList.toggle('active', type === 'presence');
     document.getElementById('btnTab7').classList.toggle('active', type === 'training');
+    document.getElementById('btnTab8').classList.toggle('active', type === 'contributions');
 
     if (type === 'presence') {
       loadPresenceUsers();
@@ -2690,7 +2837,6 @@
       }
       Object.assign(SCRIPTS[idx], { cat, title: payload.title, titleAr: payload.title_ar, text: payload.text, textAr: payload.text_ar });
       document.getElementById('editScriptIndex').value = "-1";
-      document.getElementById('saveScriptBtn').textContent = '+ إضافة السكريبت';
     } else {
       const { data, error } = await sb.from('scripts').insert({ ...payload, usage_count: 0 }).select().single();
       if (error) {
@@ -2698,11 +2844,20 @@
         return;
       }
       SCRIPTS.push({ id: data.id, cat: data.cat, title: data.title, titleAr: data.title_ar, text: data.text, textAr: data.text_ar, usageCount: 0 });
+      if (approvingSubmissionId) {
+        const subId = approvingSubmissionId;
+        approvingSubmissionId = null;
+        await sb.from('script_submissions').update({ status: 'approved', reviewed_by: currentUserEmail }).eq('id', subId);
+        const sub = SCRIPT_SUBMISSIONS.find(s => s.id === subId);
+        if (sub) sub.status = 'approved';
+        renderAdminLists();
+      }
     }
     document.getElementById('newScriptTitle').value = '';
     document.getElementById('newScriptTitleAr').value = '';
     document.getElementById('newScriptText').value = '';
     document.getElementById('newScriptTextAr').value = '';
+    document.getElementById('saveScriptBtn').textContent = isAr ? '+ إضافة السكريبت' : '+ Add Script';
     render();
     showToast(isAr ? 'تم حفظ السكريبت بنجاح!' : 'Script saved successfully!', 'success');
   }
@@ -2890,6 +3045,38 @@
         <div style="font-size:12px; color:var(--text-main); margin-top:4px; white-space:pre-line;">${escapeHtml(s.text)}</div>
       </div>`;
     }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد اقتراحات بعد.</div>`;
+
+    const isArAdmin = currentLang === 'ar';
+    const catLabel = (key) => {
+      const c = CATEGORIES.find(x => x.key === key);
+      return c ? escapeHtml((isArAdmin && c.labelAr) ? c.labelAr : c.label) : escapeHtml(key || '—');
+    };
+    const contribStatusLabel = {
+      pending: [isArAdmin ? 'قيد المراجعة' : 'Pending', '#D97706'],
+      approved: [isArAdmin ? 'اتنشرت' : 'Published', '#10B981'],
+      rejected: [isArAdmin ? 'مرفوض' : 'Rejected', '#B91C1C']
+    };
+    const sortedSubmissions = [...SCRIPT_SUBMISSIONS].sort((a, b) => b.id - a.id);
+    document.getElementById('contributionsAdminList').innerHTML = sortedSubmissions.length ? sortedSubmissions.map(s => {
+      const [label, color] = contribStatusLabel[s.status] || contribStatusLabel.pending;
+      const title = (isArAdmin && s.titleAr) ? s.titleAr : (s.title || s.titleAr);
+      const text = (isArAdmin && s.textAr) ? s.textAr : (s.text || s.textAr);
+      const dateStr = new Date(s.createdAt).toLocaleDateString(isArAdmin ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' });
+      const actions = s.status === 'pending'
+        ? `<button data-approve-sub="${s.id}" style="background:#10B981; color:#fff; border:none; padding:4px 11px; border-radius:999px; font-size:10.5px; font-weight:800; cursor:pointer;">${isArAdmin ? '✓ موافقة' : '✓ Approve'}</button>
+           <button data-reject-sub="${s.id}" style="background:none; border:1px solid #B91C1C; color:#B91C1C; padding:4px 11px; border-radius:999px; font-size:10.5px; font-weight:800; cursor:pointer;">${isArAdmin ? '✕ رفض' : '✕ Reject'}</button>`
+        : `<span style="font-size:10px; font-weight:800; color:${color}; background:color-mix(in srgb, ${color} 14%, transparent); padding:3px 9px; border-radius:999px;">${label}</span>`;
+      return `<div style="border-bottom:1px solid var(--border); padding:8px 0; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+          <div>
+            <span style="font-weight:700; font-size:12px; color:#D97706;">${escapeHtml(title || '—')}</span>
+            <span style="font-size:10px; color:var(--slate-soft); margin-inline-start:6px;">${catLabel(s.cat)} · ${escapeHtml(s.submittedBy || '')} · ${dateStr}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">${actions}</div>
+        </div>
+        <div style="font-size:12px; color:var(--text-main); margin-top:4px; white-space:pre-line;">${escapeHtml(text || '')}</div>
+      </div>`;
+    }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">${isArAdmin ? 'لا توجد مساهمات بعد.' : 'No contributions yet.'}</div>`;
   }
 
   let panelOpenedFromTools = false;
@@ -2921,13 +3108,14 @@
     document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical', { fromTools: true }));
     document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette', { fromTools: true }));
     document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest', { fromTools: true }));
+    document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute', { fromTools: true }); });
 
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
-    on('updatesBackBtn', 'click', closeUpdatesPage);
     on('updatesSearchInput', 'input', renderUpdatesPage);
 
     on('btnSubmitSuggest', 'click', submitSuggestion);
+    on('btnSubmitContribute', 'click', submitContribution);
 
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchAdminTab(btn.dataset.adminTab));
@@ -2980,6 +3168,12 @@
       const btn = e.target.closest('[data-del-suggestion]');
       if (btn) deleteSuggestion(parseInt(btn.dataset.delSuggestion, 10));
     });
+    document.getElementById('contributionsAdminList').addEventListener('click', (e) => {
+      const approveBtn = e.target.closest('[data-approve-sub]');
+      if (approveBtn) { approveSubmission(parseInt(approveBtn.dataset.approveSub, 10)); return; }
+      const rejectBtn = e.target.closest('[data-reject-sub]');
+      if (rejectBtn) rejectSubmission(parseInt(rejectBtn.dataset.rejectSub, 10));
+    });
 
     // الشريط السفلي الثابت
     on('bbHomeBtn', 'click', () => { launchHomePlanet(); goHome(); });
@@ -2992,6 +3186,7 @@
     on('techChangeNumBtn', 'click', changeTechNumber);
     on('techNumberInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); attachTechNumber(); } });
     on('techRecordSearch', 'input', renderTechSheet);
+    on('techExportBtn', 'click', exportTechIssuesCSV);
     document.querySelectorAll('.tech-opt-btn').forEach(btn => {
       btn.addEventListener('click', () => submitTechIssue(btn.dataset.issue));
     });
@@ -3069,6 +3264,7 @@
     pickDashTip();
     render();
     refreshHeroCounts();
+    renderContributePanel();
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
   }
