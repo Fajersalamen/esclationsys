@@ -1461,7 +1461,6 @@
     document.getElementById('lblSideGen').textContent = isAr ? 'معلومات عامة' : 'GENERAL INFO';
     document.getElementById('lblSideCrit').textContent = isAr ? 'أخطاء حرجة' : 'CRITICAL MISTAKES';
     document.getElementById('lblSideEtiq').textContent = isAr ? 'بروتوكول المكالمة' : 'ETIQUETTE CALL';
-    document.getElementById('lblSideUpdate').textContent = isAr ? 'تحديثات جديدة' : 'NEW UPDATE';
     document.getElementById('lblSideSuggest').textContent = isAr ? 'الاقتراحات' : 'SUGGESTIONS';
 
     document.getElementById('hGenInfo').textContent = isAr ? 'ℹ️ معلومات عامة' : 'ℹ️ General Information';
@@ -1542,9 +1541,12 @@
       nvhTitle3: ['مركز التدريب', 'Training Center'],
       nvhSub3: ['سيناريوهات تفاعلية خطوة بخطوة', 'Interactive step-by-step scenarios'],
       nvhTag4: ['أدوات سريعة', 'Quick Tools'],
-      nvhMeta4: ['5 أدوات', '5 tools'],
+      nvhMeta4: ['4 أدوات', '4 tools'],
       nvhTitle4: ['معلومات وأدوات', 'Info & Tools'],
-      nvhSub4: ['أخطاء حرجة · آداب المكالمة · تحديثات', 'Critical mistakes · Etiquette · Updates']
+      nvhSub4: ['أخطاء حرجة · آداب المكالمة · اقتراحات', 'Critical mistakes · Etiquette · Suggestions'],
+      nvhTag5: ['تحديثات', 'Updates'],
+      nvhTitle5: ['التحديثات الجديدة', 'New Updates'],
+      nvhSub5: ['كل شي جديد أو اتغيّر مؤخراً', 'Everything shipped or changed recently']
     };
     Object.keys(heroText).forEach(id => {
       const el = document.getElementById(id);
@@ -1560,7 +1562,6 @@
       lblToolTagGen: ['معلومات', 'Info'],
       lblToolTagCrit: ['تحذير', 'Warning'],
       lblToolTagEtiq: ['بروتوكول', 'Protocol'],
-      lblToolTagUpd: ['جديد', 'New'],
       lblToolTagSug: ['شاركنا', 'Share']
     };
     Object.keys(toolsText).forEach(id => {
@@ -1854,6 +1855,7 @@
     if (key === 'tech') { openTechPage(); return; }
     if (key === 'training') { openTrainingPage(); return; }
     if (key === 'tools') { openToolsOverlay(); return; }
+    if (key === 'updates') { openUpdatesPage(); return; }
     const controls = document.querySelector('.controls');
     if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -1866,6 +1868,9 @@
     set('nvhMeta3', TRAINING_PROBLEMS.length
       ? (isAr ? `${TRAINING_PROBLEMS.length} مواضيع` : `${TRAINING_PROBLEMS.length} topics`)
       : '—');
+    const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
+    const unseenUpdates = UPDATES.filter(u => u.id > lastSeen).length;
+    set('nvhMeta5', unseenUpdates ? (isAr ? `${unseenUpdates} جديد` : `${unseenUpdates} new`) : '—');
   }
 
   let dashTipItem = null;
@@ -2042,14 +2047,11 @@
     archiveList.innerHTML = archivedUpdates.map(renderCard).join('');
   }
 
-  let updatesPageFromTools = false;
-  function openUpdatesPage(opts) {
-    updatesPageFromTools = !!(opts && opts.fromTools);
+  function openUpdatesPage() {
     closePanels();
+    closeToolsOverlay();
     closeTechPage();
     closeTrainingPage();
-    if (updatesPageFromTools) sendToolsOverlayBehind();
-    else closeToolsOverlay();
 
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     updatesUnseenAtOpen = new Set(UPDATES.filter(u => u.id > lastSeen).map(u => u.id));
@@ -2061,32 +2063,27 @@
     const latestId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
     localStorage.setItem('fajer_updates_seen_v2', String(latestId));
     updateNotificationBadge();
+    refreshHeroCounts();
 
     document.getElementById('updatesPage').classList.add('open');
   }
   function closeUpdatesPage() {
     document.getElementById('updatesPage').classList.remove('open');
-    updatesPageFromTools = false;
-  }
-  function closeUpdatesPageByUser() {
-    const returnToTools = updatesPageFromTools;
-    closeUpdatesPage();
-    if (returnToTools) bringToolsOverlayFront();
   }
 
   function updateNotificationBadge() {
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     const unseenCount = UPDATES.filter(u => u.id > lastSeen).length;
     const label = unseenCount > 9 ? '9+' : String(unseenCount);
-    [document.getElementById('updateBadge'), document.getElementById('nvhToolsBadge')].forEach(badge => {
-      if (!badge) return;
+    const badge = document.getElementById('nvhUpdatesBadge');
+    if (badge) {
       if (unseenCount > 0) {
         badge.textContent = label;
         badge.style.display = 'flex';
       } else {
         badge.style.display = 'none';
       }
-    });
+    }
   }
 
   async function addUpdate() {
@@ -2923,12 +2920,11 @@
     document.querySelector('.qt-general').addEventListener('click', () => openPanel('general', { fromTools: true }));
     document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical', { fromTools: true }));
     document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette', { fromTools: true }));
-    document.querySelector('.qt-update').addEventListener('click', () => openUpdatesPage({ fromTools: true }));
     document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest', { fromTools: true }));
 
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
-    on('updatesBackBtn', 'click', closeUpdatesPageByUser);
+    on('updatesBackBtn', 'click', closeUpdatesPage);
     on('updatesSearchInput', 'input', renderUpdatesPage);
 
     on('btnSubmitSuggest', 'click', submitSuggestion);
