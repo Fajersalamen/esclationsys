@@ -97,6 +97,8 @@
     closeProfileMenu();
     stopPresenceHeartbeat();
     stopPresenceAdminRefresh();
+    stopUpdatesPolling();
+    stopMentorChatPoll();
     sb.auth.signOut().then(({ error }) => {
       if (error) console.error('Supabase signOut error:', error);
       // Force the login gate open immediately — don't rely solely on the
@@ -193,6 +195,8 @@
       currentUserRole = null;
       stopPresenceHeartbeat();
       stopPresenceAdminRefresh();
+      stopUpdatesPolling();
+      stopMentorChatPoll();
     }
   });
   // ====== End Supabase Authentication ======
@@ -340,6 +344,7 @@
   let UPDATES = [];
   let SUGGESTIONS = [];
   let SCRIPT_SUBMISSIONS = [];
+  let MENTOR_REQUESTS = [];
 
   // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول
   async function loadAllData() {
@@ -372,6 +377,13 @@
     SCRIPT_SUBMISSIONS = subRes.error ? [] : (subRes.data || []).map(s => ({
       id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar,
       submittedBy: s.submitted_by, status: s.status, createdAt: new Date(s.created_at).getTime()
+    }));
+
+    // طلبات الرعاية/التدريب — كل موظف يشوف بس الطلبات اللي هو طرف فيها (متدرب أو راعي)
+    const mentReqRes = await sb.from('mentor_requests').select('*').order('id', { ascending: false });
+    MENTOR_REQUESTS = mentReqRes.error ? [] : (mentReqRes.data || []).map(r => ({
+      id: r.id, traineeEmail: r.trainee_email, mentorEmail: r.mentor_email, note: r.note,
+      status: r.status, createdAt: new Date(r.created_at).getTime()
     }));
 
     // بيانات مركز التدريب (Dynamic) — يتم تحميلها لكل المستخدمين (RLS بتحدد شو يوصلهم فعلياً)
@@ -423,6 +435,59 @@
     if (presenceHeartbeatTimer) { clearInterval(presenceHeartbeatTimer); presenceHeartbeatTimer = null; }
     currentSessionStartedAt = null;
     window.removeEventListener('beforeunload', sendPresenceBeacon);
+  }
+
+  // ===================== New-update notification sound =====================
+  // A short two-tone "ding", synthesized with the Web Audio API — no audio
+  // file to fetch, so it plays instantly and needs no extra CSP allowance.
+  function playNotificationSound() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const now = ctx.currentTime;
+      [880, 1320].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i * 0.12);
+        gain.gain.linearRampToValueAtTime(0.18, now + i * 0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.22);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now + i * 0.12);
+        osc.stop(now + i * 0.12 + 0.25);
+      });
+      setTimeout(() => ctx.close(), 600);
+    } catch (err) { /* audio not available in this browser/context — ignore */ }
+  }
+
+  const UPDATES_POLL_MS = 45000;
+  let updatesPollTimer = null;
+  let lastKnownUpdateId = 0;
+
+  async function pollForNewUpdates() {
+    const { data, error } = await sb.from('updates').select('id').order('id', { ascending: false }).limit(1);
+    if (error || !data || !data.length) return;
+    const latestId = data[0].id;
+    if (latestId <= lastKnownUpdateId) return;
+    lastKnownUpdateId = latestId;
+    const { data: fullData, error: fullError } = await sb.from('updates').select('*').order('id', { ascending: false });
+    if (fullError) return;
+    UPDATES = (fullData || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
+    updateNotificationBadge();
+    refreshHeroCounts();
+    if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
+    playNotificationSound();
+  }
+
+  function startUpdatesPolling() {
+    stopUpdatesPolling();
+    lastKnownUpdateId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
+    updatesPollTimer = setInterval(pollForNewUpdates, UPDATES_POLL_MS);
+  }
+  function stopUpdatesPolling() {
+    if (updatesPollTimer) { clearInterval(updatesPollTimer); updatesPollTimer = null; }
   }
 
   function sendPresenceBeacon() {
@@ -582,6 +647,7 @@
     closePanels();
     closeToolsOverlay();
     closeUpdatesPage();
+    closeMentorshipPage();
     closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
@@ -1484,6 +1550,20 @@
     document.getElementById('updatesRecentLabel').textContent = isAr ? 'الأحدث' : 'Recent';
     if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
 
+    document.getElementById('mentorshipPageTitle').textContent = isAr ? '🤝 الرعاية والتدريب' : '🤝 Mentorship';
+    document.getElementById('mentorshipPageSub').textContent = isAr ? 'اطلب راعي تدريب، أو رد على طلب توجيه وصلك' : 'Request a mentor, or respond to a mentorship request you received';
+    document.getElementById('lblMtabRequest').textContent = isAr ? 'اطلب راعي' : 'Request a Mentor';
+    document.getElementById('lblMtabIncoming').textContent = isAr ? 'طلبات واردة' : 'Incoming Requests';
+    document.getElementById('lblMtabChats').textContent = isAr ? 'محادثاتي' : 'My Chats';
+    document.getElementById('lblMentorEmail').textContent = isAr ? 'إيميل الزميل اللي بدك ياه يدرّبك:' : "Your colleague's email:";
+    document.getElementById('mentorRequestNote').placeholder = isAr ? 'ليش بدك ياه راعي؟ (اختياري)' : 'Why do you want them as a mentor? (optional)';
+    document.getElementById('btnSendMentorRequest').textContent = isAr ? 'إرسال الطلب' : 'Send Request';
+    document.getElementById('lblMyOutgoing').textContent = isAr ? 'طلباتي المرسلة:' : 'My sent requests:';
+    document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
+    document.getElementById('mentorChatInput').placeholder = isAr ? 'اكتب رسالة...' : 'Write a message...';
+    renderMentorEmailOptions();
+    if (document.getElementById('mentorshipPage').classList.contains('open')) switchMentorTab(activeMentorTab);
+
     document.getElementById('hSuggest').textContent = isAr ? '💡 اقتراح جديد' : '💡 New Suggestion';
     document.getElementById('lblSuggestDesc').textContent = isAr ? 'شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.' : 'Share your suggestion to improve the work — it goes straight to management only.';
     document.getElementById('lblSuggestAs').textContent = isAr ? 'سيصل الاقتراح باسم:' : 'Will be sent as:';
@@ -1566,7 +1646,10 @@
       nvhSub4: ['أخطاء حرجة · آداب المكالمة · اقتراحات', 'Critical mistakes · Etiquette · Suggestions'],
       nvhTag5: ['تحديثات', 'Updates'],
       nvhTitle5: ['التحديثات الجديدة', 'New Updates'],
-      nvhSub5: ['كل شي جديد أو اتغيّر مؤخراً', 'Everything shipped or changed recently']
+      nvhSub5: ['كل شي جديد أو اتغيّر مؤخراً', 'Everything shipped or changed recently'],
+      nvhTag6: ['رعاية', 'Mentorship'],
+      nvhTitle6: ['الرعاية والتدريب', 'Mentorship'],
+      nvhSub6: ['اطلب راعي، أو رد على طلب توجيه', 'Request a mentor, or respond to one']
     };
     Object.keys(heroText).forEach(id => {
       const el = document.getElementById(id);
@@ -1876,6 +1959,7 @@
     if (key === 'training') { openTrainingPage(); return; }
     if (key === 'tools') { openToolsOverlay(); return; }
     if (key === 'updates') { openUpdatesPage(); return; }
+    if (key === 'mentorship') { openMentorshipPage(); return; }
     const controls = document.querySelector('.controls');
     if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -1891,6 +1975,9 @@
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     const unseenUpdates = UPDATES.filter(u => u.id > lastSeen).length;
     set('nvhMeta5', unseenUpdates ? (isAr ? `${unseenUpdates} جديد` : `${unseenUpdates} new`) : '—');
+    const pendingMentorReqs = MENTOR_REQUESTS.filter(r => r.mentorEmail === currentUserEmail && r.status === 'pending').length;
+    set('nvhMeta6', pendingMentorReqs ? (isAr ? `${pendingMentorReqs} طلب` : `${pendingMentorReqs} pending`) : '—');
+    updateMentorBadge();
   }
 
   let dashTipItem = null;
@@ -2070,6 +2157,7 @@
   function openUpdatesPage() {
     closePanels();
     closeToolsOverlay();
+    closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
 
@@ -2245,6 +2333,7 @@
         closeTechPage();
         closeTrainingPage();
         closeUpdatesPage();
+        closeMentorshipPage();
         closeToolsOverlay();
       }
     });
@@ -2380,6 +2469,232 @@
     showToast(isAr ? 'تم رفض المساهمة.' : 'Contribution rejected.', 'success');
   }
 
+  // ===================== Mentorship ("Buddy System") =====================
+  let activeMentorTab = 'request';
+  let openMentorThreadId = null;
+  let mentorChatPollTimer = null;
+  let DIRECTORY_EMAILS = [];
+
+  // The mentor picker's option list — every email that can sign in (via the
+  // list_directory_emails() RPC), so the trainee doesn't have to type one.
+  async function loadDirectoryEmails() {
+    const { data, error } = await sb.rpc('list_directory_emails');
+    DIRECTORY_EMAILS = error ? [] : (data || []).map(r => r.email).filter(Boolean);
+    renderMentorEmailOptions();
+  }
+
+  function renderMentorEmailOptions() {
+    const sel = document.getElementById('mentorRequestEmail');
+    if (!sel) return;
+    const isAr = currentLang === 'ar';
+    const previous = sel.value;
+    const others = DIRECTORY_EMAILS.filter(e => e !== currentUserEmail);
+    const placeholder = `<option value="">${isAr ? '— اختر زميل —' : '— Select a colleague —'}</option>`;
+    sel.innerHTML = placeholder + others.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+    if (previous && others.includes(previous)) sel.value = previous;
+  }
+
+  function mentorStatusLabel(status, isAr) {
+    const map = {
+      pending: isAr ? 'قيد الانتظار' : 'Pending',
+      accepted: isAr ? 'مقبول' : 'Accepted',
+      declined: isAr ? 'مرفوض' : 'Declined'
+    };
+    return map[status] || status;
+  }
+
+  function openMentorshipPage() {
+    closePanels();
+    closeToolsOverlay();
+    closeUpdatesPage();
+    closeTechPage();
+    closeTrainingPage();
+    switchMentorTab(activeMentorTab || 'request');
+    document.getElementById('mentorshipPage').classList.add('open');
+  }
+  function closeMentorshipPage() {
+    document.getElementById('mentorshipPage').classList.remove('open');
+    stopMentorChatPoll();
+  }
+
+  function switchMentorTab(tab) {
+    activeMentorTab = tab;
+    document.getElementById('mentorPaneRequest').style.display = tab === 'request' ? 'block' : 'none';
+    document.getElementById('mentorPaneIncoming').style.display = tab === 'incoming' ? 'block' : 'none';
+    document.getElementById('mentorPaneChats').style.display = tab === 'chats' ? 'block' : 'none';
+    document.getElementById('mtabRequest').classList.toggle('active', tab === 'request');
+    document.getElementById('mtabIncoming').classList.toggle('active', tab === 'incoming');
+    document.getElementById('mtabChats').classList.toggle('active', tab === 'chats');
+    if (tab !== 'chats') closeMentorThread();
+    if (tab === 'request') renderMentorRequestPane();
+    if (tab === 'incoming') renderMentorIncomingPane();
+    if (tab === 'chats') renderMentorChatsList();
+  }
+
+  function renderMentorRequestPane() {
+    const isAr = currentLang === 'ar';
+    const list = document.getElementById('mentorOutgoingList');
+    if (!list) return;
+    const mine = MENTOR_REQUESTS.filter(r => r.traineeEmail === currentUserEmail).sort((a, b) => b.id - a.id);
+    list.innerHTML = mine.length ? mine.map(r => `
+      <div class="mentor-request-card">
+        <div>
+          <div class="who">${escapeHtml(r.mentorEmail)}</div>
+          ${r.note ? `<div class="note">${escapeHtml(r.note)}</div>` : ''}
+        </div>
+        <span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span>
+      </div>`).join('') : `<div class="mentorship-empty">${isAr ? 'ما أرسلت أي طلب رعاية بعد.' : "You haven't sent any mentorship requests yet."}</div>`;
+  }
+
+  function renderMentorIncomingPane() {
+    const isAr = currentLang === 'ar';
+    const list = document.getElementById('mentorIncomingList');
+    if (!list) return;
+    const incoming = MENTOR_REQUESTS.filter(r => r.mentorEmail === currentUserEmail).sort((a, b) => b.id - a.id);
+    list.innerHTML = incoming.length ? incoming.map(r => {
+      const actions = r.status === 'pending'
+        ? `<button class="mentor-accept-btn" data-accept-mentor="${r.id}">${isAr ? '✓ قبول' : '✓ Accept'}</button>
+           <button class="mentor-decline-btn" data-decline-mentor="${r.id}">${isAr ? '✕ رفض' : '✕ Decline'}</button>`
+        : `<span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span>`;
+      return `<div class="mentor-request-card">
+        <div>
+          <div class="who">${escapeHtml(r.traineeEmail)}</div>
+          ${r.note ? `<div class="note">${escapeHtml(r.note)}</div>` : ''}
+        </div>
+        <div class="actions">${actions}</div>
+      </div>`;
+    }).join('') : `<div class="mentorship-empty">${isAr ? 'ما وصلك أي طلب رعاية بعد.' : 'No mentorship requests yet.'}</div>`;
+  }
+
+  async function sendMentorRequest() {
+    const isAr = currentLang === 'ar';
+    const traineeEmail = currentUserEmail;
+    const mentorEmail = document.getElementById('mentorRequestEmail').value.trim();
+    const note = document.getElementById('mentorRequestNote').value.trim();
+    if (!traineeEmail) {
+      showToast(isAr ? 'تعذّر التعرف على المستخدم، الرجاء تسجيل الدخول مجدداً.' : 'Could not identify the user, please sign in again.', 'error');
+      return;
+    }
+    if (!mentorEmail) {
+      showToast(isAr ? 'يرجى اختيار زميل من القائمة.' : 'Please pick a colleague from the list.', 'error');
+      return;
+    }
+    if (mentorEmail.toLowerCase() === traineeEmail.toLowerCase()) {
+      showToast(isAr ? 'ما بتقدر تطلب حالك راعي.' : "You can't request yourself as a mentor.", 'error');
+      return;
+    }
+    const payload = { trainee_email: traineeEmail, mentor_email: mentorEmail, status: 'pending' };
+    if (note) payload.note = note;
+    const { data, error } = await sb.from('mentor_requests').insert(payload).select().single();
+    if (error) {
+      showToast(isAr ? 'تعذّر إرسال الطلب.' : 'Could not send the request.', 'error');
+      return;
+    }
+    MENTOR_REQUESTS.unshift({ id: data.id, traineeEmail: data.trainee_email, mentorEmail: data.mentor_email, note: data.note, status: data.status, createdAt: new Date(data.created_at).getTime() });
+    document.getElementById('mentorRequestEmail').value = '';
+    document.getElementById('mentorRequestNote').value = '';
+    renderMentorRequestPane();
+    showToast(isAr ? 'تم إرسال طلب الرعاية!' : 'Mentorship request sent!', 'success');
+  }
+
+  async function respondMentorRequest(id, accept) {
+    const isAr = currentLang === 'ar';
+    const status = accept ? 'accepted' : 'declined';
+    const { error } = await sb.from('mentor_requests').update({ status, responded_at: new Date().toISOString() }).eq('id', id);
+    if (error) {
+      showToast(isAr ? 'تعذّر تنفيذ الإجراء.' : 'Could not complete the action.', 'error');
+      return;
+    }
+    const r = MENTOR_REQUESTS.find(x => x.id === id);
+    if (r) r.status = status;
+    renderMentorIncomingPane();
+    updateMentorBadge();
+    showToast(accept ? (isAr ? 'تم القبول! فتحت محادثة جديدة.' : 'Accepted! A new chat is open.') : (isAr ? 'تم الرفض.' : 'Declined.'), 'success');
+  }
+
+  function renderMentorChatsList() {
+    const isAr = currentLang === 'ar';
+    const list = document.getElementById('mentorChatsList');
+    if (!list) return;
+    const accepted = MENTOR_REQUESTS.filter(r => r.status === 'accepted' && (r.traineeEmail === currentUserEmail || r.mentorEmail === currentUserEmail)).sort((a, b) => b.id - a.id);
+    list.innerHTML = accepted.length ? accepted.map(r => {
+      const iAmMentor = r.mentorEmail === currentUserEmail;
+      const other = iAmMentor ? r.traineeEmail : r.mentorEmail;
+      const roleTag = iAmMentor ? (isAr ? 'انت الراعي' : "You're the mentor") : (isAr ? 'انت المتدرب' : "You're the trainee");
+      return `<div class="mentor-chat-card" data-open-thread="${r.id}">
+        <div>
+          <div class="who">${escapeHtml(other)}</div>
+          <div class="role-tag">${roleTag}</div>
+        </div>
+        <span>›</span>
+      </div>`;
+    }).join('') : `<div class="mentorship-empty">${isAr ? 'ما عندك محادثات نشطة بعد.' : "You don't have any active mentorships yet."}</div>`;
+  }
+
+  async function openMentorThread(requestId) {
+    openMentorThreadId = requestId;
+    document.getElementById('mentorChatsList').style.display = 'none';
+    document.getElementById('mentorChatThread').style.display = 'block';
+    await loadAndRenderMentorMessages();
+    startMentorChatPoll();
+  }
+  function closeMentorThread() {
+    openMentorThreadId = null;
+    stopMentorChatPoll();
+    const list = document.getElementById('mentorChatsList');
+    const thread = document.getElementById('mentorChatThread');
+    if (list) list.style.display = 'block';
+    if (thread) thread.style.display = 'none';
+  }
+
+  async function loadAndRenderMentorMessages() {
+    if (!openMentorThreadId) return;
+    const { data, error } = await sb.from('mentor_messages').select('*').eq('request_id', openMentorThreadId).order('id', { ascending: true });
+    if (error) return;
+    const wrap = document.getElementById('mentorChatMessages');
+    if (!wrap) return;
+    const wasNearBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 40;
+    const isAr = currentLang === 'ar';
+    wrap.innerHTML = (data || []).map(m => {
+      const mine = m.sender_email === currentUserEmail;
+      const timeStr = new Date(m.created_at).toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="mentor-msg ${mine ? 'mine' : 'theirs'}">${escapeHtml(m.text)}<span class="mentor-msg-time">${timeStr}</span></div>`;
+    }).join('') || `<div class="mentorship-empty">${isAr ? 'ابدأ المحادثة...' : 'Start the conversation...'}</div>`;
+    if (wasNearBottom) wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  async function sendMentorMessage() {
+    const input = document.getElementById('mentorChatInput');
+    const text = input.value.trim();
+    if (!text || !openMentorThreadId) return;
+    input.value = '';
+    const { error } = await sb.from('mentor_messages').insert({ request_id: openMentorThreadId, sender_email: currentUserEmail, text });
+    if (error) {
+      showToast(currentLang === 'ar' ? 'تعذّر إرسال الرسالة.' : 'Could not send the message.', 'error');
+      return;
+    }
+    await loadAndRenderMentorMessages();
+  }
+
+  function startMentorChatPoll() {
+    stopMentorChatPoll();
+    mentorChatPollTimer = setInterval(loadAndRenderMentorMessages, 5000);
+  }
+  function stopMentorChatPoll() {
+    clearInterval(mentorChatPollTimer);
+    mentorChatPollTimer = null;
+  }
+
+  function updateMentorBadge() {
+    const pendingCount = MENTOR_REQUESTS.filter(r => r.mentorEmail === currentUserEmail && r.status === 'pending').length;
+    const label = pendingCount > 9 ? '9+' : String(pendingCount);
+    [document.getElementById('nvhMentorBadge'), document.getElementById('mentorIncomingBadge')].forEach(badge => {
+      if (!badge) return;
+      if (pendingCount > 0) { badge.textContent = label; badge.style.display = 'flex'; }
+      else badge.style.display = 'none';
+    });
+  }
+
   function canDelete() {
     if (adminRole === 'full') return true;
     showToast(currentLang === 'ar' ? 'ما عندك صلاحية الحذف — راجع المشرف الكامل.' : "You don't have delete permission — contact the full admin.", 'error');
@@ -2403,6 +2718,7 @@
     closePanels();
     closeToolsOverlay();
     closeUpdatesPage();
+    closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
     closeAdminModal();
@@ -2417,6 +2733,7 @@
     closePanels();
     closeToolsOverlay();
     closeUpdatesPage();
+    closeMentorshipPage();
     closeTrainingPage();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
@@ -3117,6 +3434,25 @@
     on('btnSubmitSuggest', 'click', submitSuggestion);
     on('btnSubmitContribute', 'click', submitContribution);
 
+    // صفحة الرعاية والتدريب (Mentorship)
+    document.querySelectorAll('.mentorship-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchMentorTab(btn.dataset.mentorTab));
+    });
+    on('btnSendMentorRequest', 'click', sendMentorRequest);
+    document.getElementById('mentorIncomingList').addEventListener('click', (e) => {
+      const acceptBtn = e.target.closest('[data-accept-mentor]');
+      if (acceptBtn) { respondMentorRequest(parseInt(acceptBtn.dataset.acceptMentor, 10), true); return; }
+      const declineBtn = e.target.closest('[data-decline-mentor]');
+      if (declineBtn) respondMentorRequest(parseInt(declineBtn.dataset.declineMentor, 10), false);
+    });
+    document.getElementById('mentorChatsList').addEventListener('click', (e) => {
+      const card = e.target.closest('[data-open-thread]');
+      if (card) openMentorThread(parseInt(card.dataset.openThread, 10));
+    });
+    on('mentorChatBackBtn', 'click', closeMentorThread);
+    on('mentorChatSendBtn', 'click', sendMentorMessage);
+    on('mentorChatInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMentorMessage(); } });
+
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchAdminTab(btn.dataset.adminTab));
     });
@@ -3267,4 +3603,6 @@
     renderContributePanel();
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
+    startUpdatesPolling();
+    loadDirectoryEmails();
   }
