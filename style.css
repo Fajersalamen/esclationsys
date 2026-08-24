@@ -1614,6 +1614,101 @@
       .updates-page-head { margin: -14px -12px 20px; padding: 26px 16px 28px; }
     }
 
+    /* ===== Mentorship ("Buddy System") page ===== */
+    .mentorship-page {
+      position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
+      display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+    }
+    .mentorship-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mentorship-page-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,40px) 90px; flex: 1; }
+
+    .mentorship-page-head {
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+      margin: -18px -16px 20px; padding: 30px 20px 34px;
+      background: linear-gradient(120deg, #EC4899 0%, #DB2777 55%, #9D174D 100%);
+      position: relative; overflow: hidden;
+    }
+    .mentorship-page-head::before {
+      content: ''; position: absolute; width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.35), transparent 70%); filter: blur(50px);
+      top: -200px; inset-inline-end: -70px; animation: cometDrift 12s ease-in-out infinite alternate; pointer-events: none;
+    }
+    .mentorship-head-copy { position: relative; z-index: 1; }
+    .mentorship-head-copy h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: #fff; }
+    .mentorship-head-copy p { margin: 0; font-size: 12.5px; color: rgba(255,255,255,.85); }
+
+    .mentorship-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+    .mentorship-tab-btn {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border); color: var(--slate);
+      padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .mentorship-tab-btn.active { background: #DB2777; color: #fff; border-color: #DB2777; }
+    .mentorship-tab-btn:hover:not(.active) { border-color: #DB2777; color: #DB2777; }
+    .mentorship-tab-badge {
+      min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px; background: #F0424A; color: #fff;
+      font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+    }
+
+    .mentorship-field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); }
+    .mentorship-primary-btn {
+      width: 100%; background: #DB2777; color: #fff; border: none; padding: 10px; border-radius: 8px;
+      font-weight: 700; cursor: pointer; transition: opacity .18s ease, transform .15s ease;
+    }
+    .mentorship-primary-btn:hover { opacity: .92; }
+    .mentorship-primary-btn:active { transform: scale(.98); }
+    .mentorship-section-label { font-size: 11.5px; font-weight: 800; color: var(--slate); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+
+    .mentor-request-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      animation: cardEnter .36s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .mentor-request-card .who { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
+    .mentor-request-card .note { font-size: 11.5px; color: var(--slate); margin-top: 2px; white-space: pre-line; }
+    .mentor-request-card .actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .mentor-status-pill {
+      font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    }
+    .mentor-status-pill.pending { color: #D97706; background: color-mix(in srgb, #D97706 14%, transparent); }
+    .mentor-status-pill.accepted { color: #10B981; background: color-mix(in srgb, #10B981 14%, transparent); }
+    .mentor-status-pill.declined { color: #B91C1C; background: color-mix(in srgb, #B91C1C 14%, transparent); }
+    .mentor-accept-btn, .mentor-decline-btn {
+      border: none; padding: 6px 13px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer;
+    }
+    .mentor-accept-btn { background: #10B981; color: #fff; }
+    .mentor-decline-btn { background: none; border: 1px solid #B91C1C; color: #B91C1C; }
+
+    .mentor-chat-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      transition: border-color .18s ease, background .18s ease;
+      animation: cardEnter .36s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .mentor-chat-card:hover { border-color: color-mix(in srgb, #DB2777 30%, var(--border)); background: color-mix(in srgb, #DB2777 5%, var(--card)); }
+    .mentor-chat-card .who { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .mentor-chat-card .role-tag { font-size: 10px; font-weight: 700; color: var(--slate-soft); }
+
+    .mentorship-back-link { background: none; border: none; color: #DB2777; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 0 14px; }
+    .mentorship-chat-messages { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding: 4px 2px 14px; }
+    .mentor-msg { max-width: 78%; padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.5; white-space: pre-line; }
+    .mentor-msg .mentor-msg-time { display: block; font-size: 9.5px; opacity: .65; margin-top: 3px; }
+    .mentor-msg.mine { align-self: flex-end; background: #DB2777; color: #fff; border-bottom-right-radius: 4px; }
+    .mentor-msg.theirs { align-self: flex-start; background: var(--surface-soft, var(--bg)); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .mentorship-chat-input-row { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding-top: 8px; }
+    #mentorChatInput { flex: 1; min-height: 42px; }
+    #mentorChatSendBtn {
+      width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; border: none; background: #DB2777; color: #fff;
+      font-size: 16px; font-weight: 800; cursor: pointer;
+    }
+    .mentorship-empty { font-size: 11.5px; color: var(--slate-soft); text-align: center; padding: 20px 10px; }
+
+    @media (max-width: 620px) {
+      .mentorship-page-inner { padding: 14px 12px 90px; }
+      .mentorship-page-head { margin: -14px -12px 18px; padding: 26px 16px 28px; }
+    }
+
     /* ===== Admin: Training Center management (Tree Builder) ===== */
     .tb-subnav { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
     .tb-subnav-btn {

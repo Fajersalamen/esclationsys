@@ -212,6 +212,53 @@
   </div>
 </div>
 
+<!-- Mentorship ("Buddy System") page -->
+<div class="mentorship-page" id="mentorshipPage">
+  <div class="mentorship-page-inner">
+    <div class="mentorship-page-head">
+      <div class="mentorship-head-copy">
+        <h2 id="mentorshipPageTitle">🤝 الرعاية والتدريب</h2>
+        <p id="mentorshipPageSub">اطلب راعي تدريب، أو رد على طلب توجيه وصلك</p>
+      </div>
+    </div>
+
+    <div class="mentorship-tabs">
+      <button class="mentorship-tab-btn active" id="mtabRequest" data-mentor-tab="request">📨 <span id="lblMtabRequest">اطلب راعي</span></button>
+      <button class="mentorship-tab-btn" id="mtabIncoming" data-mentor-tab="incoming">📥 <span id="lblMtabIncoming">طلبات واردة</span> <span class="mentorship-tab-badge" id="mentorIncomingBadge" style="display:none;">0</span></button>
+      <button class="mentorship-tab-btn" id="mtabChats" data-mentor-tab="chats">💬 <span id="lblMtabChats">محادثاتي</span></button>
+    </div>
+
+    <!-- Tab 1: Request a mentor -->
+    <div id="mentorPaneRequest">
+      <label class="mentorship-field-label" id="lblMentorEmail">إيميل الزميل اللي بدك ياه يدرّبك:</label>
+      <input type="email" id="mentorRequestEmail" placeholder="colleague@example.com" style="width:100%; margin:4px 0 8px;">
+      <textarea id="mentorRequestNote" rows="3" maxlength="500" placeholder="ليش بدك ياه راعي؟ (اختياري)" style="width:100%; margin-bottom:10px;"></textarea>
+      <button id="btnSendMentorRequest" class="mentorship-primary-btn">إرسال الطلب</button>
+
+      <p class="mentorship-section-label" id="lblMyOutgoing">طلباتي المرسلة:</p>
+      <div id="mentorOutgoingList"></div>
+    </div>
+
+    <!-- Tab 2: Incoming requests (I'm the requested mentor) -->
+    <div id="mentorPaneIncoming" style="display:none;">
+      <div id="mentorIncomingList"></div>
+    </div>
+
+    <!-- Tab 3: My accepted mentorships + chat -->
+    <div id="mentorPaneChats" style="display:none;">
+      <div id="mentorChatsList"></div>
+      <div id="mentorChatThread" style="display:none;">
+        <button id="mentorChatBackBtn" class="mentorship-back-link">‹ <span id="lblMentorChatBack">رجوع للمحادثات</span></button>
+        <div id="mentorChatMessages" class="mentorship-chat-messages"></div>
+        <div class="mentorship-chat-input-row">
+          <input type="text" id="mentorChatInput" placeholder="اكتب رسالة...">
+          <button id="mentorChatSendBtn">↑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="panel-overlay" id="overlay"></div>
 
 <!-- General Info Panel -->
@@ -555,6 +602,22 @@
           <span class="nvh-bottom">
             <span class="nvh-title" id="nvhTitle5">التحديثات الجديدة</span>
             <span class="nvh-sub" id="nvhSub5">كل شي جديد أو اتغيّر مؤخراً</span>
+          </span>
+        </span>
+      </button>
+
+      <button type="button" class="nvh-slide" data-go="mentorship" style="--c1:#EC4899;--c2:#DB2777;--c3:#9D174D;">
+        <span class="nvh-badge" id="nvhMentorBadge" style="display:none;">0</span>
+        <span class="nvh-face">
+          <span class="nvh-top"><span class="nvh-tag" id="nvhTag6">رعاية</span><span class="nvh-meta" id="nvhMeta6">—</span></span>
+          <span class="nvh-cube-stage" aria-hidden="true"><span class="nvh-cube">
+            <span class="nvh-cube-face right"></span>
+            <span class="nvh-cube-face left"></span>
+            <span class="nvh-cube-face front"><svg viewBox="0 0 24 24"><circle cx="8.2" cy="8" r="3.1"></circle><circle cx="15.6" cy="9.2" r="2.5"></circle><path d="M3 19c0-3 2.4-5 5.2-5s5.2 2 5.2 5"></path><path d="M14.6 14.4c2.2.3 3.8 2 3.8 4.2"></path></svg></span>
+          </span></span>
+          <span class="nvh-bottom">
+            <span class="nvh-title" id="nvhTitle6">الرعاية والتدريب</span>
+            <span class="nvh-sub" id="nvhSub6">اطلب راعي، أو رد على طلب توجيه</span>
           </span>
         </span>
       </button>
