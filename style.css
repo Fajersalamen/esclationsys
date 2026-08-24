@@ -1212,6 +1212,14 @@
     .tech-search-shell { position: relative; margin-inline-start: auto; min-width: 200px; flex: 1 1 220px; max-width: 320px; }
     .tech-search-shell .search-icon { position: absolute; inset-inline-start: 12px; top: 50%; transform: translateY(-50%); color: var(--slate-soft); font-size: 15px; pointer-events: none; }
     #techRecordSearch { width: 100%; padding-inline-start: 34px; min-height: 38px; font-size: 12.5px; }
+    .tech-export-btn {
+      display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; min-height: 38px; padding: 0 14px;
+      border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--slate);
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, color .18s ease;
+    }
+    .tech-export-btn:hover { color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); background: color-mix(in srgb, var(--brand-blue) 6%, var(--card)); }
+    .tech-export-btn:active { transform: scale(.96); }
 
     .tech-sheet-wrap { overflow-x: auto; max-height: min(64vh, 620px); overflow-y: auto; }
     #techSheetTable { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -1565,11 +1573,6 @@
       background: radial-gradient(circle, rgba(16,185,129,.3), transparent 70%); filter: blur(50px);
       bottom: -200px; inset-inline-start: -60px; animation: cometDrift 15s ease-in-out infinite alternate-reverse; pointer-events: none;
     }
-    .updates-page-head .tech-back-btn {
-      position: absolute; top: 14px; inset-inline-start: 14px; z-index: 2;
-      background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.28); color: #fff;
-    }
-    .updates-page-head .tech-back-btn:hover { background: rgba(255,255,255,.26); }
     .updates-head-copy { position: relative; z-index: 1; }
     .updates-head-copy h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: #fff; }
     .updates-head-copy p { margin: 0 0 18px; font-size: 12.5px; color: rgba(255,255,255,.78); }
