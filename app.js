@@ -1,5 +1,5 @@
 /* ============================================================
-   Nova — Customer Service Scripts (FAJER AL SALAMEEN)
+   Nova — Customer Service (FAJER AL SALAMEEN)
    app.js — منطق التطبيق + الاتصال بـ Supabase
    ملاحظة أمنية: كل الحماية الفعلية تتم عبر RLS Policies على
    مستوى قاعدة البيانات في Supabase — هذا الملف لا يعوّض عنها
