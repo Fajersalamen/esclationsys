@@ -945,25 +945,81 @@
       border-radius: 12px; background: #fff; color: #0B84FF; font-size: 11px; font-weight: 900;
       align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.35);
     }
-    .nvh-cube-stage {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      z-index: 1; width: 108px; height: 108px; perspective: 640px;
-      filter: drop-shadow(0 14px 26px rgba(0,0,0,.32));
+    /* Isometric mini-scene per hero card — a little "toy" built from stacked
+       flat shapes (unique per topic), instead of one generic icon+shape
+       repeated with a different glyph. Authored at a fixed 92x92 stage and
+       scaled up/down per breakpoint so every scene's shapes stay in sync. */
+    .nvh-iso-outer { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; }
+    .nvh-iso-stage {
+      position: relative; width: 92px; height: 92px;
+      transform: scale(1.65);
+      animation: nvhIsoBob 4.2s ease-in-out infinite;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
     }
-    .nvh-cube {
-      display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
-      animation: nvhCubeSpin 10s linear infinite;
+    @keyframes nvhIsoBob {
+      0%, 100% { transform: scale(1.65) translateY(0) rotate(0deg); }
+      50% { transform: scale(1.65) translateY(-6px) rotate(-2deg); }
     }
-    .nvh-cube-face {
-      position: absolute; inset: 0; border-radius: 18px; display: flex; align-items: center; justify-content: center;
-      backface-visibility: hidden; border: 1px solid rgba(255,255,255,.25);
+    @media (prefers-reduced-motion: reduce) { .nvh-iso-stage { animation: none; } }
+    .nvh-iso-shadow {
+      position: absolute; bottom: -6px; left: 50%; width: 52px; height: 10px; transform: translateX(-50%);
+      background: rgba(0,0,0,.28); border-radius: 50%; filter: blur(3px);
+      animation: nvhIsoShadow 4.2s ease-in-out infinite;
     }
-    .nvh-cube-face.front { background: linear-gradient(160deg, rgba(255,255,255,.32), rgba(255,255,255,.02)); transform: translateZ(38px); }
-    .nvh-cube-face.right { width: 76px; left: auto; right: -38px; background: rgba(0,0,0,.32); transform: rotateY(90deg) translateZ(38px); }
-    .nvh-cube-face.left { width: 76px; right: auto; left: -38px; background: rgba(0,0,0,.22); transform: rotateY(-90deg) translateZ(38px); }
-    .nvh-cube-face svg { width: 38px; height: 38px; stroke: #fff; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-    @keyframes nvhCubeSpin { from { transform: rotateY(0deg) rotateX(-10deg); } to { transform: rotateY(360deg) rotateX(-10deg); } }
-    @media (prefers-reduced-motion: reduce) { .nvh-cube { animation: none; transform: rotateY(-28deg) rotateX(-10deg); } }
+    @keyframes nvhIsoShadow {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: .3; }
+      50% { transform: translateX(-50%) scale(.78); opacity: .16; }
+    }
+    @media (prefers-reduced-motion: reduce) { .nvh-iso-shadow { animation: none; } }
+    .nvh-iso-piece { position: absolute; border-radius: 6px; }
+
+    /* Script Library: three fanned pages */
+    .nvh-iso-scripts .p1 { width: 38px; height: 50px; left: 30px; top: 18px; transform: rotate(-10deg); background: rgba(0,0,0,.18); }
+    .nvh-iso-scripts .p2 { width: 38px; height: 50px; left: 34px; top: 14px; transform: rotate(0deg); background: rgba(255,255,255,.7); }
+    .nvh-iso-scripts .p3 { width: 38px; height: 50px; left: 38px; top: 10px; transform: rotate(9deg); background: rgba(255,255,255,.95); }
+    .nvh-iso-scripts .p3::before {
+      content: ''; position: absolute; left: 7px; top: 10px; width: 24px; height: 3px; background: rgba(0,0,0,.18); border-radius: 2px;
+      box-shadow: 0 7px 0 rgba(0,0,0,.18), 0 14px 0 rgba(0,0,0,.18);
+    }
+
+    /* Technical Issues: headset + sound waves */
+    .nvh-iso-tech .band { width: 44px; height: 22px; left: 24px; top: 14px; border: 5px solid rgba(255,255,255,.95); border-bottom: none; border-radius: 22px 22px 0 0; background: none; }
+    .nvh-iso-tech .cup { width: 12px; height: 18px; border-radius: 5px; background: rgba(255,255,255,.95); top: 28px; }
+    .nvh-iso-tech .cup.l { left: 16px; }
+    .nvh-iso-tech .cup.r { left: 64px; }
+    .nvh-iso-tech .wave { position: absolute; border: 2.5px solid rgba(255,255,255,.6); border-radius: 50%; border-inline-end-color: transparent; border-block-end-color: transparent; }
+    .nvh-iso-tech .w1 { width: 14px; height: 14px; left: 6px; top: 40px; transform: rotate(45deg); }
+    .nvh-iso-tech .w2 { width: 22px; height: 22px; left: 0; top: 36px; transform: rotate(45deg); opacity: .6; }
+
+    /* Training Center: open book + graduation cap */
+    .nvh-iso-training .book-l { width: 22px; height: 30px; left: 26px; top: 38px; border-radius: 3px 0 0 3px; background: rgba(255,255,255,.7); }
+    .nvh-iso-training .book-r { width: 22px; height: 30px; left: 48px; top: 38px; border-radius: 0 3px 3px 0; background: rgba(255,255,255,.95); }
+    .nvh-iso-training .spine { width: 3px; height: 30px; left: 47px; top: 38px; background: rgba(0,0,0,.18); }
+    .nvh-iso-training .cap-top { width: 46px; height: 18px; left: 25px; top: 16px; background: rgba(255,255,255,.95); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+    .nvh-iso-training .cap-base { width: 16px; height: 8px; left: 40px; top: 28px; background: rgba(255,255,255,.7); border-radius: 2px; }
+    .nvh-iso-training .tassel { width: 2px; height: 14px; left: 48px; top: 20px; background: rgba(0,0,0,.25); }
+
+    /* Info & Tools: crossed wrench + screwdriver over a base */
+    .nvh-iso-tools .base { width: 52px; height: 16px; left: 20px; top: 52px; border-radius: 4px; background: rgba(0,0,0,.2); }
+    .nvh-iso-tools .bar1 { width: 52px; height: 9px; left: 20px; top: 32px; border-radius: 5px; background: rgba(255,255,255,.95); transform: rotate(-24deg); }
+    .nvh-iso-tools .bar1::before, .nvh-iso-tools .bar1::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,.95); top: -2.5px; }
+    .nvh-iso-tools .bar1::before { left: -4px; }
+    .nvh-iso-tools .bar1::after { right: -4px; }
+    .nvh-iso-tools .bar2 { width: 52px; height: 8px; left: 20px; top: 36px; border-radius: 3px; background: rgba(255,255,255,.65); transform: rotate(24deg); }
+
+    /* New Updates: bell + sound rings */
+    .nvh-iso-updates .bell { width: 30px; height: 32px; left: 31px; top: 22px; border-radius: 15px 15px 4px 4px; background: rgba(255,255,255,.95); }
+    .nvh-iso-updates .clapper { width: 8px; height: 8px; left: 42px; top: 52px; border-radius: 50%; background: rgba(255,255,255,.95); }
+    .nvh-iso-updates .ring { position: absolute; border: 2.5px solid rgba(255,255,255,.55); border-radius: 50%; }
+    .nvh-iso-updates .r1 { width: 56px; height: 56px; left: 18px; top: 10px; border-inline-color: transparent; }
+    .nvh-iso-updates .r2 { width: 70px; height: 70px; left: 11px; top: 3px; border-inline-color: transparent; opacity: .5; }
+
+    /* Mentorship: two people + a connecting spark */
+    .nvh-iso-mentor .head1 { width: 22px; height: 22px; left: 16px; top: 20px; border-radius: 50%; background: rgba(255,255,255,.95); }
+    .nvh-iso-mentor .body1 { width: 30px; height: 20px; left: 12px; top: 40px; border-radius: 14px 14px 0 0; background: rgba(255,255,255,.95); }
+    .nvh-iso-mentor .head2 { width: 20px; height: 20px; left: 52px; top: 26px; border-radius: 50%; background: rgba(255,255,255,.7); }
+    .nvh-iso-mentor .body2 { width: 28px; height: 18px; left: 48px; top: 44px; border-radius: 13px 13px 0 0; background: rgba(255,255,255,.7); }
+    .nvh-iso-mentor .spark { width: 10px; height: 10px; left: 40px; top: 30px; background: #fff; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
     .nvh-bottom { position: relative; z-index: 1; }
     .nvh-title { display: block; font-size: 24px; font-weight: 800; line-height: 1.25; color: #fff; }
     .nvh-sub { display: block; font-size: 11.5px; color: rgba(255,255,255,.75); margin-top: 7px; font-weight: 600; }
@@ -981,14 +1037,12 @@
       .nvh-slide { width: 224px; margin-left: -112px; }
       .nvh-title { font-size: 20px; }
       .nvh-face { padding: 17px; }
-      .nvh-cube-stage { width: 84px; height: 84px; }
-      .nvh-cube-face.right, .nvh-cube-face.left { width: 60px; }
-      .nvh-cube-face.right { right: -30px; }
-      .nvh-cube-face.left { left: -30px; }
-      .nvh-cube-face.front { transform: translateZ(30px); }
-      .nvh-cube-face.right { transform: rotateY(90deg) translateZ(30px); }
-      .nvh-cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
-      .nvh-cube-face svg { width: 30px; height: 30px; }
+      .nvh-iso-stage { transform: scale(1.3); }
+      .nvh-iso-stage { animation-name: nvhIsoBobSmall; }
+      @keyframes nvhIsoBobSmall {
+        0%, 100% { transform: scale(1.3) translateY(0) rotate(0deg); }
+        50% { transform: scale(1.3) translateY(-5px) rotate(-2deg); }
+      }
     }
 
     /* ===== Quick-tools overlay — 3D fan of the five helper tools ===== */
