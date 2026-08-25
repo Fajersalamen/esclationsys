@@ -650,9 +650,13 @@
     closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
+    pauseAllOrbits();
+    orbitControllers.orbitCanvasTraining.start();
   }
   function closeTrainingPage() {
     document.getElementById('trainingPage').classList.remove('open');
+    orbitControllers.orbitCanvasTraining.stop();
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function renderTrainingGrid() {
@@ -1601,6 +1605,8 @@
     if (PRESENCE_USERS.length) renderPresenceList();
 
     document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
+    document.getElementById('swUpdateText').textContent = isAr ? 'في تحديث جديد للموقع' : 'A new version is available';
+    document.getElementById('swUpdateBtn').textContent = isAr ? 'تحديث' : 'Refresh';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
     document.getElementById('techLiveLabel').textContent = isAr ? 'مباشر' : 'Live';
     document.getElementById('techFormHeadTitle').textContent = isAr ? 'تسجيل مشكلة' : 'Log an Issue';
@@ -1694,6 +1700,9 @@
   updateThemeIcon();
 
   // ====== Orbit-field animated background: drifting particles with proximity links ======
+  // Each canvas only draws while its page is actually the one showing — a page nobody has
+  // opened yet (or one the user just navigated away from) costs zero CPU instead of running forever.
+  const orbitControllers = {};
   function initOrbitField(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -1701,6 +1710,8 @@
     const colors = ['#0B84FF', '#14B8A6', '#10B981'];
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
     let W, H, points = [];
+    let seeded = false;
+    let running = false;
 
     function resize() {
       W = canvas.clientWidth;
@@ -1721,8 +1732,10 @@
           c: colors[i % colors.length]
         });
       }
+      seeded = true;
     }
     function step() {
+      if (!running) return;
       ctx.clearRect(0, 0, W, H);
       for (const p of points) {
         p.x += p.vx; p.y += p.vy;
@@ -1751,13 +1764,22 @@
       }
       requestAnimationFrame(step);
     }
-    seed();
-    window.addEventListener('resize', seed);
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      requestAnimationFrame(step);
-    }
+    window.addEventListener('resize', () => { if (seeded) seed(); });
+
+    orbitControllers[canvasId] = {
+      start() {
+        if (running) return;
+        if (!seeded) seed();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        running = true;
+        requestAnimationFrame(step);
+      },
+      stop() { running = false; }
+    };
   }
   ['orbitCanvasHome', 'orbitCanvasTech', 'orbitCanvasTraining'].forEach(initOrbitField);
+  function pauseAllOrbits() { Object.values(orbitControllers).forEach(c => c.stop()); }
+  orbitControllers.orbitCanvasHome.start();
 
   // ====== Hero: 3D rotating carousel of the site's sections ======
   let novaHeroTimer = null;
@@ -2036,6 +2058,7 @@
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
+    pauseAllOrbits();
 
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     updatesUnseenAtOpen = new Set(UPDATES.filter(u => u.id > lastSeen).map(u => u.id));
@@ -2385,6 +2408,7 @@
     closeTrainingPage();
     switchMentorTab(activeMentorTab || 'request');
     document.getElementById('mentorshipPage').classList.add('open');
+    pauseAllOrbits();
   }
   function closeMentorshipPage() {
     document.getElementById('mentorshipPage').classList.remove('open');
@@ -2600,6 +2624,7 @@
     if (searchEl) searchEl.value = '';
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function openTechPage() {
@@ -2613,10 +2638,14 @@
     if (searchEl) searchEl.value = '';
     showTechSkeleton();
     loadTechIssues();
+    pauseAllOrbits();
+    orbitControllers.orbitCanvasTech.start();
   }
 
   function closeTechPage() {
     document.getElementById('techPage').classList.remove('open');
+    orbitControllers.orbitCanvasTech.stop();
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function resetTechForm() {
@@ -3290,6 +3319,8 @@
     document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest'));
     document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute'); });
 
+    on('swUpdateBtn', 'click', () => window.location.reload());
+
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
     on('updatesSearchInput', 'input', renderUpdatesPage);
@@ -3446,9 +3477,31 @@
   }
 
   // ====== PWA: install the app-shell service worker (icons/scripts only — Supabase calls pass straight through) ======
+  // Also watches for a freshly-deployed build and prompts the user to refresh, instead of them
+  // having to notice on their own and hit reload manually.
+  function showUpdateToast() {
+    const el = document.getElementById('swUpdateToast');
+    if (el) el.classList.add('show');
+  }
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const installing = reg.installing;
+          if (!installing) return;
+          installing.addEventListener('statechange', () => {
+            // A worker reaching "installed" while an existing controller is active means
+            // this is an update, not the very first install — that's when we prompt.
+            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateToast();
+            }
+          });
+        });
+        setInterval(() => reg.update().catch(() => {}), 10 * 60 * 1000);
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(() => {});
     });
   }
 
