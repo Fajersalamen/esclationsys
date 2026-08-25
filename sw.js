@@ -42,3 +42,36 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
   );
 });
+
+// ====== Web Push: shows a real OS notification even when no tab is open ======
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (e) {}
+  const title = data.title || 'Nova';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body || '',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: data.tag || undefined,
+      data: { url: data.url || '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if ('focus' in client) {
+          client.focus();
+          if ('navigate' in client) client.navigate(url);
+          return;
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});
