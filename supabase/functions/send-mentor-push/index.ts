@@ -85,7 +85,10 @@ Deno.serve(async (req) => {
       title: "رسالة جديدة • New message",
       body: String(message.text || "").slice(0, 140),
       url: "/",
-      tag: `mentor-thread-${message.request_id}`,
+      // Unique per message (not just per thread) — a shared tag makes the browser silently
+      // replace the previous notification instead of alerting again, so only the first
+      // message in a conversation would ever actually notify the recipient.
+      tag: `mentor-message-${message.id}`,
     });
 
     await Promise.all(
