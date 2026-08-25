@@ -77,67 +77,86 @@
       <button class="tech-back-btn" id="techBackBtn" aria-label="Back" title="Back">×</button>
     </div>
 
-    <div class="tech-hero">
-      <div class="tech-hero-inner">
-        <div class="tech-hero-top">
-          <div class="tech-hero-head-copy">
-            <span class="tech-hero-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg><span id="techFormHeadTitle">تسجيل مشكلة</span></span>
-            <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
-            <p class="tech-hero-sub" id="techFormHeadSub">اختر الرقم ثم نوع المشكلة</p>
+    <div class="tech-layout">
+      <div class="tech-hero">
+        <div class="tech-hero-inner">
+          <div class="tech-hero-top">
+            <div class="tech-hero-head-copy">
+              <span class="tech-hero-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 4.9L3 17.5V21h3.5l6.3-6.3a4 4 0 0 0 4.9-5.4l-2.6 2.6-2-2Z"></path></svg><span id="techFormHeadTitle">تسجيل مشكلة</span></span>
+              <h2 id="techPageTitle">🛠️ مشاكل تقنية</h2>
+              <p class="tech-hero-sub" id="techFormHeadSub">اختر الرقم ثم نوع المشكلة</p>
+            </div>
+            <span class="tech-hero-live"><span class="dot"></span><span id="techLiveLabel">مباشر</span></span>
           </div>
-          <span class="tech-hero-live"><span class="dot"></span><span id="techLiveLabel">مباشر</span></span>
-        </div>
 
-        <label for="techNumberInput" id="techNumLabel" class="tech-hero-num-label">أدخل رقم البوليصة أو رقم المكالمة</label>
-        <div class="tech-number-row">
-          <input type="text" id="techNumberInput" inputmode="tel" maxlength="40" placeholder="">
-          <button id="techAttachBtn">إرفاق</button>
-        </div>
+          <label for="techNumberInput" id="techNumLabel" class="tech-hero-num-label">أدخل رقم البوليصة أو رقم المكالمة</label>
+          <div class="tech-number-row">
+            <input type="text" id="techNumberInput" inputmode="tel" maxlength="40" placeholder="">
+            <button id="techAttachBtn">إرفاق</button>
+          </div>
 
-        <div class="tech-attached-row" id="techAttachedRow">
-          <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
-          <button id="techChangeNumBtn">تغيير الرقم</button>
-        </div>
+          <div class="tech-attached-row" id="techAttachedRow">
+            <span id="techAttachedLabel">الرقم المرفق: <span class="num" id="techAttachedNum">—</span></span>
+            <button id="techChangeNumBtn">تغيير الرقم</button>
+          </div>
 
-        <div id="techOptionsWrap">
-          <p id="techOptionsLabel">اختر نوع المشكلة:</p>
-          <div class="tech-options">
-            <button class="tech-opt-btn" id="techOptAudio" data-issue="audio"><span class="opt-icon">🔇</span><span>الصوت بالمكالمة مشوش</span></button>
-            <button class="tech-opt-btn" id="techOptClosed" data-issue="closed"><span class="opt-icon">📴</span><span>تم إغلاق المكالمة</span></button>
-            <button class="tech-opt-btn" id="techOptDelay" data-issue="delay"><span class="opt-icon">⏱️</span><span>تأخير في المكالمة</span></button>
+          <div id="techOptionsWrap">
+            <p id="techOptionsLabel">اختر نوع المشكلة:</p>
+            <div class="tech-options">
+              <button class="tech-opt-btn" id="techOptAudio" data-issue="audio"><span class="opt-icon">🔇</span><span>الصوت بالمكالمة مشوش</span></button>
+              <button class="tech-opt-btn" id="techOptClosed" data-issue="closed"><span class="opt-icon">📴</span><span>تم إغلاق المكالمة</span></button>
+              <button class="tech-opt-btn" id="techOptDelay" data-issue="delay"><span class="opt-icon">⏱️</span><span>تأخير في المكالمة</span></button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="tech-board-card">
-      <div class="tech-sheet-head">
-        <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
-        <span class="tech-sheet-count" id="techSheetCount">0</span>
-        <span class="dash-chip" id="techHeadCount" style="--stat-accent:var(--brand-blue);"></span>
-        <div class="tech-search-shell"><span class="search-icon">⌕</span><input type="text" id="techRecordSearch" placeholder=""></div>
-        <button class="tech-export-btn" id="techExportBtn" title="Export to CSV (opens in Excel or Google Sheets)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 19h16"></path></svg>
-          <span id="techExportBtnLabel">Export</span>
-        </button>
-      </div>
-      <div class="tech-sheet-wrap">
-        <table id="techSheetTable">
-          <thead>
-            <tr>
-              <th id="techColNum">الرقم</th>
-              <th id="techColIssue">المشكلة</th>
-              <th id="techColEmail">الموظف</th>
-              <th id="techColTime">الوقت</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="techSheetBody"></tbody>
-        </table>
-        <div class="tech-empty" id="techSheetEmpty" style="display:none;">
-          <div class="tech-empty-icon">📋</div>
-          <strong id="techEmptyTitle">لا توجد مشاكل مسجلة بعد</strong>
-          <span id="techEmptySub">ستظهر المشاكل هنا فور تسجيلها</span>
+      <div class="tech-main">
+        <div class="tech-stats-row" id="techStatsRow">
+          <div class="tech-stat-tile accent">
+            <div class="n mono" id="techStatTotal">0</div>
+            <div class="l" id="techStatTotalLabel">إجمالي المسجل</div>
+          </div>
+          <div class="tech-stat-tile">
+            <div class="n mono" id="techStatToday">0</div>
+            <div class="l" id="techStatTodayLabel">اليوم</div>
+          </div>
+          <div class="tech-stat-tile">
+            <div class="n mono" id="techStatTop">—</div>
+            <div class="l" id="techStatTopLabel">الأكثر تكراراً</div>
+          </div>
+        </div>
+
+        <div class="tech-board-card">
+          <div class="tech-sheet-head">
+            <h3 id="techSheetTitle">📋 سجل المشاكل التقنية</h3>
+            <span class="tech-sheet-count" id="techSheetCount">0</span>
+            <span class="dash-chip" id="techHeadCount" style="--stat-accent:var(--brand-blue);"></span>
+            <div class="tech-search-shell"><span class="search-icon">⌕</span><input type="text" id="techRecordSearch" placeholder=""></div>
+            <button class="tech-export-btn" id="techExportBtn" title="Export to CSV (opens in Excel or Google Sheets)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 19h16"></path></svg>
+              <span id="techExportBtnLabel">Export</span>
+            </button>
+          </div>
+          <div class="tech-sheet-wrap">
+            <table id="techSheetTable">
+              <thead>
+                <tr>
+                  <th id="techColNum">الرقم</th>
+                  <th id="techColIssue">المشكلة</th>
+                  <th id="techColEmail">الموظف</th>
+                  <th id="techColTime">الوقت</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="techSheetBody"></tbody>
+            </table>
+            <div class="tech-empty" id="techSheetEmpty" style="display:none;">
+              <div class="tech-empty-icon">📋</div>
+              <strong id="techEmptyTitle">لا توجد مشاكل مسجلة بعد</strong>
+              <span id="techEmptySub">ستظهر المشاكل هنا فور تسجيلها</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -193,26 +212,40 @@
         <h2 id="updatesPageTitle">🔔 التحديثات الجديدة</h2>
         <p id="updatesPageSub">كل شي جديد أو اتغيّر مؤخراً بمكان واحد</p>
       </div>
-      <div class="updates-search-shell">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="updatesSearchInput" placeholder="ابحث بنص التحديث...">
+    </div>
+
+    <div class="updates-layout">
+      <div class="updates-main">
+        <div id="updatesRecentSection">
+          <div class="updates-list timeline" id="updatesRecentList"></div>
+        </div>
+
+        <div id="updatesArchiveSection" style="display:none;">
+          <div class="updates-section-label" id="updatesArchiveLabel">الأرشيف</div>
+          <div class="updates-list timeline" id="updatesArchiveList"></div>
+        </div>
+
+        <div class="updates-empty" id="updatesEmpty" style="display:none;">
+          <div class="updates-empty-icon">🔔</div>
+          <strong id="updatesEmptyTitle">لا توجد تحديثات بعد</strong>
+          <span id="updatesEmptySub">أي إعلان جديد رح يظهر هون</span>
+        </div>
       </div>
-    </div>
 
-    <div id="updatesRecentSection">
-      <div class="updates-section-label" id="updatesRecentLabel">الأحدث</div>
-      <div class="updates-list" id="updatesRecentList"></div>
-    </div>
-
-    <div id="updatesArchiveSection" style="display:none;">
-      <div class="updates-section-label" id="updatesArchiveLabel">الأرشيف</div>
-      <div class="updates-list" id="updatesArchiveList"></div>
-    </div>
-
-    <div class="updates-empty" id="updatesEmpty" style="display:none;">
-      <div class="updates-empty-icon">🔔</div>
-      <strong id="updatesEmptyTitle">لا توجد تحديثات بعد</strong>
-      <span id="updatesEmptySub">أي إعلان جديد رح يظهر هون</span>
+      <div class="updates-sidebar">
+        <div class="updates-side-card">
+          <h4 id="updatesSearchLabel">🔍 بحث</h4>
+          <div class="updates-search-shell">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="updatesSearchInput" placeholder="ابحث بنص التحديث...">
+          </div>
+        </div>
+        <div class="updates-side-card">
+          <h4 id="updatesStatsLabel">إحصائيات</h4>
+          <div class="updates-side-stat-row"><span id="updatesStatTotalLabel">الإجمالي</span><span id="updatesStatTotal">0</span></div>
+          <div class="updates-side-stat-row"><span id="updatesStatWeekLabel">هذا الأسبوع</span><span id="updatesStatWeek">0</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -254,15 +287,25 @@
       <div id="mentorIncomingList"></div>
     </div>
 
-    <!-- Tab 3: My accepted mentorships + chat -->
+    <!-- Tab 3: My accepted mentorships + chat — inbox layout: list always visible, thread on the side -->
     <div id="mentorPaneChats" style="display:none;">
-      <div id="mentorChatsList"></div>
-      <div id="mentorChatThread" style="display:none;">
-        <button id="mentorChatBackBtn" class="mentorship-back-link">‹ <span id="lblMentorChatBack">رجوع للمحادثات</span></button>
-        <div id="mentorChatMessages" class="mentorship-chat-messages"></div>
-        <div class="mentorship-chat-input-row">
-          <input type="text" id="mentorChatInput" placeholder="اكتب رسالة...">
-          <button id="mentorChatSendBtn">↑</button>
+      <div class="mentor-inbox" id="mentorInbox">
+        <div class="mentor-inbox-list">
+          <div id="mentorChatsList"></div>
+        </div>
+        <div class="mentor-inbox-thread">
+          <div class="mentor-inbox-empty" id="mentorChatEmpty">
+            <span class="mentor-inbox-empty-icon">💬</span>
+            <span id="lblMentorChatEmpty">اختر محادثة من القائمة</span>
+          </div>
+          <div id="mentorChatThread" style="display:none;">
+            <button id="mentorChatBackBtn" class="mentorship-back-link">‹ <span id="lblMentorChatBack">رجوع للمحادثات</span></button>
+            <div id="mentorChatMessages" class="mentorship-chat-messages"></div>
+            <div class="mentorship-chat-input-row">
+              <input type="text" id="mentorChatInput" placeholder="اكتب رسالة...">
+              <button id="mentorChatSendBtn">↑</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
