@@ -650,9 +650,13 @@
     closeTechPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
+    pauseAllOrbits();
+    orbitControllers.orbitCanvasTraining.start();
   }
   function closeTrainingPage() {
     document.getElementById('trainingPage').classList.remove('open');
+    orbitControllers.orbitCanvasTraining.stop();
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function renderTrainingGrid() {
@@ -1696,6 +1700,9 @@
   updateThemeIcon();
 
   // ====== Orbit-field animated background: drifting particles with proximity links ======
+  // Each canvas only draws while its page is actually the one showing — a page nobody has
+  // opened yet (or one the user just navigated away from) costs zero CPU instead of running forever.
+  const orbitControllers = {};
   function initOrbitField(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -1703,6 +1710,8 @@
     const colors = ['#0B84FF', '#14B8A6', '#10B981'];
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
     let W, H, points = [];
+    let seeded = false;
+    let running = false;
 
     function resize() {
       W = canvas.clientWidth;
@@ -1723,8 +1732,10 @@
           c: colors[i % colors.length]
         });
       }
+      seeded = true;
     }
     function step() {
+      if (!running) return;
       ctx.clearRect(0, 0, W, H);
       for (const p of points) {
         p.x += p.vx; p.y += p.vy;
@@ -1753,13 +1764,22 @@
       }
       requestAnimationFrame(step);
     }
-    seed();
-    window.addEventListener('resize', seed);
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      requestAnimationFrame(step);
-    }
+    window.addEventListener('resize', () => { if (seeded) seed(); });
+
+    orbitControllers[canvasId] = {
+      start() {
+        if (running) return;
+        if (!seeded) seed();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        running = true;
+        requestAnimationFrame(step);
+      },
+      stop() { running = false; }
+    };
   }
   ['orbitCanvasHome', 'orbitCanvasTech', 'orbitCanvasTraining'].forEach(initOrbitField);
+  function pauseAllOrbits() { Object.values(orbitControllers).forEach(c => c.stop()); }
+  orbitControllers.orbitCanvasHome.start();
 
   // ====== Hero: 3D rotating carousel of the site's sections ======
   let novaHeroTimer = null;
@@ -2038,6 +2058,7 @@
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
+    pauseAllOrbits();
 
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     updatesUnseenAtOpen = new Set(UPDATES.filter(u => u.id > lastSeen).map(u => u.id));
@@ -2387,6 +2408,7 @@
     closeTrainingPage();
     switchMentorTab(activeMentorTab || 'request');
     document.getElementById('mentorshipPage').classList.add('open');
+    pauseAllOrbits();
   }
   function closeMentorshipPage() {
     document.getElementById('mentorshipPage').classList.remove('open');
@@ -2602,6 +2624,7 @@
     if (searchEl) searchEl.value = '';
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function openTechPage() {
@@ -2615,10 +2638,14 @@
     if (searchEl) searchEl.value = '';
     showTechSkeleton();
     loadTechIssues();
+    pauseAllOrbits();
+    orbitControllers.orbitCanvasTech.start();
   }
 
   function closeTechPage() {
     document.getElementById('techPage').classList.remove('open');
+    orbitControllers.orbitCanvasTech.stop();
+    orbitControllers.orbitCanvasHome.start();
   }
 
   function resetTechForm() {
