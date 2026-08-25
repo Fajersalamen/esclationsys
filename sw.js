@@ -1,6 +1,6 @@
 // Minimal app-shell service worker. Only ever touches same-origin GET requests —
 // Supabase calls (auth, REST, realtime) are cross-origin and pass straight through untouched.
-const CACHE_VERSION = 'nova-shell-v1';
+const CACHE_VERSION = 'nova-shell-v2';
 const APP_SHELL = [
   '/',
   '/index.html',

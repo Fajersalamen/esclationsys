@@ -1601,6 +1601,8 @@
     if (PRESENCE_USERS.length) renderPresenceList();
 
     document.getElementById('bbHomeLabel').textContent = isAr ? 'الرئيسية' : 'Home';
+    document.getElementById('swUpdateText').textContent = isAr ? 'في تحديث جديد للموقع' : 'A new version is available';
+    document.getElementById('swUpdateBtn').textContent = isAr ? 'تحديث' : 'Refresh';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
     document.getElementById('techLiveLabel').textContent = isAr ? 'مباشر' : 'Live';
     document.getElementById('techFormHeadTitle').textContent = isAr ? 'تسجيل مشكلة' : 'Log an Issue';
@@ -3290,6 +3292,8 @@
     document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest'));
     document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute'); });
 
+    on('swUpdateBtn', 'click', () => window.location.reload());
+
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
     on('updatesSearchInput', 'input', renderUpdatesPage);
@@ -3446,9 +3450,31 @@
   }
 
   // ====== PWA: install the app-shell service worker (icons/scripts only — Supabase calls pass straight through) ======
+  // Also watches for a freshly-deployed build and prompts the user to refresh, instead of them
+  // having to notice on their own and hit reload manually.
+  function showUpdateToast() {
+    const el = document.getElementById('swUpdateToast');
+    if (el) el.classList.add('show');
+  }
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const installing = reg.installing;
+          if (!installing) return;
+          installing.addEventListener('statechange', () => {
+            // A worker reaching "installed" while an existing controller is active means
+            // this is an update, not the very first install — that's when we prompt.
+            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateToast();
+            }
+          });
+        });
+        setInterval(() => reg.update().catch(() => {}), 10 * 60 * 1000);
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(() => {});
     });
   }
 
