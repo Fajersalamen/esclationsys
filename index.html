@@ -274,15 +274,38 @@
       <button class="mentorship-tab-btn" id="mtabChats" data-mentor-tab="chats">💬 <span id="lblMtabChats">محادثاتي</span></button>
     </div>
 
-    <!-- Tab 1: Request a mentor -->
+    <!-- Tab 1: Request a mentor — compact request bar on top, full-width status table below -->
     <div id="mentorPaneRequest">
-      <label class="mentorship-field-label" id="lblMentorEmail">إيميل الزميل اللي بدك ياه يدرّبك:</label>
-      <select id="mentorRequestEmail" style="width:100%; margin:4px 0 8px;"></select>
-      <textarea id="mentorRequestNote" rows="3" maxlength="500" placeholder="ليش بدك ياه راعي؟ (اختياري)" style="width:100%; margin-bottom:10px;"></textarea>
-      <button id="btnSendMentorRequest" class="mentorship-primary-btn">إرسال الطلب</button>
+      <div class="mentor-request-bar">
+        <span class="mentor-request-bar-lbl" id="lblMentorEmail">اطلب راعي:</span>
+        <select id="mentorRequestEmail"></select>
+        <input type="text" id="mentorRequestNote" maxlength="500" placeholder="ليش بدك ياه راعي؟ (اختياري)">
+        <button id="btnSendMentorRequest" class="mentorship-primary-btn">إرسال الطلب</button>
+      </div>
 
-      <p class="mentorship-section-label" id="lblMyOutgoing">طلباتي المرسلة:</p>
-      <div id="mentorOutgoingList"></div>
+      <div class="mentor-table-card">
+        <div class="mentor-table-head">
+          <h4 id="lblMyOutgoing">📨 طلباتي المرسلة</h4>
+          <span class="mentor-table-count" id="mentorOutgoingCount">0</span>
+        </div>
+        <div class="mentor-table-wrap">
+          <table id="mentorOutgoingTable">
+            <thead>
+              <tr>
+                <th id="colOutColleague">الزميل</th>
+                <th id="colOutReason">السبب</th>
+                <th id="colOutStatus">الحالة</th>
+                <th id="colOutDate">التاريخ</th>
+              </tr>
+            </thead>
+            <tbody id="mentorOutgoingList"></tbody>
+          </table>
+          <div class="mentor-table-empty" id="mentorOutgoingEmpty" style="display:none;">
+            <div class="mentor-table-empty-icon">📨</div>
+            <span id="mentorOutgoingEmptyText">ما أرسلت أي طلب رعاية بعد</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Tab 2: Incoming requests (I'm the requested mentor) -->

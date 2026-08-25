@@ -1571,10 +1571,15 @@
     document.getElementById('lblMtabRequest').textContent = isAr ? 'اطلب راعي' : 'Request a Mentor';
     document.getElementById('lblMtabIncoming').textContent = isAr ? 'طلبات واردة' : 'Incoming Requests';
     document.getElementById('lblMtabChats').textContent = isAr ? 'محادثاتي' : 'My Chats';
-    document.getElementById('lblMentorEmail').textContent = isAr ? 'إيميل الزميل اللي بدك ياه يدرّبك:' : "Your colleague's email:";
+    document.getElementById('lblMentorEmail').textContent = isAr ? 'اطلب راعي:' : 'Request a mentor:';
     document.getElementById('mentorRequestNote').placeholder = isAr ? 'ليش بدك ياه راعي؟ (اختياري)' : 'Why do you want them as a mentor? (optional)';
     document.getElementById('btnSendMentorRequest').textContent = isAr ? 'إرسال الطلب' : 'Send Request';
-    document.getElementById('lblMyOutgoing').textContent = isAr ? 'طلباتي المرسلة:' : 'My sent requests:';
+    document.getElementById('lblMyOutgoing').textContent = isAr ? '📨 طلباتي المرسلة' : '📨 My Sent Requests';
+    document.getElementById('colOutColleague').textContent = isAr ? 'الزميل' : 'Colleague';
+    document.getElementById('colOutReason').textContent = isAr ? 'السبب' : 'Reason';
+    document.getElementById('colOutStatus').textContent = isAr ? 'الحالة' : 'Status';
+    document.getElementById('colOutDate').textContent = isAr ? 'التاريخ' : 'Date';
+    document.getElementById('mentorOutgoingEmptyText').textContent = isAr ? 'ما أرسلت أي طلب رعاية بعد' : "You haven't sent any mentorship requests yet";
     document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
     document.getElementById('lblMentorChatEmpty').textContent = isAr ? 'اختر محادثة من القائمة' : 'Select a conversation from the list';
     document.getElementById('lblMentorSideSummary').textContent = isAr ? 'ملخص' : 'Summary';
@@ -2497,14 +2502,25 @@
     const list = document.getElementById('mentorOutgoingList');
     if (!list) return;
     const mine = MENTOR_REQUESTS.filter(r => r.traineeEmail === currentUserEmail).sort((a, b) => b.id - a.id);
-    list.innerHTML = mine.length ? mine.map(r => `
-      <div class="mentor-request-card">
-        <div>
-          <div class="who">${escapeHtml(r.mentorEmail)}</div>
-          ${r.note ? `<div class="note">${escapeHtml(r.note)}</div>` : ''}
-        </div>
-        <span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span>
-      </div>`).join('') : `<div class="mentorship-empty">${isAr ? 'ما أرسلت أي طلب رعاية بعد.' : "You haven't sent any mentorship requests yet."}</div>`;
+    const table = document.getElementById('mentorOutgoingTable');
+    const empty = document.getElementById('mentorOutgoingEmpty');
+    const countEl = document.getElementById('mentorOutgoingCount');
+    if (countEl) countEl.textContent = mine.length;
+    if (!mine.length) {
+      list.innerHTML = '';
+      if (table) table.style.display = 'none';
+      if (empty) empty.style.display = 'flex';
+      return;
+    }
+    if (table) table.style.display = '';
+    if (empty) empty.style.display = 'none';
+    list.innerHTML = mine.map(r => `
+      <tr>
+        <td class="mentor-who-cell">${escapeHtml(r.mentorEmail)}</td>
+        <td class="mentor-reason-cell">${r.note ? escapeHtml(r.note) : '—'}</td>
+        <td><span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span></td>
+        <td class="mentor-date-cell">${new Date(r.createdAt).toLocaleDateString(isAr ? 'ar' : 'en', { day: 'numeric', month: 'long' })}</td>
+      </tr>`).join('');
   }
 
   function renderMentorIncomingPane() {
