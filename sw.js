@@ -1,6 +1,6 @@
 // Minimal app-shell service worker. Only ever touches same-origin GET requests —
 // Supabase calls (auth, REST, realtime) are cross-origin and pass straight through untouched.
-const CACHE_VERSION = 'nova-shell-v3';
+const CACHE_VERSION = 'nova-shell-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -62,20 +62,10 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || '/';
-  event.waitUntil(
-    (async () => {
-      const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-      for (const client of windowClients) {
-        if ('focus' in client) {
-          // Both awaited: without this the browser can tear the worker down right after
-          // navigate() is *called* but before the navigation actually finishes, leaving
-          // the tab exactly where it already was instead of jumping to the right page.
-          await client.focus();
-          if ('navigate' in client) await client.navigate(url);
-          return;
-        }
-      }
-      if (clients.openWindow) await clients.openWindow(url);
-    })()
+  // Always open a fresh tab at the target URL instead of trying to reuse/navigate an
+  // existing one — focus()+navigate() on an existing (especially backgrounded) client
+  // turned out to be unreliable in practice. openWindow() always does a real, full
+  // navigation, so app.js's own boot-time deep-link logic reliably takes over from there.
+  event.waitUntil(clients.openWindow(url));
   );
 });
