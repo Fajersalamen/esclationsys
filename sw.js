@@ -67,5 +67,4 @@ self.addEventListener('notificationclick', (event) => {
   // turned out to be unreliable in practice. openWindow() always does a real, full
   // navigation, so app.js's own boot-time deep-link logic reliably takes over from there.
   event.waitUntil(clients.openWindow(url));
-  );
 });
