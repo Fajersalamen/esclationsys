@@ -1,6 +1,6 @@
 // Minimal app-shell service worker. Only ever touches same-origin GET requests —
 // Supabase calls (auth, REST, realtime) are cross-origin and pass straight through untouched.
-const CACHE_VERSION = 'nova-shell-v2';
+const CACHE_VERSION = 'nova-shell-v3';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -63,15 +63,19 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || '/';
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+    (async () => {
+      const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
       for (const client of windowClients) {
         if ('focus' in client) {
-          client.focus();
-          if ('navigate' in client) client.navigate(url);
+          // Both awaited: without this the browser can tear the worker down right after
+          // navigate() is *called* but before the navigation actually finishes, leaving
+          // the tab exactly where it already was instead of jumping to the right page.
+          await client.focus();
+          if ('navigate' in client) await client.navigate(url);
           return;
         }
       }
-      if (clients.openWindow) return clients.openWindow(url);
-    })
+      if (clients.openWindow) await clients.openWindow(url);
+    })()
   );
 });
