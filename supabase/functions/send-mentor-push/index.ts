@@ -84,7 +84,9 @@ Deno.serve(async (req) => {
     const notificationPayload = JSON.stringify({
       title: "رسالة جديدة • New message",
       body: String(message.text || "").slice(0, 140),
-      url: "/",
+      // Deep-links straight into this thread's chat — app.js reads this query param on
+      // boot and opens the Mentorship chat directly instead of just landing on the home page.
+      url: `/?mentorThread=${message.request_id}`,
       // Unique per message (not just per thread) — a shared tag makes the browser silently
       // replace the previous notification instead of alerting again, so only the first
       // message in a conversation would ever actually notify the recipient.

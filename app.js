@@ -3592,4 +3592,16 @@
       closeMentorThread();
       switchMentorTab(activeMentorTab || 'request');
     }
+    openMentorThreadFromUrl();
+  }
+
+  // Deep-link support: a push-notification tap opens the site at /?mentorThread=<id> —
+  // jump straight into that conversation instead of leaving the user on the home page.
+  function openMentorThreadFromUrl() {
+    const requestId = new URLSearchParams(window.location.search).get('mentorThread');
+    if (!requestId) return;
+    history.replaceState(null, '', window.location.pathname);
+    openMentorshipPage();
+    switchMentorTab('chats');
+    openMentorThread(parseInt(requestId, 10));
   }
