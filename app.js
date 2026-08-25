@@ -3585,4 +3585,11 @@
     startUpdatesPolling();
     loadDirectoryEmails();
     syncPushSubscriptionIfGranted();
+    // If the Mentorship page was left open across a logout/login (a different account signing
+    // in without a full page reload), its panes and any open chat thread still show the
+    // previous account's data — force them to re-render against the freshly loaded data.
+    if (document.getElementById('mentorshipPage').classList.contains('open')) {
+      closeMentorThread();
+      switchMentorTab(activeMentorTab || 'request');
+    }
   }
