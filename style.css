@@ -1634,6 +1634,19 @@
     .mentorship-head-copy h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: #fff; }
     .mentorship-head-copy p { margin: 0; font-size: 12.5px; color: rgba(255,255,255,.85); }
 
+    .mentor-notify-banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: color-mix(in srgb, var(--brand-blue) 10%, var(--card));
+      border: 1px solid color-mix(in srgb, var(--brand-blue) 30%, var(--border));
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 16px;
+      font-size: 12px; font-weight: 600; color: var(--text-main);
+    }
+    .mentor-notify-banner button {
+      flex-shrink: 0; background: linear-gradient(120deg, #0B84FF, #10B981); color: #fff; border: none;
+      font-family: inherit; font-weight: 800; font-size: 11.5px; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+    }
+    .mentor-notify-banner button:hover { filter: brightness(1.08); }
+
     .mentorship-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
     .mentorship-tab-btn {
       display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border); color: var(--slate);

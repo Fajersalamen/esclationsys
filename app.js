@@ -41,6 +41,10 @@
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let appBooted = false;
 
+  // Public VAPID key for Web Push (safe to expose client-side — it's the public half of the
+  // keypair; the private half lives only in the send-mentor-push Edge Function's secrets).
+  const VAPID_PUBLIC_KEY = "BAp5BIOmonIpl1Nfk6_tUHYGsRMXVWXXOPZ7NUv6tRuhvXvcLSGxYt5gSKAscY-QOzPG0l2ouPvqO9UGhBzCLZg";
+
   function showLoginError(msg) {
     const el = document.getElementById('loginError');
     el.textContent = msg;
@@ -1555,6 +1559,8 @@
 
     document.getElementById('mentorshipPageTitle').textContent = isAr ? '🤝 الرعاية والتدريب' : '🤝 Mentorship';
     document.getElementById('mentorshipPageSub').textContent = isAr ? 'اطلب راعي تدريب، أو رد على طلب توجيه وصلك' : 'Request a mentor, or respond to a mentorship request you received';
+    document.getElementById('mentorNotifyText').textContent = isAr ? 'فعّل الإشعارات حتى توصلك الرسايل حتى لو الموقع مسكر' : 'Turn on notifications to get messages even when the site is closed';
+    document.getElementById('mentorNotifyBtnLabel').textContent = isAr ? 'تفعيل' : 'Enable';
     document.getElementById('lblMtabRequest').textContent = isAr ? 'اطلب راعي' : 'Request a Mentor';
     document.getElementById('lblMtabIncoming').textContent = isAr ? 'طلبات واردة' : 'Incoming Requests';
     document.getElementById('lblMtabChats').textContent = isAr ? 'محادثاتي' : 'My Chats';
@@ -2409,6 +2415,7 @@
     switchMentorTab(activeMentorTab || 'request');
     document.getElementById('mentorshipPage').classList.add('open');
     pauseAllOrbits();
+    updateMentorNotifyBanner();
   }
   function closeMentorshipPage() {
     document.getElementById('mentorshipPage').classList.remove('open');
@@ -3320,6 +3327,7 @@
     document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute'); });
 
     on('swUpdateBtn', 'click', () => window.location.reload());
+    on('mentorNotifyBtn', 'click', enablePushNotifications);
 
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
@@ -3505,6 +3513,63 @@
     });
   }
 
+  // ====== Web Push: real OS notifications for mentor-chat messages, even with the site closed ======
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+  function pushSupported() {
+    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  }
+  async function saveSubscription(sub) {
+    if (!currentUserEmail) return;
+    const json = sub.toJSON();
+    await sb.from('push_subscriptions').upsert({
+      user_email: currentUserEmail,
+      endpoint: json.endpoint,
+      p256dh: json.keys.p256dh,
+      auth: json.keys.auth,
+    }, { onConflict: 'endpoint' });
+  }
+  function updateMentorNotifyBanner() {
+    const el = document.getElementById('mentorNotifyBanner');
+    if (!el) return;
+    el.style.display = (pushSupported() && Notification.permission === 'default') ? 'flex' : 'none';
+  }
+  // User-gesture flow: the browser's own permission prompt only fires from a click.
+  async function enablePushNotifications() {
+    if (!pushSupported()) return;
+    try {
+      const permission = await Notification.requestPermission();
+      updateMentorNotifyBanner();
+      if (permission !== 'granted') return;
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      }
+      await saveSubscription(sub);
+      showToast(currentLang === 'ar' ? 'تم تفعيل الإشعارات!' : 'Notifications enabled!', 'success');
+    } catch (e) { /* denied, unsupported, or dismissed — nothing to do */ }
+  }
+  // If permission was already granted on an earlier visit, keep this device's subscription
+  // in sync silently — no re-prompt, matches the standing browser permission.
+  async function syncPushSubscriptionIfGranted() {
+    if (!pushSupported() || Notification.permission !== 'granted') return;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      }
+      await saveSubscription(sub);
+    } catch (e) {}
+  }
+
   async function bootApp(userId) {
     checkFirstVisitToday();
     showSkeleton();
@@ -3519,4 +3584,12 @@
     startPresenceHeartbeat();
     startUpdatesPolling();
     loadDirectoryEmails();
+    syncPushSubscriptionIfGranted();
+    // If the Mentorship page was left open across a logout/login (a different account signing
+    // in without a full page reload), its panes and any open chat thread still show the
+    // previous account's data — force them to re-render against the freshly loaded data.
+    if (document.getElementById('mentorshipPage').classList.contains('open')) {
+      closeMentorThread();
+      switchMentorTab(activeMentorTab || 'request');
+    }
   }
