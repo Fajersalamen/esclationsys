@@ -12,5 +12,8 @@
 /app.js
   Cache-Control: no-cache, must-revalidate
 
+/style.css
+  Cache-Control: no-cache, must-revalidate
+
 /sw.js
   Cache-Control: no-cache, must-revalidate
