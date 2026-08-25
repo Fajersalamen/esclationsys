@@ -1554,7 +1554,10 @@
     document.getElementById('updatesPageTitle').textContent = isAr ? '🔔 التحديثات الجديدة' : '🔔 New Updates';
     document.getElementById('updatesPageSub').textContent = isAr ? 'كل شي جديد أو اتغيّر مؤخراً بمكان واحد' : "Everything the team shipped or changed recently, in one place";
     document.getElementById('updatesSearchInput').placeholder = isAr ? 'ابحث بنص التحديث...' : 'Search updates...';
-    document.getElementById('updatesRecentLabel').textContent = isAr ? 'الأحدث' : 'Recent';
+    document.getElementById('updatesSearchLabel').textContent = isAr ? '🔍 بحث' : '🔍 Search';
+    document.getElementById('updatesStatsLabel').textContent = isAr ? 'إحصائيات' : 'Stats';
+    document.getElementById('updatesStatTotalLabel').textContent = isAr ? 'الإجمالي' : 'Total';
+    document.getElementById('updatesStatWeekLabel').textContent = isAr ? 'هذا الأسبوع' : 'This week';
     if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
 
     document.getElementById('mentorshipPageTitle').textContent = isAr ? '🤝 الرعاية والتدريب' : '🤝 Mentorship';
@@ -1569,6 +1572,7 @@
     document.getElementById('btnSendMentorRequest').textContent = isAr ? 'إرسال الطلب' : 'Send Request';
     document.getElementById('lblMyOutgoing').textContent = isAr ? 'طلباتي المرسلة:' : 'My sent requests:';
     document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
+    document.getElementById('lblMentorChatEmpty').textContent = isAr ? 'اختر محادثة من القائمة' : 'Select a conversation from the list';
     document.getElementById('mentorChatInput').placeholder = isAr ? 'اكتب رسالة...' : 'Write a message...';
     renderMentorEmailOptions();
     if (document.getElementById('mentorshipPage').classList.contains('open')) switchMentorTab(activeMentorTab);
@@ -1635,6 +1639,9 @@
     document.getElementById('techEmptyTitle').textContent = isAr ? 'لا توجد مشاكل مسجلة بعد' : 'No issues logged yet';
     document.getElementById('techEmptySub').textContent = isAr ? 'ستظهر المشاكل هنا فور تسجيلها' : 'Logged issues will appear here';
     document.getElementById('techExportBtnLabel').textContent = isAr ? 'تصدير' : 'Export';
+    document.getElementById('techStatTotalLabel').textContent = isAr ? 'إجمالي المسجل' : 'Total logged';
+    document.getElementById('techStatTodayLabel').textContent = isAr ? 'اليوم' : 'Today';
+    document.getElementById('techStatTopLabel').textContent = isAr ? 'الأكثر تكراراً' : 'Most common';
     if (TECH_ISSUES.length) renderTechSheet();
 
     // Hero carousel
@@ -2010,6 +2017,34 @@
   // ===================== Updates page (full page, replaces the old cramped side-panel) =====================
   let updatesUnseenAtOpen = new Set();
 
+  // Groups a sorted (newest-first) list of updates into day buckets ("Today", "Yesterday",
+  // then the calendar date) and renders each bucket as a labeled section of the timeline.
+  function renderUpdatesTimeline(updates, isAr) {
+    const dayLabel = (ts) => {
+      const d = new Date(ts);
+      const now = new Date();
+      const startOfDay = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+      const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / (24 * 60 * 60 * 1000));
+      if (diffDays === 0) return isAr ? 'اليوم' : 'Today';
+      if (diffDays === 1) return isAr ? 'أمس' : 'Yesterday';
+      return d.toLocaleDateString(isAr ? 'ar' : 'en', { day: 'numeric', month: 'long' });
+    };
+    let html = '';
+    let lastLabel = null;
+    updates.forEach(u => {
+      const label = dayLabel(u.createdAt);
+      if (label !== lastLabel) {
+        html += `<div class="tl-group-label">${escapeHtml(label)}</div>`;
+        lastLabel = label;
+      }
+      const timeStr = new Date(u.createdAt).toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+      const isNew = updatesUnseenAtOpen.has(u.id);
+      const chip = isNew ? `<span class="update-new-chip">${isAr ? 'جديد' : 'New'}</span>` : '';
+      html += `<div class="tl-item"><div class="update-card${isNew ? ' is-new' : ''}"><div class="update-top"><span class="update-date">${timeStr}</span>${chip}</div><div class="update-text">${escapeHtml(u.text)}</div></div></div>`;
+    });
+    return html;
+  }
+
   function renderUpdatesPage() {
     const isAr = currentLang === 'ar';
     const q = (document.getElementById('updatesSearchInput')?.value || '').toLowerCase().trim();
@@ -2021,6 +2056,14 @@
     if (!recentList || !archiveList) return;
 
     const sortedUpdates = [...UPDATES].filter(u => !q || u.text.toLowerCase().includes(q)).sort((a, b) => b.id - a.id);
+
+    const totalEl = document.getElementById('updatesStatTotal');
+    const weekEl = document.getElementById('updatesStatWeek');
+    if (totalEl) totalEl.textContent = UPDATES.length;
+    if (weekEl) {
+      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      weekEl.textContent = UPDATES.filter(u => u.createdAt >= weekAgo).length;
+    }
 
     if (!UPDATES.length) {
       recentSection.style.display = 'none';
@@ -2044,19 +2087,13 @@
     const cutoff = Date.now() - ARCHIVE_MS;
     const recentUpdates = sortedUpdates.filter(u => u.createdAt >= cutoff);
     const archivedUpdates = sortedUpdates.filter(u => u.createdAt < cutoff);
-    const renderCard = u => {
-      const dateStr = new Date(u.createdAt).toLocaleString(isAr ? 'ar' : 'en', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-      const isNew = updatesUnseenAtOpen.has(u.id);
-      const chip = isNew ? `<span class="update-new-chip">${isAr ? 'جديد' : 'New'}</span>` : '';
-      return `<div class="update-card${isNew ? ' is-new' : ''}"><div class="update-top"><span class="update-date">${dateStr}</span>${chip}</div><div class="update-text">${escapeHtml(u.text)}</div></div>`;
-    };
 
     recentSection.style.display = recentUpdates.length ? 'block' : 'none';
-    recentList.innerHTML = recentUpdates.map(renderCard).join('');
+    recentList.innerHTML = renderUpdatesTimeline(recentUpdates, isAr);
 
     archiveSection.style.display = archivedUpdates.length ? 'block' : 'none';
-    document.getElementById('updatesArchiveLabel').textContent = isAr ? `📁 الأرشيف (${archivedUpdates.length})` : `📁 Archive (${archivedUpdates.length})`;
-    archiveList.innerHTML = archivedUpdates.map(renderCard).join('');
+    document.getElementById('updatesArchiveLabel').textContent = isAr ? '📁 الأرشيف' : '📁 Archive';
+    archiveList.innerHTML = renderUpdatesTimeline(archivedUpdates, isAr);
   }
 
   function openUpdatesPage() {
@@ -2526,7 +2563,7 @@
       const iAmMentor = r.mentorEmail === currentUserEmail;
       const other = iAmMentor ? r.traineeEmail : r.mentorEmail;
       const roleTag = iAmMentor ? (isAr ? 'انت الراعي' : "You're the mentor") : (isAr ? 'انت المتدرب' : "You're the trainee");
-      return `<div class="mentor-chat-card" data-open-thread="${r.id}">
+      return `<div class="mentor-chat-card${r.id === openMentorThreadId ? ' on' : ''}" data-open-thread="${r.id}">
         <div>
           <div class="who">${escapeHtml(other)}</div>
           <div class="role-tag">${roleTag}</div>
@@ -2538,18 +2575,26 @@
 
   async function openMentorThread(requestId) {
     openMentorThreadId = requestId;
-    document.getElementById('mentorChatsList').style.display = 'none';
-    document.getElementById('mentorChatThread').style.display = 'block';
+    const inbox = document.getElementById('mentorInbox');
+    if (inbox) inbox.classList.add('thread-open');
+    document.getElementById('mentorChatEmpty').style.display = 'none';
+    document.getElementById('mentorChatThread').style.display = 'flex';
+    document.querySelectorAll('#mentorChatsList [data-open-thread]').forEach(el => {
+      el.classList.toggle('on', parseInt(el.dataset.openThread, 10) === requestId);
+    });
     await loadAndRenderMentorMessages();
     startMentorChatPoll();
   }
   function closeMentorThread() {
     openMentorThreadId = null;
     stopMentorChatPoll();
-    const list = document.getElementById('mentorChatsList');
+    const inbox = document.getElementById('mentorInbox');
+    if (inbox) inbox.classList.remove('thread-open');
+    const empty = document.getElementById('mentorChatEmpty');
     const thread = document.getElementById('mentorChatThread');
-    if (list) list.style.display = 'block';
+    if (empty) empty.style.display = 'flex';
     if (thread) thread.style.display = 'none';
+    document.querySelectorAll('#mentorChatsList [data-open-thread].on').forEach(el => el.classList.remove('on'));
   }
 
   async function loadAndRenderMentorMessages() {
@@ -2796,6 +2841,31 @@
     URL.revokeObjectURL(url);
   }
 
+  // Mission-control stat tiles above the live board: total logged, logged today, most common issue type.
+  function renderTechStats() {
+    const isAr = currentLang === 'ar';
+    const totalEl = document.getElementById('techStatTotal');
+    const todayEl = document.getElementById('techStatToday');
+    const topEl = document.getElementById('techStatTop');
+    if (!totalEl) return;
+
+    totalEl.textContent = TECH_ISSUES.length;
+
+    const todayStr = new Date().toDateString();
+    const todayCount = TECH_ISSUES.filter(t => t.createdAt && new Date(t.createdAt).toDateString() === todayStr).length;
+    todayEl.textContent = todayCount;
+
+    if (!TECH_ISSUES.length) {
+      topEl.textContent = '—';
+    } else {
+      const counts = {};
+      TECH_ISSUES.forEach(t => { counts[t.issueType] = (counts[t.issueType] || 0) + 1; });
+      const topType = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+      const lbl = TECH_ISSUE_LABELS[topType];
+      topEl.textContent = lbl ? (isAr ? lbl.ar : lbl.en) : (topType || '—');
+    }
+  }
+
   function renderTechSheet() {
     const isAr = currentLang === 'ar';
     const body = document.getElementById('techSheetBody');
@@ -2803,6 +2873,7 @@
     const countEl = document.getElementById('techSheetCount');
     const filtered = getFilteredTechIssues();
 
+    renderTechStats();
     if (countEl) countEl.textContent = filtered.length;
 
     const headCount = document.getElementById('techHeadCount');
