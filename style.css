@@ -212,13 +212,6 @@
     .tab.active { background: color-mix(in srgb, var(--brand-blue) 12%, var(--card)); color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); }
     .tab.active .dot { background: var(--brand-blue) !important; }
 
-    /* Quick tools — now rendered as the edge rail, see #edgeRail below. .qt-btn class kept for JS hooks. */
-    .qt-btn {
-      position: relative; flex: 1; height: 42px; padding: 0; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; background: transparent;
-      color: var(--slate); transition: background .15s ease, color .15s ease;
-    }
-
     main { max-width: 1352px; padding: 28px clamp(18px,4vw,56px) 64px; }
     .workspace-head { max-width: 1240px; margin: 0 auto 22px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
     .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; letter-spacing: -0.01em; font-weight: 800; }
@@ -999,14 +992,6 @@
     .nvh-iso-training .cap-base { width: 16px; height: 8px; left: 40px; top: 28px; background: rgba(255,255,255,.7); border-radius: 2px; }
     .nvh-iso-training .tassel { width: 2px; height: 14px; left: 48px; top: 20px; background: rgba(0,0,0,.25); }
 
-    /* Info & Tools: crossed wrench + screwdriver over a base */
-    .nvh-iso-tools .base { width: 52px; height: 16px; left: 20px; top: 52px; border-radius: 4px; background: rgba(0,0,0,.2); }
-    .nvh-iso-tools .bar1 { width: 52px; height: 9px; left: 20px; top: 32px; border-radius: 5px; background: rgba(255,255,255,.95); transform: rotate(-24deg); }
-    .nvh-iso-tools .bar1::before, .nvh-iso-tools .bar1::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,.95); top: -2.5px; }
-    .nvh-iso-tools .bar1::before { left: -4px; }
-    .nvh-iso-tools .bar1::after { right: -4px; }
-    .nvh-iso-tools .bar2 { width: 52px; height: 8px; left: 20px; top: 36px; border-radius: 3px; background: rgba(255,255,255,.65); transform: rotate(24deg); }
-
     /* New Updates: bell + sound rings */
     .nvh-iso-updates .bell { width: 30px; height: 32px; left: 31px; top: 22px; border-radius: 15px 15px 4px 4px; background: rgba(255,255,255,.95); }
     .nvh-iso-updates .clapper { width: 8px; height: 8px; left: 42px; top: 52px; border-radius: 50%; background: rgba(255,255,255,.95); }
@@ -1045,97 +1030,32 @@
       }
     }
 
-    /* ===== Quick-tools overlay — 3D fan of the five helper tools ===== */
-    .tools-overlay {
-      position: fixed; inset: 0; z-index: 98; display: none;
-      align-items: center; justify-content: center; padding: 20px;
-      background: rgba(4,6,10,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      overflow-y: auto;
+    /* ===== Edge quick-tools rail — half-hidden tabs docked to the screen edge, peek out on hover ===== */
+    .edge-rail {
+      position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 12px; z-index: 80;
     }
-    .tools-overlay.open { display: flex; animation: toolsFadeIn .25s ease; }
-    /* Stays visible (dimmed, inert) behind a tool panel instead of disappearing back to the home page. */
-    .tools-overlay.open.behind { z-index: 90; pointer-events: none; }
-    @keyframes toolsFadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .tools-sheet { position: relative; width: 100%; max-width: 960px; }
-    .tools-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
-    .tools-head h2 { margin: 0; font-size: 19px; font-weight: 800; color: var(--text-main); }
-    .tools-head .tools-sub { display: block; font-size: 11.5px; color: var(--slate); margin-top: 3px; }
-    .tools-close {
-      margin-inline-start: auto; width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-      border: 1px solid var(--border); background: var(--card); color: var(--slate);
-      font-size: 18px; cursor: pointer; line-height: 1;
+    .edge-rail .edge-tab {
+      display: flex; flex: none; align-items: center; gap: 10px;
+      height: 46px; padding: 0 14px; border-radius: 23px 0 0 23px;
+      cursor: pointer; font-family: inherit; border: 1px solid rgba(255,255,255,.14); border-right: none;
+      background: linear-gradient(120deg, var(--c1), var(--c2) 55%, var(--c3));
+      box-shadow: -8px 8px 24px -10px rgba(0,0,0,.55);
+      transform: translateX(58%);
+      transition: transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .32s;
+      position: relative; color: #fff;
     }
-    .tools-close:hover { color: var(--text-main); border-color: color-mix(in srgb, var(--brand-blue) 40%, var(--border)); }
-
-    .tools-fan {
-      position: relative; height: 340px; perspective: 1500px;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    .edge-rail .edge-tab:hover, .edge-rail .edge-tab:focus-visible {
+      transform: translateX(0); box-shadow: -12px 10px 30px -8px rgba(11,132,255,.5);
     }
-    .tools-fan-glow {
-      position: absolute; width: 520px; height: 320px; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(ellipse, rgba(11,132,255,.4), rgba(16,185,129,.26) 48%, transparent 72%);
-      filter: blur(46px);
-    }
-    .tools-fan { transform-style: preserve-3d; }
-    .tools-fan .tool-card {
-      position: absolute; top: 50%; left: 50%; width: 172px; height: 250px; margin: -125px 0 0 -86px;
-      border-radius: 20px; overflow: hidden; cursor: pointer; border: none; padding: 0;
-      font-family: inherit; text-align: start; color: #fff; background: none;
-      box-shadow: 0 26px 50px -20px rgba(0,0,0,.75);
-      transition: transform .85s cubic-bezier(.22,.85,.25,1), opacity .8s ease, filter .8s ease, box-shadow .3s;
-    }
-    .tools-fan .tool-card:hover, .tools-fan .tool-card:focus-visible {
-      box-shadow: 0 34px 62px -20px rgba(0,0,0,.85);
-    }
-    .tools-fan-dots {
-      position: absolute; top: 50%; inset-inline-end: 14px; transform: translateY(-50%);
-      z-index: 5; display: flex; flex-direction: column; gap: 7px;
-    }
-    .tools-fan-dots span {
-      width: 6px; height: 6px; border-radius: 50%; display: block;
-      background: rgba(255,255,255,.28);
-      transition: background .3s ease, height .3s ease;
-    }
-    .tools-fan-dots span.on { background: linear-gradient(180deg, #0B84FF, #10B981); height: 20px; border-radius: 8px; }
-    .tool-face {
-      position: absolute; inset: 0; padding: 18px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      background: linear-gradient(160deg, var(--c1), var(--c2) 58%, var(--c3));
-    }
-    .tool-face::before {
-      content: ''; position: absolute; top: 42%; left: 50%; width: 190px; height: 190px;
-      transform: translate(-50%,-50%); pointer-events: none;
-      background: radial-gradient(circle, rgba(255,255,255,.45), rgba(255,255,255,0) 64%);
-    }
-    .tool-icon {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 1;
-      width: 46px; height: 46px; filter: drop-shadow(0 6px 18px rgba(0,0,0,.3));
-    }
-    .tool-icon svg { width: 100%; height: 100%; stroke: #fff; }
-    .tool-tag {
-      position: relative; z-index: 1; align-self: flex-start; font-size: 10px; font-weight: 700; color: #fff;
-      background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.2); padding: 5px 11px; border-radius: 20px;
-    }
-    .tool-bottom { position: relative; z-index: 1; }
-    .tool-title { display: block; font-size: 14.5px; font-weight: 800; line-height: 1.3; color: #fff; }
-    .tool-badge {
-      position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2; min-width: 22px; height: 22px; padding: 0 7px;
-      border-radius: 12px; background: #fff; color: #0B84FF; font-size: 11px; font-weight: 900;
-      align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.3);
-    }
-    /* On small screens the fan can't breathe — lay the same cards out as a grid instead */
-    @media (max-width: 860px) {
-      .tools-fan {
-        height: auto; perspective: none; overflow: visible; display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; padding: 6px 0;
-      }
-      .tools-fan .tool-card,
-      .tools-fan .tool-card:nth-child(n) {
-        position: relative; top: auto; left: auto; width: auto; height: 176px; margin: 0; transform: none;
-      }
-      .tools-fan .tool-card:hover, .tools-fan .tool-card:focus-visible { transform: translateY(-5px); }
-      .tools-fan-glow { display: none; }
-      .tools-fan-dots { display: none; }
+    .edge-rail .et-icon { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .edge-rail .et-icon svg { width: 20px; height: 20px; stroke: #fff; }
+    .edge-rail .et-label { font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; letter-spacing: .01em; }
+    @media (max-width: 640px) {
+      .edge-rail .edge-tab { height: 42px; padding: 0 11px; gap: 8px; }
+      .edge-rail .et-label { font-size: 11.5px; }
+      .edge-rail .et-icon svg { width: 18px; height: 18px; }
+      .edge-rail { gap: 9px; }
     }
     /* Rotating tip bar — one line above the tabs, sourced from Critical mistakes / Etiquette items */
     .dash-tip {

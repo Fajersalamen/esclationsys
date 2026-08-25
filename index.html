@@ -583,22 +583,6 @@
         </span>
       </button>
 
-      <button type="button" class="nvh-slide" data-go="tools" style="--c1:#0B84FF;--c2:#22D3EE;--c3:#5EEAD4;">
-        <span class="nvh-face">
-          <span class="nvh-top"><span class="nvh-tag" id="nvhTag4">أدوات سريعة</span><span class="nvh-meta" id="nvhMeta4">4 أدوات</span></span>
-          <span class="nvh-iso-outer" aria-hidden="true"><span class="nvh-iso-stage nvh-iso-tools">
-            <span class="nvh-iso-shadow"></span>
-            <span class="nvh-iso-piece base"></span>
-            <span class="nvh-iso-piece bar2"></span>
-            <span class="nvh-iso-piece bar1"></span>
-          </span></span>
-          <span class="nvh-bottom">
-            <span class="nvh-title" id="nvhTitle4">معلومات وأدوات</span>
-            <span class="nvh-sub" id="nvhSub4">أخطاء حرجة · آداب المكالمة · اقتراحات</span>
-          </span>
-        </span>
-      </button>
-
       <button type="button" class="nvh-slide" data-go="updates" style="--c1:#7C5CD9;--c2:#6E5A9E;--c3:#4C3F82;">
         <span class="nvh-badge" id="nvhUpdatesBadge" style="display:none;">0</span>
         <span class="nvh-face">
@@ -670,62 +654,27 @@
   </div>
 </div>
 
-<div class="tools-overlay" id="toolsOverlay" aria-hidden="true">
-  <div class="tools-sheet" role="dialog" aria-modal="true" aria-labelledby="toolsOverlayTitle">
-    <div class="tools-head">
-      <div>
-        <h2 id="toolsOverlayTitle">أدوات سريعة</h2>
-        <span class="tools-sub" id="toolsOverlaySub">كل الأدوات المساعدة بمكان واحد</span>
-      </div>
-      <button class="tools-close" id="toolsCloseBtn" aria-label="إغلاق">×</button>
-    </div>
-
-    <div class="tools-fan" id="toolsFan">
-      <span class="tools-fan-glow" aria-hidden="true"></span>
-      <span class="tools-fan-dots" id="toolsFanDots" aria-hidden="true"></span>
-
-      <button class="tool-card qt-btn qt-general" style="--c1:#0B84FF;--c2:#0EA5E9;--c3:#22D3EE;">
-        <span class="tool-face">
-          <span class="tool-tag" id="lblToolTagGen">معلومات</span>
-          <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"></circle></svg></span>
-          <span class="tool-bottom"><span class="tool-title" id="lblSideGen">GENERAL INFO</span></span>
-        </span>
-      </button>
-
-      <button class="tool-card qt-btn qt-critical" style="--c1:#F0424A;--c2:#FF6B57;--c3:#FF8A65;">
-        <span class="tool-face">
-          <span class="tool-tag" id="lblToolTagCrit">تحذير</span>
-          <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2Z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg></span>
-          <span class="tool-bottom"><span class="tool-title" id="lblSideCrit">CRITICAL MISTAKES</span></span>
-        </span>
-      </button>
-
-      <button class="tool-card qt-btn qt-etiquette" style="--c1:#14B8A6;--c2:#0D9488;--c3:#10B981;">
-        <span class="tool-face">
-          <span class="tool-tag" id="lblToolTagEtiq">بروتوكول</span>
-          <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c0-1 .8-1.5 1.7-1.5H8c.6 0 1.1.4 1.3.9l1 2.9c.2.6 0 1.3-.5 1.7L8.3 9.8c1.1 2.6 3.3 4.8 5.9 5.9l1.3-1.5c.4-.5 1.1-.7 1.7-.5l2.9 1c.5.2.9.7.9 1.3v1.8c0 .9-.5 1.7-1.5 1.7C11.9 19.5 4.5 12.1 4.5 4.5Z"></path></svg></span>
-          <span class="tool-bottom"><span class="tool-title" id="lblSideEtiq">ETIQUETTE CALL</span></span>
-        </span>
-      </button>
-
-      <button class="tool-card qt-btn qt-suggest" style="--c1:#0EA5E9;--c2:#22D3EE;--c3:#5EEAD4;">
-        <span class="tool-face">
-          <span class="tool-tag" id="lblToolTagSug">شاركنا</span>
-          <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.7.5 1.1 1.3 1.1 2.2v.7h5.8v-.7c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 2.5Z"></path><line x1="9.6" y1="20" x2="14.4" y2="20"></line><line x1="10.3" y1="22" x2="13.7" y2="22"></line></svg></span>
-          <span class="tool-bottom"><span class="tool-title" id="lblSideSuggest">SUGGESTIONS</span></span>
-        </span>
-      </button>
-
-      <button class="tool-card qt-btn qt-contribute" style="--c1:#F59E0B;--c2:#D97706;--c3:#B45309;">
-        <span class="tool-face">
-          <span class="tool-tag" id="lblToolTagContrib">ساهم</span>
-          <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2Z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7Z"></path></svg></span>
-          <span class="tool-bottom"><span class="tool-title" id="lblSideContrib">CONTRIBUTE A FIX</span></span>
-        </span>
-      </button>
-
-    </div>
-  </div>
+<div class="edge-rail" id="edgeRail" aria-label="Quick tools">
+  <button type="button" class="edge-tab qt-general" style="--c1:#0B84FF;--c2:#0EA5E9;--c3:#22D3EE;" title="General information">
+    <span class="et-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="et-label" id="lblSideGen">GENERAL INFO</span>
+  </button>
+  <button type="button" class="edge-tab qt-etiquette" style="--c1:#14B8A6;--c2:#0D9488;--c3:#10B981;" title="Call etiquette">
+    <span class="et-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c0-1 .8-1.5 1.7-1.5H8c.6 0 1.1.4 1.3.9l1 2.9c.2.6 0 1.3-.5 1.7L8.3 9.8c1.1 2.6 3.3 4.8 5.9 5.9l1.3-1.5c.4-.5 1.1-.7 1.7-.5l2.9 1c.5.2.9.7.9 1.3v1.8c0 .9-.5 1.7-1.5 1.7C11.9 19.5 4.5 12.1 4.5 4.5Z"></path></svg></span>
+    <span class="et-label" id="lblSideEtiq">ETIQUETTE CALL</span>
+  </button>
+  <button type="button" class="edge-tab qt-critical" style="--c1:#F0424A;--c2:#FF6B57;--c3:#FF8A65;" title="Critical mistakes">
+    <span class="et-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2Z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg></span>
+    <span class="et-label" id="lblSideCrit">CRITICAL MISTAKES</span>
+  </button>
+  <button type="button" class="edge-tab qt-suggest" style="--c1:#0EA5E9;--c2:#22D3EE;--c3:#5EEAD4;" title="Suggestions">
+    <span class="et-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.7.5 1.1 1.3 1.1 2.2v.7h5.8v-.7c0-.9.4-1.7 1.1-2.2A6.5 6.5 0 0 0 12 2.5Z"></path><line x1="9.6" y1="20" x2="14.4" y2="20"></line><line x1="10.3" y1="22" x2="13.7" y2="22"></line></svg></span>
+    <span class="et-label" id="lblSideSuggest">SUGGESTIONS</span>
+  </button>
+  <button type="button" class="edge-tab qt-contribute" style="--c1:#10B981;--c2:#059669;--c3:#34D399;" title="Contribute a fix">
+    <span class="et-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2Z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7Z"></path></svg></span>
+    <span class="et-label" id="lblSideContrib">CONTRIBUTE A FIX</span>
+  </button>
 </div>
 
 <script src="app.js"></script>

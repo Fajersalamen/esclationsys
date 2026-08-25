@@ -645,7 +645,6 @@
 
   function openTrainingPage() {
     closePanels();
-    closeToolsOverlay();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTechPage();
@@ -1640,10 +1639,6 @@
       nvhTag3: ['التطوير', 'Development'],
       nvhTitle3: ['مركز التدريب', 'Training Center'],
       nvhSub3: ['سيناريوهات تفاعلية خطوة بخطوة', 'Interactive step-by-step scenarios'],
-      nvhTag4: ['أدوات سريعة', 'Quick Tools'],
-      nvhMeta4: ['4 أدوات', '4 tools'],
-      nvhTitle4: ['معلومات وأدوات', 'Info & Tools'],
-      nvhSub4: ['أخطاء حرجة · آداب المكالمة · اقتراحات', 'Critical mistakes · Etiquette · Suggestions'],
       nvhTag5: ['تحديثات', 'Updates'],
       nvhTitle5: ['التحديثات الجديدة', 'New Updates'],
       nvhSub5: ['كل شي جديد أو اتغيّر مؤخراً', 'Everything shipped or changed recently'],
@@ -1657,20 +1652,6 @@
     });
     refreshHeroCounts();
     if (novaHeroLayout) novaHeroLayout();
-
-    // Quick-tools overlay
-    const toolsText = {
-      toolsOverlayTitle: ['أدوات سريعة', 'Quick Tools'],
-      toolsOverlaySub: ['كل الأدوات المساعدة بمكان واحد', 'Every helper tool in one place'],
-      lblToolTagGen: ['معلومات', 'Info'],
-      lblToolTagCrit: ['تحذير', 'Warning'],
-      lblToolTagEtiq: ['بروتوكول', 'Protocol'],
-      lblToolTagSug: ['شاركنا', 'Share']
-    };
-    Object.keys(toolsText).forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = isAr ? toolsText[id][0] : toolsText[id][1];
-    });
 
     document.getElementById('trainingPageTitle').textContent = isAr ? 'مركز التدريب' : 'Training Center';
     document.getElementById('trainingPageSub').textContent = isAr ? 'دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة' : 'Your guide to handling every customer issue step by step';
@@ -1851,113 +1832,9 @@
     restart();
   }
 
-  // ====== Quick-tools overlay: vertical auto-rotating fan (mirrors setupNovaHero, but on the vertical axis) ======
-  let toolsFanCtrl = null;
-  function setupToolsFan() {
-    const fan = document.getElementById('toolsFan');
-    const dotsWrap = document.getElementById('toolsFanDots');
-    if (!fan || !dotsWrap) return null;
-    const cards = Array.from(fan.querySelectorAll('.tool-card'));
-    if (!cards.length) return null;
-    const n = cards.length;
-    let active = 0;
-    let timer = null;
-    const gridQuery = window.matchMedia('(max-width: 860px)');
-
-    dotsWrap.innerHTML = '';
-    cards.forEach(() => dotsWrap.appendChild(document.createElement('span')));
-    const dots = Array.from(dotsWrap.children);
-
-    function layout() {
-      if (gridQuery.matches) {
-        cards.forEach(c => {
-          c.style.transform = ''; c.style.opacity = ''; c.style.filter = '';
-          c.style.zIndex = ''; c.style.pointerEvents = '';
-        });
-        dots.forEach(d => d.classList.remove('on'));
-        return;
-      }
-      const fanY = window.innerWidth <= 720 ? 74 : 118;
-      cards.forEach((card, i) => {
-        let off = i - active;
-        if (off > n / 2) off -= n;
-        if (off < -n / 2) off += n;
-        const abs = Math.abs(off);
-        card.style.transform =
-          `translateY(${off * fanY}px) translateZ(${-abs * 150}px) rotateX(${off * 22}deg) scale(${1 - abs * 0.1})`;
-        card.style.opacity = abs > 2 ? '0' : (off === 0 ? '1' : String(0.85 - abs * 0.12));
-        card.style.filter = off === 0 ? 'none' : 'brightness(.6)';
-        card.style.zIndex = String(50 - abs);
-        card.style.pointerEvents = abs > 2 ? 'none' : 'auto';
-      });
-      dots.forEach((d, i) => d.classList.toggle('on', i === active));
-    }
-
-    function stop() { clearInterval(timer); timer = null; }
-    function start() {
-      stop();
-      if (gridQuery.matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      timer = setInterval(() => { active = (active + 1) % n; layout(); }, 3600);
-    }
-
-    // Scrolling over the fan steps through the cards instead of scrolling the page behind it.
-    let wheelLock = false;
-    fan.addEventListener('wheel', (e) => {
-      if (gridQuery.matches) return;
-      e.preventDefault();
-      if (wheelLock) return;
-      wheelLock = true;
-      active = (active + (e.deltaY > 0 ? 1 : -1) + n) % n;
-      layout();
-      start();
-      setTimeout(() => { wheelLock = false; }, 450);
-    }, { passive: false });
-
-    layout();
-    window.addEventListener('resize', layout);
-    gridQuery.addEventListener('change', () => { layout(); start(); });
-
-    return { layout, start, stop };
-  }
-
-  function openToolsOverlay() {
-    const ov = document.getElementById('toolsOverlay');
-    if (!ov) return;
-    ov.classList.add('open');
-    ov.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    if (!toolsFanCtrl) toolsFanCtrl = setupToolsFan();
-    if (toolsFanCtrl) { toolsFanCtrl.layout(); toolsFanCtrl.start(); }
-  }
-  function closeToolsOverlay() {
-    const ov = document.getElementById('toolsOverlay');
-    if (!ov) return;
-    ov.classList.remove('open', 'behind');
-    ov.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (toolsFanCtrl) toolsFanCtrl.stop();
-  }
-  // Keep the Quick Tools fan visible (dimmed, non-interactive) behind a panel opened from it,
-  // instead of dropping all the way back to the home page.
-  function sendToolsOverlayBehind() {
-    const ov = document.getElementById('toolsOverlay');
-    if (!ov) return;
-    ov.classList.add('behind');
-    ov.setAttribute('aria-hidden', 'true');
-    if (toolsFanCtrl) toolsFanCtrl.stop();
-  }
-  function bringToolsOverlayFront() {
-    const ov = document.getElementById('toolsOverlay');
-    if (!ov) return;
-    ov.classList.remove('behind');
-    ov.setAttribute('aria-hidden', 'false');
-    if (toolsFanCtrl) { toolsFanCtrl.layout(); toolsFanCtrl.start(); }
-  }
-
   function goToHeroSection(key) {
     if (key === 'tech') { openTechPage(); return; }
     if (key === 'training') { openTrainingPage(); return; }
-    if (key === 'tools') { openToolsOverlay(); return; }
     if (key === 'updates') { openUpdatesPage(); return; }
     if (key === 'mentorship') { openMentorshipPage(); return; }
     const controls = document.querySelector('.controls');
@@ -2156,7 +2033,6 @@
 
   function openUpdatesPage() {
     closePanels();
-    closeToolsOverlay();
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
@@ -2334,7 +2210,6 @@
         closeTrainingPage();
         closeUpdatesPage();
         closeMentorshipPage();
-        closeToolsOverlay();
       }
     });
   }
@@ -2505,7 +2380,6 @@
 
   function openMentorshipPage() {
     closePanels();
-    closeToolsOverlay();
     closeUpdatesPage();
     closeTechPage();
     closeTrainingPage();
@@ -2716,7 +2590,6 @@
 
   function goHome() {
     closePanels();
-    closeToolsOverlay();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTechPage();
@@ -2731,7 +2604,6 @@
 
   function openTechPage() {
     closePanels();
-    closeToolsOverlay();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTrainingPage();
@@ -3396,36 +3268,27 @@
     }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">${isArAdmin ? 'لا توجد مساهمات بعد.' : 'No contributions yet.'}</div>`;
   }
 
-  let panelOpenedFromTools = false;
-  function openPanel(type, opts) {
-    panelOpenedFromTools = !!(opts && opts.fromTools);
-    if (panelOpenedFromTools) sendToolsOverlayBehind();
-    else closeToolsOverlay();
+  function openPanel(type) {
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
   }
-  // Plain close: used by page-navigation cleanup (goHome, openTechPage, Escape, ...) — never re-opens Quick Tools.
   function closePanels() {
-    panelOpenedFromTools = false;
     document.getElementById('overlay').classList.remove('show');
     document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
   }
-  // User-initiated close (X button / backdrop click): returns to the Quick Tools list if the panel came from there.
   function closePanelsByUser() {
-    const returnToTools = panelOpenedFromTools;
     closePanels();
-    if (returnToTools) bringToolsOverlayFront();
   }
 
   // ===== ربط كل الأحداث برمجيًا (بدون onclick= داخل HTML) — مطلوب لتفعيل CSP بدون 'unsafe-inline' لـ script-src =====
   function bindStaticEvents() {
     const on = (id, evt, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
-    document.querySelector('.qt-general').addEventListener('click', () => openPanel('general', { fromTools: true }));
-    document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical', { fromTools: true }));
-    document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette', { fromTools: true }));
-    document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest', { fromTools: true }));
-    document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute', { fromTools: true }); });
+    document.querySelector('.qt-general').addEventListener('click', () => openPanel('general'));
+    document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical'));
+    document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette'));
+    document.querySelector('.qt-suggest').addEventListener('click', () => openPanel('suggest'));
+    document.querySelector('.qt-contribute').addEventListener('click', () => { renderContributePanel(); openPanel('contribute'); });
 
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
@@ -3513,8 +3376,6 @@
 
     // الشريط السفلي الثابت
     on('bbHomeBtn', 'click', () => { launchHomePlanet(); goHome(); });
-    on('toolsCloseBtn', 'click', closeToolsOverlay);
-    on('toolsOverlay', 'click', (e) => { if (e.target && e.target.id === 'toolsOverlay') closeToolsOverlay(); });
 
     // صفحة المشاكل التقنية
     on('techBackBtn', 'click', closeTechPage);
