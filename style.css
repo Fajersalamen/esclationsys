@@ -1371,7 +1371,7 @@
 
     .training-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
-      margin: -18px -16px 24px; padding: 30px 20px 34px;
+      margin-block: -18px 24px; margin-inline: calc(-1 * clamp(16px,4vw,56px)); padding: 30px 20px 34px;
       background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
       position: relative; overflow: hidden;
     }
@@ -1573,7 +1573,7 @@
 
     .updates-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
-      margin: -18px -16px 24px; padding: 30px 20px 34px;
+      margin-block: -18px 24px; margin-inline: calc(-1 * clamp(16px,4vw,56px)); padding: 30px 20px 34px;
       background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
       position: relative; overflow: hidden;
     }
@@ -1606,11 +1606,14 @@
     .updates-side-stat-row:last-child { border-bottom: none; padding-bottom: 0; }
     .updates-side-stat-row span:last-child { font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
 
-    .updates-section-label {
-      font-size: 11px; font-weight: 800; color: #6E5A9E; text-transform: uppercase; letter-spacing: .06em;
-      margin: 0 2px 12px;
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: 10.5px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+      background: var(--surface-soft); color: var(--slate); border: 1px solid var(--border); transition: background .15s ease, color .15s ease, border-color .15s ease;
+      user-select: none;
     }
-    #updatesArchiveSection { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .chip:hover { border-color: var(--brand-blue); }
+    .chip.on { background: linear-gradient(120deg, #0B84FF, #14B8A6); color: #fff; border-color: transparent; }
 
     /* Timeline: a connecting spine with a dot per update, grouped under day labels */
     .updates-list.timeline { position: relative; padding-inline-start: 24px; }
@@ -1669,6 +1672,7 @@
       display: grid; grid-template-columns: 320px 1fr; border: 1px solid var(--border); border-radius: 16px;
       overflow: hidden; min-height: 560px; background: var(--card);
     }
+    .mentor-inbox.thread-open { grid-template-columns: 320px 1fr 240px; }
     .mentor-inbox-list { border-inline-end: 1px solid var(--border); overflow-y: auto; padding: 10px; }
     .mentor-inbox-thread { display: flex; flex-direction: column; min-width: 0; }
     .mentor-inbox-empty {
@@ -1678,9 +1682,29 @@
     .mentor-inbox-empty-icon { font-size: 30px; opacity: .6; }
     #mentorChatThread { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 16px 18px 0; }
     .mentorship-chat-messages { flex: 1; max-height: none; }
+
+    /* Side panel: other party's profile + mentorship summary stats, shown while a thread is open */
+    .mentor-inbox-side { border-inline-start: 1px solid var(--border); padding: 18px; background: var(--surface-soft); flex-direction: column; }
+    .mentor-inbox-side .m-profile { text-align: center; margin-bottom: 18px; }
+    .mentor-inbox-side .profile-avatar-lg { margin: 0 auto 8px; }
+    .mentor-inbox-side .m-name { font-size: 13px; font-weight: 800; color: var(--text-main); }
+    .mentor-inbox-side .m-role { font-size: 10.5px; color: var(--slate-soft); margin-top: 2px; }
+    .mentor-inbox-side h4 { margin: 0 0 10px; font-size: 12px; font-weight: 800; color: var(--slate); }
+    .mentor-inbox-side .m-stat-row {
+      display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--slate);
+      padding: 9px 0; border-bottom: 1px solid var(--border);
+    }
+    .mentor-inbox-side .m-stat-row:last-child { border-bottom: none; }
+    .mentor-inbox-side .m-stat-row .mono { font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+
+    @media (max-width: 1100px) {
+      .mentor-inbox-side { display: none !important; }
+      .mentor-inbox.thread-open { grid-template-columns: 320px 1fr; }
+    }
     @media (max-width: 860px) {
       .mentor-inbox { grid-template-columns: 1fr; min-height: 0; }
       .mentor-inbox-list { border-inline-end: none; border-bottom: 1px solid var(--border); max-height: 260px; }
+      .mentor-inbox.thread-open { grid-template-columns: 1fr; }
       .mentor-inbox.thread-open .mentor-inbox-list { display: none; }
       .mentor-inbox:not(.thread-open) .mentor-inbox-thread { display: none; }
       .mentorship-back-link { display: inline-block; }
@@ -1691,7 +1715,7 @@
 
     .mentorship-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
-      margin: -18px -16px 20px; padding: 30px 20px 34px;
+      margin-block: -18px 20px; margin-inline: calc(-1 * clamp(16px,4vw,56px)); padding: 30px 20px 34px;
       background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
       position: relative; overflow: hidden;
     }
