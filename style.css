@@ -1105,7 +1105,7 @@
       transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .tech-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .tech-page-inner { position: relative; z-index: 1; max-width: 1680px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+    .tech-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
 
     .tech-page-head { display: flex; align-items: center; margin-bottom: 8px; position: sticky; top: 0; z-index: 3; padding: 6px 0; }
     .tech-back-btn {
@@ -1349,7 +1349,7 @@
       transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
     }
     .training-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .training-page-inner { position: relative; z-index: 1; max-width: 1680px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+    .training-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
 
     .training-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
@@ -1551,7 +1551,7 @@
       transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
     }
     .updates-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .updates-page-inner { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+    .updates-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
 
     .updates-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
@@ -1617,7 +1617,7 @@
       transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
     }
     .mentorship-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .mentorship-page-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+    .mentorship-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
     #mentorOutgoingList, #mentorIncomingList, #mentorChatsList { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 10px; align-items: start; }
     #mentorPaneRequest > .mentorship-field-label, #mentorRequestEmail, #mentorRequestNote, #btnSendMentorRequest { max-width: 640px; }
     #mentorChatThread { max-width: 760px; margin: 0 auto; width: 100%; }
