@@ -220,11 +220,6 @@
           <div class="updates-list timeline" id="updatesRecentList"></div>
         </div>
 
-        <div id="updatesArchiveSection" style="display:none;">
-          <div class="updates-section-label" id="updatesArchiveLabel">الأرشيف</div>
-          <div class="updates-list timeline" id="updatesArchiveList"></div>
-        </div>
-
         <div class="updates-empty" id="updatesEmpty" style="display:none;">
           <div class="updates-empty-icon">🔔</div>
           <strong id="updatesEmptyTitle">لا توجد تحديثات بعد</strong>
@@ -238,6 +233,14 @@
           <div class="updates-search-shell">
             <span class="search-icon">⌕</span>
             <input type="text" id="updatesSearchInput" placeholder="ابحث بنص التحديث...">
+          </div>
+        </div>
+        <div class="updates-side-card">
+          <h4 id="updatesFilterLabel">تصفية</h4>
+          <div class="chip-row" id="updatesFilterChips">
+            <span class="chip on" data-updates-filter="all" id="updatesFilterAll">الكل</span>
+            <span class="chip" data-updates-filter="week" id="updatesFilterWeek">هذا الأسبوع</span>
+            <span class="chip" data-updates-filter="archive" id="updatesFilterArchive">الأرشيف</span>
           </div>
         </div>
         <div class="updates-side-card">
@@ -306,6 +309,17 @@
               <button id="mentorChatSendBtn">↑</button>
             </div>
           </div>
+        </div>
+        <div class="mentor-inbox-side" id="mentorThreadSide" style="display:none;">
+          <div class="m-profile">
+            <div class="profile-avatar profile-avatar-lg" id="mentorSideAvatar"></div>
+            <div class="m-name" id="mentorSideName"></div>
+            <div class="m-role" id="mentorSideRole"></div>
+          </div>
+          <h4 id="lblMentorSideSummary">ملخص</h4>
+          <div class="m-stat-row"><span id="lblMentorSideStart">بداية الرعاية</span><span class="mono" id="mentorSideStart">—</span></div>
+          <div class="m-stat-row"><span id="lblMentorSideCount">عدد الرسائل</span><span class="mono" id="mentorSideCount">0</span></div>
+          <div class="m-stat-row"><span id="lblMentorSideLast">آخر نشاط</span><span class="mono" id="mentorSideLast">—</span></div>
         </div>
       </div>
     </div>

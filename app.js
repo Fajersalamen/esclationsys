@@ -1555,6 +1555,10 @@
     document.getElementById('updatesPageSub').textContent = isAr ? 'كل شي جديد أو اتغيّر مؤخراً بمكان واحد' : "Everything the team shipped or changed recently, in one place";
     document.getElementById('updatesSearchInput').placeholder = isAr ? 'ابحث بنص التحديث...' : 'Search updates...';
     document.getElementById('updatesSearchLabel').textContent = isAr ? '🔍 بحث' : '🔍 Search';
+    document.getElementById('updatesFilterLabel').textContent = isAr ? 'تصفية' : 'Filter';
+    document.getElementById('updatesFilterAll').textContent = isAr ? 'الكل' : 'All';
+    document.getElementById('updatesFilterWeek').textContent = isAr ? 'هذا الأسبوع' : 'This week';
+    document.getElementById('updatesFilterArchive').textContent = isAr ? 'الأرشيف' : 'Archive';
     document.getElementById('updatesStatsLabel').textContent = isAr ? 'إحصائيات' : 'Stats';
     document.getElementById('updatesStatTotalLabel').textContent = isAr ? 'الإجمالي' : 'Total';
     document.getElementById('updatesStatWeekLabel').textContent = isAr ? 'هذا الأسبوع' : 'This week';
@@ -1573,6 +1577,11 @@
     document.getElementById('lblMyOutgoing').textContent = isAr ? 'طلباتي المرسلة:' : 'My sent requests:';
     document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
     document.getElementById('lblMentorChatEmpty').textContent = isAr ? 'اختر محادثة من القائمة' : 'Select a conversation from the list';
+    document.getElementById('lblMentorSideSummary').textContent = isAr ? 'ملخص' : 'Summary';
+    document.getElementById('lblMentorSideStart').textContent = isAr ? 'بداية الرعاية' : 'Started';
+    document.getElementById('lblMentorSideCount').textContent = isAr ? 'عدد الرسائل' : 'Messages';
+    document.getElementById('lblMentorSideLast').textContent = isAr ? 'آخر نشاط' : 'Last activity';
+    if (openMentorThreadId) renderMentorThreadSideProfile(openMentorThreadId);
     document.getElementById('mentorChatInput').placeholder = isAr ? 'اكتب رسالة...' : 'Write a message...';
     renderMentorEmailOptions();
     if (document.getElementById('mentorshipPage').classList.contains('open')) switchMentorTab(activeMentorTab);
@@ -2016,6 +2025,7 @@
 
   // ===================== Updates page (full page, replaces the old cramped side-panel) =====================
   let updatesUnseenAtOpen = new Set();
+  let currentUpdatesFilter = 'all'; // 'all' | 'week' | 'archive'
 
   // Groups a sorted (newest-first) list of updates into day buckets ("Today", "Yesterday",
   // then the calendar date) and renders each bucket as a labeled section of the timeline.
@@ -2045,15 +2055,21 @@
     return html;
   }
 
+  function setUpdatesFilter(filter) {
+    currentUpdatesFilter = filter;
+    document.querySelectorAll('#updatesFilterChips .chip').forEach(el => {
+      el.classList.toggle('on', el.dataset.updatesFilter === filter);
+    });
+    renderUpdatesPage();
+  }
+
   function renderUpdatesPage() {
     const isAr = currentLang === 'ar';
     const q = (document.getElementById('updatesSearchInput')?.value || '').toLowerCase().trim();
     const recentSection = document.getElementById('updatesRecentSection');
-    const archiveSection = document.getElementById('updatesArchiveSection');
     const recentList = document.getElementById('updatesRecentList');
-    const archiveList = document.getElementById('updatesArchiveList');
     const emptyEl = document.getElementById('updatesEmpty');
-    if (!recentList || !archiveList) return;
+    if (!recentList) return;
 
     const sortedUpdates = [...UPDATES].filter(u => !q || u.text.toLowerCase().includes(q)).sort((a, b) => b.id - a.id);
 
@@ -2067,33 +2083,32 @@
 
     if (!UPDATES.length) {
       recentSection.style.display = 'none';
-      archiveSection.style.display = 'none';
       emptyEl.style.display = 'block';
       document.getElementById('updatesEmptyTitle').textContent = isAr ? 'لا توجد تحديثات بعد' : 'No updates yet';
       document.getElementById('updatesEmptySub').textContent = isAr ? 'أي إعلان جديد رح يظهر هون' : 'New announcements will show up here';
       return;
     }
-    if (!sortedUpdates.length) {
+
+    const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    let filteredUpdates = sortedUpdates;
+    if (currentUpdatesFilter === 'week') {
+      filteredUpdates = sortedUpdates.filter(u => u.createdAt >= Date.now() - weekMs);
+    } else if (currentUpdatesFilter === 'archive') {
+      filteredUpdates = sortedUpdates.filter(u => u.createdAt < Date.now() - ARCHIVE_MS);
+    }
+
+    if (!filteredUpdates.length) {
       recentSection.style.display = 'none';
-      archiveSection.style.display = 'none';
       emptyEl.style.display = 'block';
       document.getElementById('updatesEmptyTitle').textContent = isAr ? 'لا توجد نتائج مطابقة' : 'No matching results';
-      document.getElementById('updatesEmptySub').textContent = isAr ? 'جرّب كلمة بحث أخرى.' : 'Try a different search term.';
+      document.getElementById('updatesEmptySub').textContent = isAr ? 'جرّب فلتر أو كلمة بحث أخرى.' : 'Try a different filter or search term.';
       return;
     }
     emptyEl.style.display = 'none';
 
-    const ARCHIVE_MS = UPDATE_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
-    const cutoff = Date.now() - ARCHIVE_MS;
-    const recentUpdates = sortedUpdates.filter(u => u.createdAt >= cutoff);
-    const archivedUpdates = sortedUpdates.filter(u => u.createdAt < cutoff);
-
-    recentSection.style.display = recentUpdates.length ? 'block' : 'none';
-    recentList.innerHTML = renderUpdatesTimeline(recentUpdates, isAr);
-
-    archiveSection.style.display = archivedUpdates.length ? 'block' : 'none';
-    document.getElementById('updatesArchiveLabel').textContent = isAr ? '📁 الأرشيف' : '📁 Archive';
-    archiveList.innerHTML = renderUpdatesTimeline(archivedUpdates, isAr);
+    recentSection.style.display = 'block';
+    recentList.innerHTML = renderUpdatesTimeline(filteredUpdates, isAr);
   }
 
   function openUpdatesPage() {
@@ -2108,6 +2123,10 @@
 
     const input = document.getElementById('updatesSearchInput');
     if (input) input.value = '';
+    currentUpdatesFilter = 'all';
+    document.querySelectorAll('#updatesFilterChips .chip').forEach(el => {
+      el.classList.toggle('on', el.dataset.updatesFilter === 'all');
+    });
     renderUpdatesPage();
 
     const latestId = UPDATES.reduce((max, u) => Math.max(max, u.id), 0);
@@ -2579,9 +2598,12 @@
     if (inbox) inbox.classList.add('thread-open');
     document.getElementById('mentorChatEmpty').style.display = 'none';
     document.getElementById('mentorChatThread').style.display = 'flex';
+    const side = document.getElementById('mentorThreadSide');
+    if (side) side.style.display = 'flex';
     document.querySelectorAll('#mentorChatsList [data-open-thread]').forEach(el => {
       el.classList.toggle('on', parseInt(el.dataset.openThread, 10) === requestId);
     });
+    renderMentorThreadSideProfile(requestId);
     await loadAndRenderMentorMessages();
     startMentorChatPoll();
   }
@@ -2592,9 +2614,47 @@
     if (inbox) inbox.classList.remove('thread-open');
     const empty = document.getElementById('mentorChatEmpty');
     const thread = document.getElementById('mentorChatThread');
+    const side = document.getElementById('mentorThreadSide');
     if (empty) empty.style.display = 'flex';
     if (thread) thread.style.display = 'none';
+    if (side) side.style.display = 'none';
     document.querySelectorAll('#mentorChatsList [data-open-thread].on').forEach(el => el.classList.remove('on'));
+  }
+
+  // "Today" / "Yesterday" / full date, matching the Updates timeline's day-grouping labels.
+  function formatRelativeDay(ts, isAr) {
+    const d = new Date(ts);
+    const now = new Date();
+    const startOfDay = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / (24 * 60 * 60 * 1000));
+    if (diffDays === 0) return isAr ? 'اليوم' : 'Today';
+    if (diffDays === 1) return isAr ? 'أمس' : 'Yesterday';
+    return d.toLocaleDateString(isAr ? 'ar' : 'en', { day: 'numeric', month: 'long' });
+  }
+
+  function renderMentorThreadSideProfile(requestId) {
+    const isAr = currentLang === 'ar';
+    const r = MENTOR_REQUESTS.find(x => x.id === requestId);
+    if (!r) return;
+    const iAmMentor = r.mentorEmail === currentUserEmail;
+    const other = iAmMentor ? r.traineeEmail : r.mentorEmail;
+    const roleTag = iAmMentor ? (isAr ? 'انت الراعي' : "You're the mentor") : (isAr ? 'انت المتدرب' : "You're the trainee");
+    document.getElementById('mentorSideAvatar').textContent = (other || '؟').trim().slice(0, 2).toUpperCase();
+    document.getElementById('mentorSideName').textContent = other || '—';
+    document.getElementById('mentorSideRole').textContent = roleTag;
+    document.getElementById('mentorSideStart').textContent = formatRelativeDay(r.createdAt, isAr);
+  }
+
+  function updateMentorThreadSideStats(requestId, messages) {
+    const isAr = currentLang === 'ar';
+    const r = MENTOR_REQUESTS.find(x => x.id === requestId);
+    const countEl = document.getElementById('mentorSideCount');
+    const lastEl = document.getElementById('mentorSideLast');
+    if (countEl) countEl.textContent = messages.length;
+    if (lastEl) {
+      const lastTs = messages.length ? new Date(messages[messages.length - 1].created_at).getTime() : (r ? r.createdAt : null);
+      lastEl.textContent = lastTs ? formatRelativeDay(lastTs, isAr) : '—';
+    }
   }
 
   async function loadAndRenderMentorMessages() {
@@ -2611,6 +2671,7 @@
       return `<div class="mentor-msg ${mine ? 'mine' : 'theirs'}">${escapeHtml(m.text)}<span class="mentor-msg-time">${timeStr}</span></div>`;
     }).join('') || `<div class="mentorship-empty">${isAr ? 'ابدأ المحادثة...' : 'Start the conversation...'}</div>`;
     if (wasNearBottom) wrap.scrollTop = wrap.scrollHeight;
+    updateMentorThreadSideStats(openMentorThreadId, data || []);
   }
 
   async function sendMentorMessage() {
@@ -3403,6 +3464,9 @@
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
     on('updatesSearchInput', 'input', renderUpdatesPage);
+    document.querySelectorAll('#updatesFilterChips .chip').forEach(chip => {
+      chip.addEventListener('click', () => setUpdatesFilter(chip.dataset.updatesFilter));
+    });
 
     on('btnSubmitSuggest', 'click', submitSuggestion);
     on('btnSubmitContribute', 'click', submitContribution);
