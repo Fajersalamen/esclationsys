@@ -1677,33 +1677,28 @@
     document.getElementById('techStatTopLabel').textContent = isAr ? 'الأكثر تكراراً' : 'Most common';
     if (TECH_ISSUES.length) renderTechSheet();
 
-    // Hero carousel
+    // Command Center hero
     const heroText = {
-      nvhHeadA: ['أدواتك كلها', 'Everything'],
-      nvhHeadB: ['بمكان واحد', 'in one place'],
-      nvhTag1: ['الصفحة الرئيسية', 'Home'],
-      nvhTitle1: ['مكتبة السكريبتات', 'Script Library'],
-      nvhSub1: ['تصعيد · متابعة · إغلاق التذكرة', 'Escalation · Follow-up · Closing'],
-      nvhTag2: ['الدعم الفني', 'Support'],
-      nvhMeta2: ['مباشر ●', 'Live ●'],
-      nvhTitle2: ['مشاكل تقنية', 'Technical Issues'],
-      nvhSub2: ['سجّل العطل وتابع الحالة لحظياً', 'Log an issue, track it live'],
-      nvhTag3: ['التطوير', 'Development'],
-      nvhTitle3: ['مركز التدريب', 'Training Center'],
-      nvhSub3: ['سيناريوهات تفاعلية خطوة بخطوة', 'Interactive step-by-step scenarios'],
-      nvhTag5: ['تحديثات', 'Updates'],
-      nvhTitle5: ['التحديثات الجديدة', 'New Updates'],
-      nvhSub5: ['كل شي جديد أو اتغيّر مؤخراً', 'Everything shipped or changed recently'],
-      nvhTag6: ['رعاية', 'Mentorship'],
-      nvhTitle6: ['الرعاية والتدريب', 'Mentorship'],
-      nvhSub6: ['اطلب راعي، أو رد على طلب توجيه', 'Request a mentor, or respond to one']
+      cmdEyebrowText: ['نوفا · كل أدواتك أمامك', 'Nova · All your tools, right here'],
+      cmdHeadlineA: ['مكتبة السكريبتات', 'The Script Library'],
+      cmdHeadlineB: ['بالمنتصف، وكل شي ثاني بمتناول اليد', 'front and center, everything else within reach'],
+      cmdScriptsTitle: ['مكتبة السكريبتات', 'Script Library'],
+      cmdScriptsSub: ['دور، انسخ، رد على العميل', 'Search, copy, reply to the customer'],
+      cmdScriptsSearchText: ['دور بالسكريبتات...', 'Search scripts...'],
+      cmdStatUsageLbl: ['إجمالي الاستخدام', 'Total uses'],
+      cmdStatCountLbl: ['سكريبت', 'scripts'],
+      cmdTechTitle: ['مشاكل تقنية', 'Technical Issues'],
+      cmdTechSub: ['سجل توثيق المكالمات', 'A log of call issues'],
+      cmdTrainingTitle: ['مركز التدريب', 'Training Center'],
+      cmdMentorTitle: ['الرعاية والتدريب', 'Mentorship'],
+      cmdUpdatesTitle: ['التحديثات', 'Updates'],
+      cmdUpdatesSub: ['اليوم', 'Today'],
     };
     Object.keys(heroText).forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = isAr ? heroText[id][0] : heroText[id][1];
     });
     refreshHeroCounts();
-    if (novaHeroLayout) novaHeroLayout();
 
     document.getElementById('trainingPageTitle').textContent = isAr ? 'مركز التدريب' : 'Training Center';
     document.getElementById('trainingPageSub').textContent = isAr ? 'دليلك للتعامل مع جميع مشاكل العملاء خطوة بخطوة' : 'Your guide to handling every customer issue step by step';
@@ -1827,79 +1822,6 @@
   function pauseAllOrbits() { Object.values(orbitControllers).forEach(c => c.stop()); }
   orbitControllers.orbitCanvasHome.start();
 
-  // ====== Hero: 3D rotating carousel of the site's sections ======
-  let novaHeroTimer = null;
-  let novaHeroLayout = null;
-  function setupNovaHero() {
-    const heroSection = document.getElementById('novaHero');
-    const track = document.getElementById('nvhTrack');
-    const dotsWrap = document.getElementById('nvhDots');
-    if (!track || !dotsWrap) return;
-    const slides = Array.from(track.querySelectorAll('.nvh-slide'));
-    if (!slides.length) return;
-    let active = 0;
-
-    dotsWrap.innerHTML = '';
-    slides.forEach((s, i) => {
-      const d = document.createElement('button');
-      d.type = 'button';
-      const label = s.querySelector('.nvh-title');
-      d.setAttribute('aria-label', label ? label.textContent : String(i + 1));
-      d.addEventListener('click', () => { active = i; layout(); restart(); });
-      dotsWrap.appendChild(d);
-    });
-    const dots = Array.from(dotsWrap.children);
-
-    function layout() {
-      const n = slides.length;
-      const fan = window.innerWidth <= 720 ? 74 : 128;
-      slides.forEach((s, i) => {
-        let off = i - active;
-        if (off > n / 2) off -= n;
-        if (off < -n / 2) off += n;
-        const abs = Math.abs(off);
-        s.style.transform =
-          `translateX(${off * fan}px) translateZ(${-abs * 150}px) rotateY(${off * -30}deg) scale(${1 - abs * 0.08})`;
-        s.style.opacity = abs > 2 ? '0' : (off === 0 ? '1' : '0.8');
-        s.style.filter = off === 0 ? 'none' : 'brightness(.62)';
-        s.style.zIndex = String(50 - abs);
-        s.style.pointerEvents = abs > 2 ? 'none' : 'auto';
-      });
-      dots.forEach((d, i) => d.classList.toggle('on', i === active));
-    }
-    novaHeroLayout = layout;
-
-    function restart() {
-      clearInterval(novaHeroTimer);
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      novaHeroTimer = setInterval(() => { active = (active + 1) % slides.length; layout(); }, 3600);
-    }
-
-    slides.forEach((s, i) => {
-      s.addEventListener('click', () => {
-        if (i !== active) { active = i; layout(); restart(); return; }
-        goToHeroSection(s.dataset.go);
-      });
-    });
-
-    // Scrolling anywhere over the hero (not just the narrow card stack) steps through the
-    // slides instead of scrolling the page — matches the whole "Every tool in one place" section.
-    let wheelLock = false;
-    (heroSection || track).addEventListener('wheel', (e) => {
-      e.preventDefault();
-      if (wheelLock) return;
-      wheelLock = true;
-      active = (active + (e.deltaY > 0 ? 1 : -1) + slides.length) % slides.length;
-      layout();
-      restart();
-      setTimeout(() => { wheelLock = false; }, 450);
-    }, { passive: false });
-
-    layout();
-    window.addEventListener('resize', layout);
-    restart();
-  }
-
   function goToHeroSection(key) {
     if (key === 'tech') { openTechPage(); return; }
     if (key === 'training') { openTrainingPage(); return; }
@@ -1909,20 +1831,154 @@
     if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Keeps the hero cards' counters in sync with the real data.
+  // Keeps the command-center hero's cards in sync with the real data.
   function refreshHeroCounts() {
-    const isAr = currentLang === 'ar';
-    const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-    set('nvhMeta1', SCRIPTS.length ? (isAr ? `${SCRIPTS.length} سكريبت` : `${SCRIPTS.length} scripts`) : '—');
-    set('nvhMeta3', TRAINING_PROBLEMS.length
-      ? (isAr ? `${TRAINING_PROBLEMS.length} مواضيع` : `${TRAINING_PROBLEMS.length} topics`)
-      : '—');
-    const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
-    const unseenUpdates = UPDATES.filter(u => u.id > lastSeen).length;
-    set('nvhMeta5', unseenUpdates ? (isAr ? `${unseenUpdates} جديد` : `${unseenUpdates} new`) : '—');
-    const pendingMentorReqs = MENTOR_REQUESTS.filter(r => r.mentorEmail === currentUserEmail && r.status === 'pending').length;
-    set('nvhMeta6', pendingMentorReqs ? (isAr ? `${pendingMentorReqs} طلب` : `${pendingMentorReqs} pending`) : '—');
+    renderCommandHero();
     updateMentorBadge();
+  }
+
+  // A handful of recent technical issues for the hero's preview card. TECH_ISSUES itself
+  // is only loaded when the Tech page opens, so this is a small one-off fetch, cached and
+  // only ever run once per session.
+  let cmdTechPreview = [];
+  let cmdTechPreviewLoaded = false;
+  async function loadCmdTechPreview() {
+    if (cmdTechPreviewLoaded) return;
+    cmdTechPreviewLoaded = true;
+    try {
+      const { data, error } = await sb.from('technical_issues').select('*').order('id', { ascending: false }).limit(3);
+      if (!error) {
+        cmdTechPreview = (data || []).map(r => ({ phoneNumber: r.phone_number, issueType: r.issue_type }));
+        renderCommandHero();
+      }
+    } catch (e) { /* best-effort preview only */ }
+  }
+
+  // Populates the Command Center hero from real data — no fabricated stats: every number
+  // shown here is derived straight from what's actually loaded.
+  function renderCommandHero() {
+    if (!document.getElementById('cmdScriptsCard')) return;
+    const isAr = currentLang === 'ar';
+
+    // Scripts panel: real categories with live counts, top-used scripts, real totals.
+    const rail = document.getElementById('cmdRail');
+    if (rail) {
+      rail.innerHTML = CATEGORIES.map((c, i) => {
+        const count = SCRIPTS.filter(s => s.cat === c.key).length;
+        const label = isAr ? c.labelAr : c.label;
+        const color = safeColor(c.color) || '#0B84FF';
+        return `<button type="button" class="cmd-rail-item${i === 0 ? ' on' : ''}" data-cat="${escapeHtml(c.key)}">
+          <span class="sw" style="background:color-mix(in srgb, ${color} 18%, transparent);"><i style="background:${color};"></i></span>
+          <span class="tx"><span class="a">${escapeHtml(label || c.key)}</span><span class="b">${count} ${isAr ? 'سكريبت' : (count === 1 ? 'script' : 'scripts')}</span></span>
+        </button>`;
+      }).join('');
+    }
+
+    const topScriptsEl = document.getElementById('cmdTopScripts');
+    if (topScriptsEl) {
+      const top = [...SCRIPTS].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 2);
+      topScriptsEl.innerHTML = top.map((s, i) => {
+        const cat = CATEGORIES.find(c => c.key === s.cat);
+        const color = safeColor(cat ? cat.color : null) || '#0B84FF';
+        const label = cat ? (isAr ? cat.labelAr : cat.label) : s.cat;
+        return `<div class="cmd-sc-row">
+          <span class="n mono">0${i + 1}</span>
+          <span class="bar"></span>
+          <span class="tag" style="background:color-mix(in srgb, ${color} 20%, transparent); color:${color};">${escapeHtml(label || '')}</span>
+        </div>`;
+      }).join('');
+    }
+    const totalUsage = SCRIPTS.reduce((sum, s) => sum + (s.usageCount || 0), 0);
+    const statUsage = document.getElementById('cmdStatUsage');
+    const statCount = document.getElementById('cmdStatCount');
+    if (statUsage) statUsage.textContent = totalUsage;
+    if (statCount) statCount.textContent = SCRIPTS.length;
+
+    // Tech Issues satellite: a real handful of recent rows (lazy-loaded, see above).
+    const techRows = document.getElementById('cmdTechRows');
+    if (techRows) {
+      if (!cmdTechPreview.length) {
+        techRows.innerHTML = `<div class="cmd-tech-empty">${isAr ? 'ما في مشاكل مسجلة بعد' : 'No issues logged yet'}</div>`;
+      } else {
+        const dotColor = { audio: '#0B84FF', closed: '#F0424A', delay: '#D97706' };
+        const pillColor = {
+          audio: { bg: 'rgba(11,132,255,.18)', fg: '#7CC4FF' },
+          closed: { bg: 'rgba(240,66,74,.18)', fg: '#FF9B92' },
+          delay: { bg: 'rgba(217,119,6,.2)', fg: '#FBBF24' },
+        };
+        techRows.innerHTML = cmdTechPreview.map(t => {
+          const lbl = TECH_ISSUE_LABELS[t.issueType];
+          const text = lbl ? (isAr ? lbl.ar : lbl.en) : (t.issueType || '');
+          const c = pillColor[t.issueType] || pillColor.audio;
+          return `<div class="cmd-tech-row">
+            <span class="d" style="background:${dotColor[t.issueType] || '#0B84FF'};"></span>
+            <span class="num">${escapeHtml(t.phoneNumber || '')}</span>
+            <span class="pill" style="background:${c.bg}; color:${c.fg};">${escapeHtml(text)}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Training satellite: real published-topic count, no fabricated progress bars.
+    const activeTraining = TRAINING_PROBLEMS.filter(p => p.isActive);
+    const trainingSub = document.getElementById('cmdTrainingSub');
+    if (trainingSub) trainingSub.textContent = activeTraining.length ? `${activeTraining.length} ${isAr ? 'مواضيع' : 'topics'}` : '—';
+    const trainingBody = document.getElementById('cmdTrainingBody');
+    if (trainingBody) {
+      if (!activeTraining.length) {
+        trainingBody.innerHTML = `<div class="cmd-tech-empty">${isAr ? 'ما في مواضيع منشورة بعد' : 'No published topics yet'}</div>`;
+      } else {
+        trainingBody.innerHTML = `
+          <div class="cmd-training-count"><b class="mono">${activeTraining.length}</b><span>${isAr ? 'سيناريو تفاعلي' : 'interactive scenarios'}</span></div>
+          ${activeTraining.slice(0, 2).map(p => `<div class="cmd-training-row"><span class="ic" style="background:${safeColor(p.color) || '#0B84FF'};">${escapeHtml(p.icon || '📦')}</span><span class="t">${escapeHtml(isAr ? p.titleAr : p.title)}</span></div>`).join('')}
+        `;
+      }
+    }
+
+    // Mentorship strip: an honest 3-step status (request → accepted → ongoing) for the
+    // user's most relevant relationship, derived straight from its real status field —
+    // no fourth "first message" step, since we don't actually track that separately here.
+    const mentorBody = document.getElementById('cmdMentorBody');
+    if (mentorBody) {
+      const mine = MENTOR_REQUESTS.filter(r => r.traineeEmail === currentUserEmail || r.mentorEmail === currentUserEmail);
+      const active = mine.find(r => r.status === 'accepted') || mine.find(r => r.status === 'pending');
+      if (!active) {
+        mentorBody.innerHTML = `<div class="cmd-mentor-cta">
+          <p>${isAr ? 'ما عندك رعاية نشطة بعد' : "You don't have an active mentorship yet"}</p>
+          <span class="btn">${isAr ? 'اطلب راعي تدريب' : 'Request a mentor'}</span>
+        </div>`;
+      } else {
+        const accepted = active.status === 'accepted';
+        mentorBody.innerHTML = `
+          <div class="cmd-stepper">
+            <div class="cmd-step"><div class="circ" style="background:linear-gradient(150deg,#10B981,#22D3EE); color:#fff;">✓</div><div class="lbl"><b>${isAr ? 'الطلب' : 'Request'}</b>${isAr ? 'أُرسل' : 'Sent'}</div></div>
+            <div class="cmd-step-link done"></div>
+            <div class="cmd-step"><div class="circ" style="background:${accepted ? 'linear-gradient(150deg,#10B981,#22D3EE)' : 'linear-gradient(150deg,#0B84FF,#22D3EE)'}; color:#fff;${accepted ? '' : ' box-shadow:0 0 0 4px rgba(11,132,255,.24);'}">${accepted ? '✓' : '●'}</div><div class="lbl"><b>${isAr ? 'القبول' : 'Accepted'}</b>${accepted ? (isAr ? 'وافق الراعي' : 'Mentor accepted') : (isAr ? 'بانتظار الرد' : 'Awaiting reply')}</div></div>
+            <div class="cmd-step-link${accepted ? ' done' : ''}"></div>
+            <div class="cmd-step"><div class="circ" style="${accepted ? 'background:linear-gradient(150deg,#0B84FF,#22D3EE); box-shadow:0 0 0 4px rgba(11,132,255,.24);' : 'background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);'} color:#fff;">${accepted ? '●' : '3'}</div><div class="lbl"><b>${isAr ? 'متابعة' : 'Ongoing'}</b>${accepted ? (isAr ? 'محادثة نشطة' : 'Active chat') : (isAr ? 'قريباً' : 'Coming up')}</div></div>
+          </div>
+        `;
+      }
+    }
+
+    // Updates satellite: real recent updates, unseen ones flagged exactly like the badge.
+    const updRows = document.getElementById('cmdUpdatesRows');
+    if (updRows) {
+      const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
+      const recent = [...UPDATES].sort((a, b) => b.id - a.id).slice(0, 2);
+      if (!recent.length) {
+        updRows.innerHTML = `<div class="cmd-upd-empty">${isAr ? 'ما في تحديثات بعد' : 'No updates yet'}</div>`;
+      } else {
+        updRows.innerHTML = recent.map(u => `
+          <div class="cmd-upd-row">
+            <span class="bell"${u.id > lastSeen ? '' : ' style="background:rgba(255,255,255,.2);"'}></span>
+            <span class="skel">${escapeHtml(u.text)}</span>
+            ${u.id > lastSeen ? `<span class="new">${isAr ? 'جديد' : 'New'}</span>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
   }
 
   let dashTipItem = null;
@@ -3490,6 +3546,34 @@
   function bindStaticEvents() {
     const on = (id, evt, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
+    // Command Center hero
+    on('cmdScriptsBody', 'click', () => goToHeroSection('scripts'));
+    const cmdRailEl = document.getElementById('cmdRail');
+    if (cmdRailEl) {
+      cmdRailEl.addEventListener('click', (e) => {
+        const item = e.target.closest('.cmd-rail-item');
+        if (!item) return;
+        document.querySelectorAll('#cmdRail .cmd-rail-item').forEach(el => el.classList.toggle('on', el === item));
+        setCategory(item.dataset.cat);
+        const controls = document.querySelector('.controls');
+        if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    on('cmdTechCard', 'click', () => goToHeroSection('tech'));
+    on('cmdTrainingCard', 'click', () => goToHeroSection('training'));
+    on('cmdMentorCard', 'click', () => goToHeroSection('mentorship'));
+    on('cmdUpdatesCard', 'click', () => goToHeroSection('updates'));
+    const cmdStarsEl = document.getElementById('cmdStars');
+    if (cmdStarsEl) {
+      for (let i = 0; i < 60; i++) {
+        const s = document.createElement('span');
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.animationDelay = (Math.random() * 3.4) + 's';
+        cmdStarsEl.appendChild(s);
+      }
+    }
+
     document.querySelector('.qt-general').addEventListener('click', () => openPanel('general'));
     document.querySelector('.qt-critical').addEventListener('click', () => openPanel('critical'));
     document.querySelector('.qt-etiquette').addEventListener('click', () => openPanel('etiquette'));
@@ -3632,7 +3716,6 @@
   applyLanguage();
   setupKeyboardShortcuts();
   setupCardTilt();
-  setupNovaHero();
 
   function launchHomePlanet() {
     const icon = document.getElementById('bbHomeIcon');
@@ -3895,6 +3978,7 @@
     startPresenceHeartbeat();
     startUpdatesPolling();
     loadDirectoryEmails();
+    loadCmdTechPreview();
     syncPushSubscriptionIfGranted();
     // If the Mentorship page was left open across a logout/login (a different account signing
     // in without a full page reload), its panes and any open chat thread still show the
