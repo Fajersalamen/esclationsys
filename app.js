@@ -1890,9 +1890,10 @@
         const cat = CATEGORIES.find(c => c.key === s.cat);
         const color = safeColor(cat ? cat.color : null) || '#0B84FF';
         const label = cat ? (isAr ? cat.labelAr : cat.label) : s.cat;
+        const title = (isAr && s.titleAr) ? s.titleAr : (s.title || s.titleAr || '');
         return `<div class="cmd-sc-row">
           <span class="n mono">0${i + 1}</span>
-          <span class="bar"></span>
+          <span class="t">${escapeHtml(title)}</span>
           <span class="tag" style="background:color-mix(in srgb, ${color} 20%, transparent); color:${color};">${escapeHtml(label || '')}</span>
         </div>`;
       }).join('');
