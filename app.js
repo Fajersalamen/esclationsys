@@ -24,6 +24,18 @@
   const DEFAULT_ROLE = 'agent'; // إذا ما انلقى للمستخدم صف بجدول profiles
 
   const UPDATE_ARCHIVE_DAYS = 30; // updates older than this are auto-collapsed into the archive
+
+  // New-hire onboarding journey: shown once per device to a user with no prior activity,
+  // until they finish (or skip) it. Progress is tracked per-user in localStorage — steps
+  // 'info'/'etiquette'/'training' are marked done on the relevant action; 'mentor'/'issue'
+  // are derived live from the user's own real data, so they can't go stale.
+  const ONBOARDING_STEP_DEFS = [
+    { key: 'info', title: { ar: 'اقرأ المعلومات العامة', en: 'Read the general info' }, sub: { ar: 'أساسيات الشغل والسياسات', en: 'Work basics and policies' } },
+    { key: 'etiquette', title: { ar: 'تصفّح بروتوكول المكالمة', en: 'Review the call etiquette' }, sub: { ar: 'كيف تبدأ وتنهي مكالمة صح', en: 'How to properly start and end a call' } },
+    { key: 'training', title: { ar: 'جرّب سيناريو تدريبي واحد', en: 'Try one training scenario' }, sub: { ar: 'من مركز التدريب', en: 'From the Training Center' } },
+    { key: 'mentor', title: { ar: 'اطلب راعي تدريب', en: 'Request a mentor' }, sub: { ar: 'حدا يتابع معك أول فترة', en: 'Someone to guide you early on' } },
+    { key: 'issue', title: { ar: 'سجّل أول مشكلة تقنية', en: 'Log your first technical issue' }, sub: { ar: 'تدرّب على الأداة', en: 'Get familiar with the tool' } }
+  ];
   let isAdmin = false;
   let adminRole = null; // 'full' | 'limited' | null
   let currentUserRole = null; // 'admin' | 'team_leader' | 'quality' | 'agent' ...
@@ -710,6 +722,7 @@
   function openTrainingTree(problemId) {
     const problem = TRAINING_PROBLEMS.find(p => p.id === problemId && p.isActive);
     if (!problem) return;
+    markOnboardingStepDone('training');
     currentTrainingProblem = problem;
     currentTrainingNodeId = problem.rootNodeId;
     trainingAnswerTrail = [];
@@ -1587,6 +1600,12 @@
     document.getElementById('lblMentorSideCount').textContent = isAr ? 'عدد الرسائل' : 'Messages';
     document.getElementById('lblMentorSideLast').textContent = isAr ? 'آخر نشاط' : 'Last activity';
     if (openMentorThreadId) renderMentorThreadSideProfile(openMentorThreadId);
+
+    document.getElementById('onboardingHeroTitle').textContent = isAr ? 'أهلاً! 👋' : 'Welcome! 👋';
+    document.getElementById('onboardingHeroSub').textContent = isAr ? 'هاي أول أسبوع إلك بفريق نوفا — خلّص هاي الخطوات البسيطة حتى تبلش بثقة.' : "This is your first week with the Nova team — finish these simple steps to get started with confidence.";
+    document.getElementById('onboardingRingLbl').textContent = isAr ? 'خطوات مكتملة' : 'steps done';
+    document.getElementById('lblOnboardingSkip').textContent = isAr ? 'تخطي' : 'Skip';
+    if (document.getElementById('onboardingPage').classList.contains('open')) renderOnboardingPage();
     document.getElementById('mentorChatInput').placeholder = isAr ? 'اكتب رسالة...' : 'Write a message...';
     renderMentorEmailOptions();
     if (document.getElementById('mentorshipPage').classList.contains('open')) switchMentorTab(activeMentorTab);
@@ -2837,6 +2856,7 @@
       return;
     }
     showToast(isAr ? 'تم تسجيل المشكلة بنجاح.' : 'The issue was logged successfully.', 'success');
+    markOnboardingStepDone('issue');
     resetTechForm();
     await loadTechIssues();
   }
@@ -3477,6 +3497,19 @@
     on('swUpdateBtn', 'click', () => window.location.reload());
     on('mentorNotifyBtn', 'click', enablePushNotifications);
 
+    on('onboardingSkipBtn', 'click', () => {
+      const state = getOnboardingState();
+      state.dismissed = true;
+      setOnboardingState(state);
+      closeOnboardingPage();
+    });
+    document.getElementById('onboardingSteps').addEventListener('click', (e) => {
+      const btn = e.target.closest('.go');
+      if (!btn || btn.disabled) return;
+      const stepEl = btn.closest('[data-onboarding-step]');
+      if (stepEl) onboardingStepAction(stepEl.dataset.onboardingStep);
+    });
+
     on('overlay', 'click', closePanelsByUser);
     document.querySelectorAll('.panel-close').forEach(btn => btn.addEventListener('click', closePanelsByUser));
     on('updatesSearchInput', 'input', renderUpdatesPage);
@@ -3721,6 +3754,110 @@
     } catch (e) {}
   }
 
+  // ===== New Hire Onboarding Journey =====
+  function onboardingStore() {
+    try { return JSON.parse(localStorage.getItem('fajer_onboarding_v1') || '{}'); } catch { return {}; }
+  }
+  function getOnboardingState() {
+    const store = onboardingStore();
+    return store[currentUserEmail] || { steps: {}, dismissed: false };
+  }
+  function setOnboardingState(state) {
+    if (!currentUserEmail) return;
+    const store = onboardingStore();
+    store[currentUserEmail] = state;
+    localStorage.setItem('fajer_onboarding_v1', JSON.stringify(store));
+  }
+  function isOnboardingStepDone(key, state) {
+    // 'mentor' is derived live from MENTOR_REQUESTS (loaded unconditionally at boot).
+    // The rest — including 'issue' — are localStorage flags set at the moment of the real
+    // action, since TECH_ISSUES itself is only loaded lazily when the Tech page is opened.
+    if (key === 'mentor') return MENTOR_REQUESTS.some(r => r.traineeEmail === currentUserEmail);
+    return !!(state.steps && state.steps[key]);
+  }
+  function markOnboardingStepDone(key) {
+    const state = getOnboardingState();
+    state.steps = state.steps || {};
+    state.steps[key] = true;
+    setOnboardingState(state);
+  }
+
+  function renderOnboardingPage() {
+    const isAr = currentLang === 'ar';
+    const wrap = document.getElementById('onboardingSteps');
+    if (!wrap) return;
+    const state = getOnboardingState();
+    let doneCount = 0;
+    wrap.innerHTML = ONBOARDING_STEP_DEFS.map((s, i) => {
+      const done = isOnboardingStepDone(s.key, state);
+      if (done) doneCount++;
+      return `<div class="onboarding-step${done ? ' done' : ''}" data-onboarding-step="${s.key}">
+        <div class="chk">${done ? '✓' : i + 1}</div>
+        <div class="info">
+          <div class="title">${isAr ? s.title.ar : s.title.en}</div>
+          <div class="sub">${isAr ? s.sub.ar : s.sub.en}</div>
+        </div>
+        <button class="go"${done ? ' disabled' : ''}>${done ? (isAr ? 'تمت' : 'Done') : (isAr ? 'ابدأ ←' : 'Start →')}</button>
+      </div>`;
+    }).join('');
+    document.getElementById('onboardingRingPct').textContent = `${doneCount}/${ONBOARDING_STEP_DEFS.length}`;
+    const circumference = 2 * Math.PI * 37;
+    const ring = document.getElementById('onboardingRingProgress');
+    if (ring) {
+      ring.style.strokeDasharray = String(circumference);
+      ring.style.strokeDashoffset = String(circumference * (1 - doneCount / ONBOARDING_STEP_DEFS.length));
+    }
+    return doneCount;
+  }
+
+  function openOnboardingPage() {
+    closePanels();
+    closeUpdatesPage();
+    closeMentorshipPage();
+    closeTechPage();
+    closeTrainingPage();
+    pauseAllOrbits();
+    renderOnboardingPage();
+    document.getElementById('onboardingPage').classList.add('open');
+  }
+  function closeOnboardingPage() {
+    document.getElementById('onboardingPage').classList.remove('open');
+  }
+
+  function onboardingStepAction(key) {
+    if (key === 'info') { markOnboardingStepDone('info'); closeOnboardingPage(); openPanel('general'); return; }
+    if (key === 'etiquette') { markOnboardingStepDone('etiquette'); closeOnboardingPage(); openPanel('etiquette'); return; }
+    if (key === 'training') { closeOnboardingPage(); openTrainingPage(); return; }
+    if (key === 'mentor') { closeOnboardingPage(); openMentorshipPage(); switchMentorTab('request'); return; }
+    if (key === 'issue') { closeOnboardingPage(); openTechPage(); return; }
+  }
+
+  // Shown once per device to a user who has no prior activity at all (a real new hire);
+  // an existing employee opening the app for the first time after this feature shipped is
+  // inferred from having any real data already and silently skipped. The one-off tech-issues
+  // existence check only ever runs on this first-ever classification for a (user, device)
+  // pair — every later boot just reads the cached localStorage verdict.
+  async function maybeShowOnboarding() {
+    if (!currentUserEmail) return;
+    const store = onboardingStore();
+    if (!(currentUserEmail in store)) {
+      let hasLoggedIssueBefore = false;
+      try {
+        const { data } = await sb.from('technical_issues').select('id').eq('employee_email', currentUserEmail).limit(1);
+        hasLoggedIssueBefore = !!(data && data.length);
+      } catch { /* best-effort — treat as no prior issue on failure */ }
+      const hasMentorActivity = MENTOR_REQUESTS.some(r => r.traineeEmail === currentUserEmail || r.mentorEmail === currentUserEmail);
+      const hasExistingActivity = isAdmin || hasMentorActivity || hasLoggedIssueBefore;
+      store[currentUserEmail] = { steps: { issue: hasLoggedIssueBefore }, dismissed: hasExistingActivity };
+      localStorage.setItem('fajer_onboarding_v1', JSON.stringify(store));
+    }
+    const state = store[currentUserEmail];
+    if (state.dismissed) return;
+    const allDone = ONBOARDING_STEP_DEFS.every(s => isOnboardingStepDone(s.key, state));
+    if (allDone) { state.dismissed = true; setOnboardingState(state); return; }
+    openOnboardingPage();
+  }
+
   async function bootApp(userId) {
     checkFirstVisitToday();
     showSkeleton();
@@ -3743,7 +3880,12 @@
       closeMentorThread();
       switchMentorTab(activeMentorTab || 'request');
     }
-    openMentorThreadFromUrl();
+    // Don't let the onboarding takeover steal focus from a push-notification deep link.
+    if (new URLSearchParams(window.location.search).get('mentorThread')) {
+      openMentorThreadFromUrl();
+    } else {
+      await maybeShowOnboarding();
+    }
   }
 
   // Deep-link support: a push-notification tap opens the site at /?mentorThread=<id> —

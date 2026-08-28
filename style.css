@@ -1706,6 +1706,69 @@
       .mentor-reason-cell { max-width: 160px; }
     }
 
+    /* ===== New Hire Onboarding Journey ===== */
+    .onboarding-page {
+      position: fixed; inset: 0; z-index: 95; background: var(--bg); color: var(--text-main);
+      display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+    }
+    .onboarding-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .onboarding-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+
+    .onboarding-top { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+    .onboarding-skip {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--slate-soft);
+      cursor: pointer; padding: 6px 12px; border-radius: 20px; transition: background .15s ease, color .15s ease;
+    }
+    .onboarding-skip:hover { background: var(--surface-soft); color: var(--text-main); }
+
+    .onboarding-hero {
+      display: flex; align-items: center; margin-block: 0 26px;
+      margin-inline: calc(-1 * clamp(16px,4vw,56px)); padding: 30px clamp(16px,4vw,56px) 34px;
+      background: linear-gradient(120deg, #0B84FF 0%, #14B8A6 55%, #10B981 100%);
+      position: relative; overflow: hidden;
+    }
+    .onboarding-hero::before {
+      content: ''; position: absolute; width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.3), transparent 70%); filter: blur(50px);
+      top: -200px; inset-inline-end: -70px; animation: cometDrift 12s ease-in-out infinite alternate; pointer-events: none;
+    }
+    .onboarding-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; position: relative; z-index: 1; width: 100%; }
+    .onboarding-hero-copy h2 { margin: 0; font-size: 22px; font-weight: 800; color: #fff; }
+    .onboarding-hero-copy p { margin: 6px 0 0; font-size: 13px; color: rgba(255,255,255,.85); max-width: 560px; }
+    .onboarding-ring { position: relative; width: 86px; height: 86px; flex-shrink: 0; }
+    .onboarding-ring svg { transform: rotate(-90deg); }
+    .onboarding-ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    .onboarding-ring-lbl { position: absolute; bottom: -18px; width: 100%; text-align: center; font-size: 9.5px; color: rgba(255,255,255,.85); font-weight: 700; white-space: nowrap; }
+
+    .onboarding-steps { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+    .onboarding-step {
+      display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; transition: opacity .2s ease;
+    }
+    .onboarding-step.done { opacity: .6; }
+    .onboarding-step .chk {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; font-family: 'JetBrains Mono', monospace;
+      background: var(--surface-soft); color: var(--slate-soft); border: 1.5px solid var(--border);
+    }
+    .onboarding-step.done .chk { background: color-mix(in srgb, #10B981 18%, transparent); color: #10B981; border-color: transparent; }
+    .onboarding-step .info { flex: 1; min-width: 0; }
+    .onboarding-step .title { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+    .onboarding-step .sub { font-size: 11.5px; color: var(--slate-soft); margin-top: 2px; }
+    .onboarding-step .go {
+      flex-shrink: 0; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-main);
+      font-size: 11.5px; font-weight: 700; padding: 8px 16px; border-radius: 9px; cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .onboarding-step .go:hover { border-color: var(--brand-blue); color: var(--brand-blue); }
+    .onboarding-step.done .go { background: none; border: none; color: #10B981; cursor: default; }
+    @media (max-width: 620px) {
+      .onboarding-hero { flex-direction: column; align-items: flex-start; margin-bottom: 20px; padding: 26px 16px 28px; }
+      .onboarding-hero-top { flex-direction: column; align-items: flex-start; }
+      .onboarding-ring { margin-top: 14px; }
+    }
+
     /* Inbox layout for the Chats tab: conversation list pinned on the side, thread fills the rest */
     .mentor-inbox {
       display: grid; grid-template-columns: 320px 1fr; border: 1px solid var(--border); border-radius: 16px;
