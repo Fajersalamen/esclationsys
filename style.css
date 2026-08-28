@@ -79,7 +79,7 @@
     .tab .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tab.active .dot { background: #fff !important; }
 
-    main { padding: 24px clamp(16px,4vw,52px) 60px; max-width: 1200px; margin: 0 auto; }
+    main { padding: 24px clamp(16px,4vw,52px) 60px; width: 100%; }
     .section { margin-bottom: 34px; }
     .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
     .section-head .idx { font-size: 11px; font-weight: 700; color: #fff; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
@@ -201,7 +201,7 @@
     .project-seal .name { font-size: 12px; }
 
     .controls { top: 0; padding: 14px clamp(18px,4vw,56px) 10px; box-shadow: 0 1px 0 var(--border); }
-    .controls-inner { max-width: 1240px; margin: auto; }
+    .controls-inner { width: 100%; }
     .search-row { margin-bottom: 10px; }
     .search-shell { position: relative; flex: 1; }
     .search-icon { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--slate-soft); font-size: 18px; pointer-events: none; }
@@ -215,14 +215,14 @@
     .tab.active { background: color-mix(in srgb, var(--brand-blue) 12%, var(--card)); color: var(--brand-blue); border-color: color-mix(in srgb, var(--brand-blue) 30%, var(--border)); }
     .tab.active .dot { background: var(--brand-blue) !important; }
 
-    main { max-width: 1352px; padding: 28px clamp(18px,4vw,56px) 64px; }
-    .workspace-head { max-width: 1240px; margin: 0 auto 22px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+    main { padding: 28px clamp(18px,4vw,56px) 64px; }
+    .workspace-head { margin: 0 0 22px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
     .workspace-head h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.35; letter-spacing: -0.01em; font-weight: 800; }
     .workspace-head p { margin: 0; color: var(--slate); font-size: 12.5px; }
     .library-count { flex: none; border-inline-start: 3px solid var(--coral); padding-inline-start: 12px; }
     .library-count strong { display: block; font-size: 20px; line-height: 1; }
     .library-count span { color: var(--slate-soft); font-size: 10.5px; }
-    #content, #followupGrid { max-width: 1240px; margin-inline: auto; }
+    #content, #followupGrid { width: 100%; }
     .section { margin-bottom: 30px; }
     .section-head { margin-bottom: 11px; padding-bottom: 9px; border-bottom: 1px solid var(--border); }
     .section-head .idx { width: 24px; height: 24px; border-radius: 4px; font-size: 10px; }
