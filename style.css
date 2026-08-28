@@ -917,7 +917,7 @@
     .cmd-hero {
       position: relative; z-index: 1; overflow: hidden;
       display: flex; flex-direction: column; align-items: center;
-      padding: 40px 20px 60px; background: var(--bg); color: var(--text-main);
+      padding: 24px 20px 28px; background: var(--bg); color: var(--text-main);
     }
     .cmd-hero .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
     /* The hero stays mounted (and its animations keep running) behind every full-page
@@ -941,12 +941,10 @@
     .cmd-eyebrow {
       position: relative; z-index: 3; display: inline-flex; align-items: center; gap: 9px; font-size: 11.5px; font-weight: 800; color: var(--slate);
       background: color-mix(in srgb, var(--text-main) 5%, transparent); border: 1px solid color-mix(in srgb, var(--text-main) 10%, transparent);
-      padding: 7px 16px; border-radius: 22px; margin-bottom: 18px;
+      padding: 7px 16px; border-radius: 22px; margin-bottom: 26px;
     }
     .cmd-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 0 rgba(16,185,129,.5); animation: cmdLivedot 1.8s infinite; }
     @keyframes cmdLivedot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.45); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
-    .cmd-headline { position: relative; z-index: 3; font-size: clamp(22px,2.8vw,32px); font-weight: 800; margin: 0 0 34px; text-align: center; max-width: 900px; }
-    .cmd-headline .grad { background: linear-gradient(100deg, #0B84FF, #22D3EE, #10B981); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 
     .cmd-node {
       position: relative;
