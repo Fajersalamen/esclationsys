@@ -1137,6 +1137,18 @@
     .dash-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--stat-accent, var(--brand-blue)); flex-shrink: 0; }
     .dash-chip:empty { display: none; }
 
+    /* ===== Scripts full page — same slide-in overlay pattern as the other four
+       Command Center sections, opened from the hero's Script Library card. ===== */
+    .scripts-page {
+      position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
+      display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
+    }
+    .scripts-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    /* Its own scroll container now (not the body), so it needs its own reserve
+       against the fixed bottom bar instead of relying on body's padding-bottom. */
+    .scripts-page main { padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px)); }
+
     /* ===== Technical Issue full page (Mission Control: hero report card + live status board) ===== */
     .tech-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);

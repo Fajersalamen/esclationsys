@@ -661,6 +661,7 @@
 
   function openTrainingPage() {
     closePanels();
+    closeScriptsPage();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTechPage();
@@ -1829,13 +1830,28 @@
   function pauseCmdHero() { document.body.classList.add('cmd-hero-paused'); }
   function resumeCmdHero() { document.body.classList.remove('cmd-hero-paused'); }
 
+  function openScriptsPage() {
+    closePanels();
+    closeUpdatesPage();
+    closeMentorshipPage();
+    closeTechPage();
+    closeTrainingPage();
+    document.getElementById('scriptsPage').classList.add('open');
+    pauseAllOrbits();
+    pauseCmdHero();
+  }
+  function closeScriptsPage() {
+    document.getElementById('scriptsPage').classList.remove('open');
+    resumeCmdHero();
+    orbitControllers.orbitCanvasHome.start();
+  }
+
   function goToHeroSection(key) {
     if (key === 'tech') { openTechPage(); return; }
     if (key === 'training') { openTrainingPage(); return; }
     if (key === 'updates') { openUpdatesPage(); return; }
     if (key === 'mentorship') { openMentorshipPage(); return; }
-    const controls = document.querySelector('.controls');
-    if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    openScriptsPage();
   }
 
   // Keeps the command-center hero's cards in sync with the real data.
@@ -2201,6 +2217,7 @@
 
   function openUpdatesPage() {
     closePanels();
+    closeScriptsPage();
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
@@ -2555,6 +2572,7 @@
 
   function openMentorshipPage() {
     closePanels();
+    closeScriptsPage();
     closeUpdatesPage();
     closeTechPage();
     closeTrainingPage();
@@ -2830,6 +2848,7 @@
 
   function goHome() {
     closePanels();
+    closeScriptsPage();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTechPage();
@@ -2846,6 +2865,7 @@
 
   function openTechPage() {
     closePanels();
+    closeScriptsPage();
     closeUpdatesPage();
     closeMentorshipPage();
     closeTrainingPage();
@@ -3569,8 +3589,7 @@
         if (!item) return;
         document.querySelectorAll('#cmdRail .cmd-rail-item').forEach(el => el.classList.toggle('on', el === item));
         setCategory(item.dataset.cat);
-        const controls = document.querySelector('.controls');
-        if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        openScriptsPage();
       });
     }
     on('cmdTechCard', 'click', () => goToHeroSection('tech'));
