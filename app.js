@@ -3482,6 +3482,7 @@
   }
   function closePanelsByUser() {
     closePanels();
+    if (document.getElementById('onboardingPage').classList.contains('open')) renderOnboardingPage();
   }
 
   // ===== ربط كل الأحداث برمجيًا (بدون onclick= داخل HTML) — مطلوب لتفعيل CSP بدون 'unsafe-inline' لـ script-src =====
@@ -3825,8 +3826,13 @@
   }
 
   function onboardingStepAction(key) {
-    if (key === 'info') { markOnboardingStepDone('info'); closeOnboardingPage(); openPanel('general'); return; }
-    if (key === 'etiquette') { markOnboardingStepDone('etiquette'); closeOnboardingPage(); openPanel('etiquette'); return; }
+    // Info/etiquette open as a side panel, which sits ABOVE the onboarding page (z-index
+    // 97/96 vs 95) — leave the onboarding page open underneath so it's there again, with
+    // the step now checked off, the moment the panel closes. The other three steps navigate
+    // to a full page at the same z-index as onboarding, so it has to be closed first or it
+    // would just stay on top hiding the destination.
+    if (key === 'info') { markOnboardingStepDone('info'); openPanel('general'); return; }
+    if (key === 'etiquette') { markOnboardingStepDone('etiquette'); openPanel('etiquette'); return; }
     if (key === 'training') { closeOnboardingPage(); openTrainingPage(); return; }
     if (key === 'mentor') { closeOnboardingPage(); openMentorshipPage(); switchMentorTab('request'); return; }
     if (key === 'issue') { closeOnboardingPage(); openTechPage(); return; }
