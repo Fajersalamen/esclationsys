@@ -744,25 +744,27 @@
   </div>
 </section>
 
-<div class="controls">
-  <div class="controls-inner">
-    <div class="search-row">
-      <div class="search-shell"><span class="search-icon">⌕</span><input type="text" id="searchInput" placeholder="البحث في السكريبتات... / Search scripts..."></div>
+<div class="scripts-page" id="scriptsPage">
+  <div class="controls">
+    <div class="controls-inner">
+      <div class="search-row">
+        <div class="search-shell"><span class="search-icon">⌕</span><input type="text" id="searchInput" placeholder="البحث في السكريبتات... / Search scripts..."></div>
+      </div>
+      <div class="dash-tip" id="dashTip"></div>
+      <div class="tabs" id="tabs"></div>
     </div>
-    <div class="dash-tip" id="dashTip"></div>
-    <div class="tabs" id="tabs"></div>
   </div>
+
+  <main>
+    <div class="workspace-head"><div><h1 id="workspaceTitle">تصعيد التذكرة</h1></div><div class="library-count"><strong id="scriptCount">0</strong><span id="scriptCountLabel">سكريبت متاح</span></div></div>
+    <div id="content"></div>
+    <div id="followupGrid" class="grid" style="margin-top:30px;"></div>
+  </main>
+
+  <footer>
+    <span id="footBrand"></span>
+  </footer>
 </div>
-
-<main>
-  <div class="workspace-head"><div><h1 id="workspaceTitle">تصعيد التذكرة</h1></div><div class="library-count"><strong id="scriptCount">0</strong><span id="scriptCountLabel">سكريبت متاح</span></div></div>
-  <div id="content"></div>
-  <div id="followupGrid" class="grid" style="margin-top:30px;"></div>
-</main>
-
-<footer>
-  <span id="footBrand"></span>
-</footer>
 
 <div class="bottom-bar" id="bottomBar" aria-label="Bottom navigation">
   <div class="bottom-bar-inner bb-home-only">
