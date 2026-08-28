@@ -1682,8 +1682,6 @@
     // Command Center hero
     const heroText = {
       cmdEyebrowText: ['نوفا · كل أدواتك أمامك', 'Nova · All your tools, right here'],
-      cmdHeadlineA: ['مكتبة السكريبتات', 'The Script Library'],
-      cmdHeadlineB: ['بالمنتصف، وكل شي ثاني بمتناول اليد', 'front and center, everything else within reach'],
       cmdScriptsTitle: ['مكتبة السكريبتات', 'Script Library'],
       cmdScriptsSub: ['دور، انسخ، رد على العميل', 'Search, copy, reply to the customer'],
       cmdScriptsSearchText: ['دور بالسكريبتات...', 'Search scripts...'],
