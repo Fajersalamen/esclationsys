@@ -919,6 +919,10 @@
       padding: 40px 20px 60px; background: #04050a; color: #F6F5F2;
     }
     .cmd-hero .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    /* The hero stays mounted (and its animations keep running) behind every full-page
+       overlay, since those slide in with transform/opacity rather than unmounting.
+       Pause them while a page is open on top so the CPU cost isn't paid site-wide. */
+    body.cmd-hero-paused .cmd-hero, body.cmd-hero-paused .cmd-hero * { animation-play-state: paused !important; }
     .cmd-mesh { position: absolute; inset: -20%; z-index: 0; filter: blur(80px); pointer-events: none; }
     .cmd-mesh span { position: absolute; border-radius: 50%; }
     .cmd-mesh .m1 { width: 44vw; height: 44vw; top: -8%; inset-inline-end: -8%; background: radial-gradient(circle, rgba(11,132,255,.42), transparent 66%); animation: cmdDriftA 26s ease-in-out infinite alternate; }
@@ -1190,8 +1194,7 @@
       margin-inline-start: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #fff;
       background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); padding: 6px 13px; border-radius: 20px; flex-shrink: 0;
     }
-    .tech-hero-live .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: pulseDot 1.6s ease-in-out infinite; }
-    @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+    .tech-hero-live .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: .7; }
 
     .tech-hero-num-label { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,.65); margin-bottom: 8px; }
     .tech-number-row { display: flex; gap: 10px; margin-bottom: 18px; max-width: 640px; }

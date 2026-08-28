@@ -667,12 +667,14 @@
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
     pauseAllOrbits();
+    pauseCmdHero();
     orbitControllers.orbitCanvasTraining.start();
   }
   function closeTrainingPage() {
     document.getElementById('trainingPage').classList.remove('open');
     orbitControllers.orbitCanvasTraining.stop();
     orbitControllers.orbitCanvasHome.start();
+    resumeCmdHero();
   }
 
   function renderTrainingGrid() {
@@ -1651,7 +1653,7 @@
     document.getElementById('swUpdateText').textContent = isAr ? 'في تحديث جديد للموقع' : 'A new version is available';
     document.getElementById('swUpdateBtn').textContent = isAr ? 'تحديث' : 'Refresh';
     document.getElementById('techPageTitle').textContent = isAr ? '🛠️ مشاكل تقنية' : '🛠️ Technical Issues';
-    document.getElementById('techLiveLabel').textContent = isAr ? 'مباشر' : 'Live';
+    document.getElementById('techLiveLabel').textContent = isAr ? 'سجل توثيق' : 'Log';
     document.getElementById('techFormHeadTitle').textContent = isAr ? 'تسجيل مشكلة' : 'Log an Issue';
     document.getElementById('techFormHeadSub').textContent = isAr ? 'اختر الرقم ثم نوع المشكلة' : 'Pick the number, then the issue type';
     document.getElementById('techNumLabel').textContent = isAr ? 'أدخل رقم البوليصة أو رقم المكالمة' : 'Enter the Waybill number or call number';
@@ -1821,6 +1823,13 @@
   ['orbitCanvasHome', 'orbitCanvasTech', 'orbitCanvasTraining'].forEach(initOrbitField);
   function pauseAllOrbits() { Object.values(orbitControllers).forEach(c => c.stop()); }
   orbitControllers.orbitCanvasHome.start();
+
+  // The Command Center hero keeps its animations running even while a full-page
+  // overlay (Tech Issues, Training, Mentorship, Updates) is open on top of it, since
+  // those slide in with transform/opacity rather than unmounting the hero. Pause them
+  // while any such page is open so the browser isn't animating an invisible section.
+  function pauseCmdHero() { document.body.classList.add('cmd-hero-paused'); }
+  function resumeCmdHero() { document.body.classList.remove('cmd-hero-paused'); }
 
   function goToHeroSection(key) {
     if (key === 'tech') { openTechPage(); return; }
@@ -2197,6 +2206,7 @@
     closeTechPage();
     closeTrainingPage();
     pauseAllOrbits();
+    pauseCmdHero();
 
     const lastSeen = parseInt(localStorage.getItem('fajer_updates_seen_v2') || '0', 10);
     updatesUnseenAtOpen = new Set(UPDATES.filter(u => u.id > lastSeen).map(u => u.id));
@@ -2218,6 +2228,7 @@
   }
   function closeUpdatesPage() {
     document.getElementById('updatesPage').classList.remove('open');
+    resumeCmdHero();
   }
 
   function updateNotificationBadge() {
@@ -2551,11 +2562,13 @@
     switchMentorTab(activeMentorTab || 'request');
     document.getElementById('mentorshipPage').classList.add('open');
     pauseAllOrbits();
+    pauseCmdHero();
     updateMentorNotifyBanner();
   }
   function closeMentorshipPage() {
     document.getElementById('mentorshipPage').classList.remove('open');
     stopMentorChatPoll();
+    resumeCmdHero();
   }
 
   function switchMentorTab(tab) {
@@ -2844,6 +2857,7 @@
     showTechSkeleton();
     loadTechIssues();
     pauseAllOrbits();
+    pauseCmdHero();
     orbitControllers.orbitCanvasTech.start();
   }
 
@@ -2851,6 +2865,7 @@
     document.getElementById('techPage').classList.remove('open');
     orbitControllers.orbitCanvasTech.stop();
     orbitControllers.orbitCanvasHome.start();
+    resumeCmdHero();
   }
 
   function resetTechForm() {
@@ -3565,7 +3580,7 @@
     on('cmdUpdatesCard', 'click', () => goToHeroSection('updates'));
     const cmdStarsEl = document.getElementById('cmdStars');
     if (cmdStarsEl) {
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 24; i++) {
         const s = document.createElement('span');
         s.style.left = Math.random() * 100 + '%';
         s.style.top = Math.random() * 100 + '%';
