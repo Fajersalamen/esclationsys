@@ -2773,6 +2773,7 @@
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     orbitControllers.orbitCanvasHome.start();
+    maybeResumeOnboarding();
   }
 
   function openTechPage() {
@@ -3602,7 +3603,7 @@
     on('bbHomeBtn', 'click', () => { launchHomePlanet(); goHome(); });
 
     // صفحة المشاكل التقنية
-    on('techBackBtn', 'click', closeTechPage);
+    on('techBackBtn', 'click', () => { closeTechPage(); maybeResumeOnboarding(); });
     on('techAttachBtn', 'click', attachTechNumber);
     on('techChangeNumBtn', 'click', changeTechNumber);
     on('techNumberInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); attachTechNumber(); } });
@@ -3823,6 +3824,22 @@
   }
   function closeOnboardingPage() {
     document.getElementById('onboardingPage').classList.remove('open');
+  }
+
+  // The training/mentor/issue steps navigate to a full page at onboarding's own z-index, so
+  // it has to close first (see onboardingStepAction) — call this wherever the user can land
+  // back on the plain dashboard with nothing else open, to resume the checklist right there
+  // instead of leaving them on an empty dashboard until their next reload.
+  function maybeResumeOnboarding() {
+    if (!currentUserEmail) return;
+    const anyPageOpen = ['techPage', 'trainingPage', 'mentorshipPage', 'updatesPage']
+      .some(id => document.getElementById(id).classList.contains('open'));
+    if (anyPageOpen) return;
+    const state = getOnboardingState();
+    if (state.dismissed) return;
+    const allDone = ONBOARDING_STEP_DEFS.every(s => isOnboardingStepDone(s.key, state));
+    if (allDone) { state.dismissed = true; setOnboardingState(state); return; }
+    openOnboardingPage();
   }
 
   function onboardingStepAction(key) {
