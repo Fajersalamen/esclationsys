@@ -1731,9 +1731,19 @@
   }
 
   function toggleTheme() {
+    // Flipping body.dark-mode recolors every themed element on the page at once;
+    // with each one carrying its own transition, the browser paints them across
+    // several frames instead of together, showing as a visible top-to-bottom
+    // split. Suspend all transitions for one frame so the switch lands instantly.
+    document.documentElement.classList.add('theme-switching');
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('fajer_dark_mode', document.body.classList.contains('dark-mode'));
     updateThemeIcon();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('theme-switching');
+      });
+    });
   }
 
   if (localStorage.getItem('fajer_dark_mode') !== 'false') {
@@ -1899,7 +1909,7 @@
 
     const topScriptsEl = document.getElementById('cmdTopScripts');
     if (topScriptsEl) {
-      const top = [...SCRIPTS].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 2);
+      const top = [...SCRIPTS].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 3);
       topScriptsEl.innerHTML = top.map((s, i) => {
         const cat = CATEGORIES.find(c => c.key === s.cat);
         const color = safeColor(cat ? cat.color : null) || '#0B84FF';
