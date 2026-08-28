@@ -939,7 +939,7 @@
     .cmd-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 0 rgba(16,185,129,.5); animation: cmdLivedot 1.8s infinite; }
     @keyframes cmdLivedot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.45); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
     .cmd-headline { position: relative; z-index: 3; font-size: clamp(22px,2.8vw,32px); font-weight: 800; margin: 0 0 34px; text-align: center; max-width: 900px; }
-    .cmd-headline .grad { background: linear-gradient(100deg, #0B84FF, #22D3EE, #10B981); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .cmd-headline .grad { background: linear-gradient(100deg, #0B84FF, #22D3EE, #10B981); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 
     .cmd-node {
       position: relative;
@@ -960,7 +960,7 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 34px rgba(120,150,200,.07), 0 0 26px -6px rgba(200,220,255,.28);
     }
 
-    .cmd-board { position: relative; z-index: 2; width: 100%; max-width: 1140px; height: 420px; }
+    .cmd-board { position: relative; z-index: 2; width: min(94vw, 1600px); aspect-ratio: 1140 / 420; }
     .cmd-stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
     .cmd-stars span { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; animation: cmdTwinkle 3.4s ease-in-out infinite; }
     @keyframes cmdTwinkle { 0%,100% { opacity: .1; } 50% { opacity: .75; } }
@@ -982,7 +982,7 @@
       position: absolute; z-index: 2; opacity: 0; animation: cmdNodeIn .75s cubic-bezier(.16,1,.3,1) forwards;
       border: none; padding: 0; font: inherit; color: inherit; text-align: start; cursor: pointer;
     }
-    .cmd-main { position: absolute; z-index: 2; inset-inline-start: 0; top: 55px; width: 430px; height: 300px; display: flex; overflow: hidden; opacity: 0; animation: cmdNodeIn .75s cubic-bezier(.16,1,.3,1) forwards; }
+    .cmd-main { position: absolute; z-index: 2; inset-inline-start: 0; top: 13.095%; width: 37.719%; height: 71.429%; display: flex; overflow: hidden; opacity: 0; animation: cmdNodeIn .75s cubic-bezier(.16,1,.3,1) forwards; }
     @keyframes cmdNodeIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .cmd-gp { animation: cmdGp 2.8s ease-in-out infinite; }
     @keyframes cmdGp { 0%,100% { opacity: .7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
@@ -1035,7 +1035,7 @@
     .cmd-c-m { font-size: 8.5px; color: #5C5A70; }
     .cmd-badge { font-size: 10px; font-weight: 800; color: #fff; padding: 3px 9px; border-radius: 20px; margin-inline-start: auto; background: linear-gradient(120deg,#8B6CF0,#0B84FF); }
 
-    .cmd-tech { inset-inline-start: 490px; top: 0; width: 200px; }
+    .cmd-tech { inset-inline-start: 42.982%; top: 0; width: 17.544%; }
     .cmd-tech > div:last-child { padding: 0 15px 15px; }
     .cmd-tech-row { display: flex; align-items: center; gap: 7px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.06); }
     .cmd-tech-row:first-child { border-top: none; }
@@ -1044,7 +1044,7 @@
     .cmd-tech-row .pill { font-size: 7px; font-weight: 800; padding: 2px 6px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
     .cmd-tech-empty { font-size: 9.5px; color: #5C5A70; padding: 4px 0 12px; }
 
-    .cmd-training { inset-inline-start: 730px; top: 28px; width: 200px; }
+    .cmd-training { inset-inline-start: 64.035%; top: 6.667%; width: 17.544%; }
     .cmd-training > div:last-child { padding: 0 15px 15px; }
     .cmd-training-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
     .cmd-training-row .ic { width: 18px; height: 18px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
@@ -1053,7 +1053,7 @@
     .cmd-training-count b { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
     .cmd-training-count span { font-size: 9px; color: #5C5A70; }
 
-    .cmd-mentor { inset-inline-start: 490px; top: 238px; width: 440px; height: 118px; padding: 14px 22px; display: flex; flex-direction: column; justify-content: center; }
+    .cmd-mentor { inset-inline-start: 42.982%; top: 56.667%; width: 38.596%; height: 28.095%; padding: 14px 22px; display: flex; flex-direction: column; justify-content: center; }
     .cmd-mentor-title { font-size: 10.5px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; color: #fff; }
     .cmd-stepper { display: flex; align-items: center; }
     .cmd-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -1066,7 +1066,7 @@
     .cmd-mentor-cta p { margin: 0; font-size: 11px; color: #A6A4B8; }
     .cmd-mentor-cta span.btn { font-size: 10.5px; font-weight: 800; color: #fff; background: linear-gradient(120deg,#0B84FF,#10B981); padding: 8px 16px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
 
-    .cmd-updates { inset-inline-start: 960px; top: 150px; width: 180px; }
+    .cmd-updates { inset-inline-start: 84.211%; top: 35.714%; width: 15.789%; }
     .cmd-updates > div:last-child { padding: 0 15px 15px; }
     .cmd-upd-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
     .cmd-upd-row .bell { width: 6px; height: 6px; border-radius: 50%; background: #8B6CF0; flex-shrink: 0; }
