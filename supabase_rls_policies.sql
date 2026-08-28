@@ -272,6 +272,115 @@ create policy "training_options_delete_full_admin" on public.training_options
   for delete using (public.is_full_admin());
 
 
+-- ---------------------------------------------------------------------
+-- script_submissions — an employee sees only their own contributions;
+-- admin/team_leader see all (matches the pending-review queue the admin
+-- panel shows — app.js fetches every row unconditionally and expects
+-- RLS to filter it for non-admins). Insert must be under the
+-- submitter's own email. Update (approve/reject) is admin/team_leader
+-- only; there is no client-side delete for this table.
+-- ---------------------------------------------------------------------
+alter table public.script_submissions enable row level security;
+
+drop policy if exists "script_submissions_select_own_or_admin" on public.script_submissions;
+create policy "script_submissions_select_own_or_admin" on public.script_submissions
+  for select using (
+    submitted_by = (auth.jwt() ->> 'email')
+    or public.is_admin_or_lead()
+  );
+
+drop policy if exists "script_submissions_insert_own_email" on public.script_submissions;
+create policy "script_submissions_insert_own_email" on public.script_submissions
+  for insert with check (
+    auth.role() = 'authenticated'
+    and submitted_by = (auth.jwt() ->> 'email')
+  );
+
+drop policy if exists "script_submissions_update_admin" on public.script_submissions;
+create policy "script_submissions_update_admin" on public.script_submissions
+  for update using (public.is_admin_or_lead()) with check (public.is_admin_or_lead());
+
+
+-- ---------------------------------------------------------------------
+-- mentor_requests — each employee sees only requests they're a party to,
+-- as either trainee or mentor (every client-side read already filters
+-- this way — see the traineeEmail/mentorEmail checks throughout app.js).
+-- Insert must be made as the trainee (their own email). Responding
+-- (accept/decline) is restricted to the addressed mentor.
+-- ---------------------------------------------------------------------
+alter table public.mentor_requests enable row level security;
+
+drop policy if exists "mentor_requests_select_participant" on public.mentor_requests;
+create policy "mentor_requests_select_participant" on public.mentor_requests
+  for select using (
+    trainee_email = (auth.jwt() ->> 'email')
+    or mentor_email = (auth.jwt() ->> 'email')
+  );
+
+drop policy if exists "mentor_requests_insert_as_trainee" on public.mentor_requests;
+create policy "mentor_requests_insert_as_trainee" on public.mentor_requests
+  for insert with check (
+    auth.role() = 'authenticated'
+    and trainee_email = (auth.jwt() ->> 'email')
+  );
+
+drop policy if exists "mentor_requests_update_as_mentor" on public.mentor_requests;
+create policy "mentor_requests_update_as_mentor" on public.mentor_requests
+  for update using (mentor_email = (auth.jwt() ->> 'email'))
+  with check (mentor_email = (auth.jwt() ->> 'email'));
+
+
+-- ---------------------------------------------------------------------
+-- mentor_messages — private chat between a mentor and their trainee.
+-- Only the two participants of the parent mentor_requests row (matched
+-- via request_id) may read or post messages in that thread.
+-- ---------------------------------------------------------------------
+alter table public.mentor_messages enable row level security;
+
+drop policy if exists "mentor_messages_select_participant" on public.mentor_messages;
+create policy "mentor_messages_select_participant" on public.mentor_messages
+  for select using (
+    exists (
+      select 1 from public.mentor_requests r
+      where r.id = mentor_messages.request_id
+        and (r.trainee_email = (auth.jwt() ->> 'email') or r.mentor_email = (auth.jwt() ->> 'email'))
+    )
+  );
+
+drop policy if exists "mentor_messages_insert_participant" on public.mentor_messages;
+create policy "mentor_messages_insert_participant" on public.mentor_messages
+  for insert with check (
+    sender_email = (auth.jwt() ->> 'email')
+    and exists (
+      select 1 from public.mentor_requests r
+      where r.id = mentor_messages.request_id
+        and (r.trainee_email = (auth.jwt() ->> 'email') or r.mentor_email = (auth.jwt() ->> 'email'))
+    )
+  );
+
+
+-- ---------------------------------------------------------------------
+-- push_subscriptions — a device's web-push token, written only by its
+-- own owner. No select policy at all: the client never reads this table
+-- back (only a trusted backend/service-role job would send pushes, and
+-- that bypasses RLS entirely), so it's left unreadable to every signed-
+-- in user by default.
+-- ---------------------------------------------------------------------
+alter table public.push_subscriptions enable row level security;
+
+drop policy if exists "push_subscriptions_insert_own" on public.push_subscriptions;
+create policy "push_subscriptions_insert_own" on public.push_subscriptions
+  for insert with check (
+    auth.role() = 'authenticated'
+    and user_email = (auth.jwt() ->> 'email')
+  );
+
+drop policy if exists "push_subscriptions_update_own" on public.push_subscriptions;
+create policy "push_subscriptions_update_own" on public.push_subscriptions
+  for update using (user_email = (auth.jwt() ->> 'email'))
+  with check (user_email = (auth.jwt() ->> 'email'));
+
+
 -- =====================================================================
 -- AFTER YOU RUN THIS
 -- 1. Log in to the app as an 'agent'/'quality' account and confirm:
@@ -281,7 +390,11 @@ create policy "training_options_delete_full_admin" on public.training_options
 --    delete buttons still fail (as the UI already hides them for you,
 --    but now the API blocks it too if called directly).
 -- 3. Log in as 'admin' and confirm full CRUD still works everywhere.
--- 4. If any table name or column name above doesn't match your real
+-- 4. Submit a script contribution, send/accept a mentorship request, and
+--    send a mentor chat message — confirm each still works, and that a
+--    second test account can't see another employee's script
+--    submissions or a mentor thread they're not part of.
+-- 5. If any table name or column name above doesn't match your real
 --    schema, that CREATE POLICY statement will error — fix the name
 --    and re-run just that block.
 -- =====================================================================
