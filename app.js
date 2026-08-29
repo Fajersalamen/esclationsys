@@ -1653,12 +1653,8 @@
 
   function updateThemeIcon() {
     const isDark = document.body.classList.contains('dark-mode');
-    const isAr = (typeof currentLang !== 'undefined') && currentLang === 'ar';
-    const shortLabel = isDark ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الداكن' : 'Dark Mode');
-    const themeTextEl = document.getElementById('profileThemeText');
-    const themeIconEl = document.getElementById('profileThemeIcon');
-    if (themeTextEl) themeTextEl.textContent = shortLabel;
-    if (themeIconEl) themeIconEl.textContent = isDark ? '☀️' : '🌙';
+    const skyCheckbox = document.getElementById('skyThemeCheckbox');
+    if (skyCheckbox) skyCheckbox.checked = isDark;
   }
 
   function toggleTheme() {
@@ -3613,7 +3609,7 @@
 
     on('novaWordmark', 'dblclick', openAdminModal);
     on('profileBtn', 'click', toggleProfileMenu);
-    on('profileThemeBtn', 'click', toggleTheme);
+    on('skyThemeCheckbox', 'change', toggleTheme);
     on('profileLangBtn', 'click', toggleLanguage);
     on('logoutBtn', 'click', employeeLogout);
     on('searchInput', 'input', render);
