@@ -919,9 +919,9 @@
        since it's a fixed diagram layout, not text flow. */
     .cmd-hero {
       position: relative; z-index: 1; overflow: hidden;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: min(74vh, 780px);
-      padding: 24px 20px 40px; color: var(--text-main);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: calc(100vh - 84px); min-height: calc(100svh - 84px);
+      padding: 24px 20px 60px; color: var(--text-main);
       background: linear-gradient(160deg, #eef9f6 0%, #dcf4ee 50%, #cdeee5 100%);
       --hero-accent: #0d9488; --hero-line: rgba(13,148,136,.4);
     }
@@ -1102,7 +1102,6 @@
     .cmd-upd-empty { font-size: 9.5px; color: var(--slate-soft); padding: 4px 0 12px; }
 
     @media (max-width: 900px) {
-      .cmd-hero { min-height: 0; }
       .cmd-board {
         grid-template-columns: 1fr 1fr;
         grid-template-areas: "main main" "tech training" "mentor updates";
@@ -1116,32 +1115,33 @@
       .cmd-rail { width: 100%; border-inline-start: none; border-top: 1px solid color-mix(in srgb, var(--text-main) 7%, transparent); flex-direction: row; flex-wrap: wrap; }
     }
 
-    /* ===== Edge quick-tools rail — half-hidden tabs docked to the screen edge, peek out on hover ===== */
+    /* ===== Edge quick-tools rail — small circular icon buttons docked to the
+       screen edge, always visible, one unified accent color. ===== */
     .edge-rail {
-      position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 12px; z-index: 80;
+      position: fixed; top: 50%; inset-inline-end: 14px; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 10px; z-index: 80;
     }
     .edge-rail .edge-tab {
-      display: flex; flex: none; align-items: center; gap: 10px;
-      height: 46px; padding: 0 14px; border-radius: 23px 0 0 23px;
-      cursor: pointer; font-family: inherit; border: 1px solid rgba(255,255,255,.14); border-right: none;
-      background: linear-gradient(120deg, var(--c1), var(--c2) 55%, var(--c3));
-      box-shadow: -8px 8px 24px -10px rgba(0,0,0,.55);
-      transform: translateX(58%);
-      transition: transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .32s;
-      position: relative; color: #fff;
+      display: flex; flex: none; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      cursor: pointer; font-family: inherit; border: 1px solid color-mix(in srgb, var(--brand-teal) 35%, transparent);
+      background: color-mix(in srgb, var(--card) 75%, transparent);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 24px -12px rgba(0,0,0,.4);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+      position: relative; color: var(--brand-teal);
     }
     .edge-rail .edge-tab:hover, .edge-rail .edge-tab:focus-visible {
-      transform: translateX(0); box-shadow: -12px 10px 30px -8px rgba(11,132,255,.5);
+      transform: scale(1.08); background: color-mix(in srgb, var(--brand-teal) 18%, var(--card));
+      box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--brand-teal) 45%, transparent);
     }
-    .edge-rail .et-icon { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    .edge-rail .et-icon svg { width: 20px; height: 20px; stroke: #fff; }
-    .edge-rail .et-label { font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; letter-spacing: .01em; }
+    .edge-rail .et-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .edge-rail .et-icon svg { width: 19px; height: 19px; stroke: currentColor; }
+    .edge-rail .et-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (max-width: 640px) {
-      .edge-rail .edge-tab { height: 42px; padding: 0 11px; gap: 8px; }
-      .edge-rail .et-label { font-size: 11.5px; }
-      .edge-rail .et-icon svg { width: 18px; height: 18px; }
-      .edge-rail { gap: 9px; }
+      .edge-rail .edge-tab { width: 36px; height: 36px; }
+      .edge-rail .et-icon svg { width: 16px; height: 16px; }
+      .edge-rail { gap: 8px; inset-inline-end: 8px; }
     }
     /* Rotating tip bar — one line above the tabs, sourced from Critical mistakes / Etiquette items */
     .dash-tip {
