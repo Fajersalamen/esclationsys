@@ -50,6 +50,14 @@
   </div>
 </div>
 
+<div class="maintenance-overlay" id="maintenanceOverlay" dir="rtl">
+  <div class="maintenance-card">
+    <span class="maintenance-icon">🛠️</span>
+    <h2 id="maintenanceTitle">الموقع متوقف مؤقتًا</h2>
+    <p id="maintenanceMsg">جاري العمل على تحديث أو صيانة سريعة — رح يرجع الموقع خلال شوي.</p>
+  </div>
+</div>
+
 <div class="splash-overlay" id="splashOverlay">
   <div style="text-align:center;">
     <div class="splash-logo"><span class="nova-text"><svg class="nova-logo" viewBox="0 0 252 100" role="img" aria-label="NOVA"><defs><linearGradient id="novaLogoSplash" x1="0" y1="0" x2="252" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0B84FF"/><stop offset="0.52" stop-color="#14B8A6"/><stop offset="1" stop-color="#00A86B"/></linearGradient></defs><g fill="none" stroke="url(#novaLogoSplash)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><path d="M18,76 L18,44 a20,20 0 0 1 40,0 L58,76"/><circle cx="100" cy="44" r="20"/><path d="M78,78 Q100,94 122,78"/><path d="M140,24 L160,76 L180,24"/><path d="M198,76 L198,48 a18,18 0 0 1 36,0 L234,76"/><path d="M198,60 L234,60"/></g></svg></span></div>
@@ -439,6 +447,7 @@
         <button class="admin-tab-btn" id="btnTab6" data-admin-tab="presence">👥 المستخدمون المتصلون</button>
         <button class="admin-tab-btn" id="btnTab7" data-admin-tab="training">🎓 مركز التدريب</button>
         <button class="admin-tab-btn" id="btnTab8" data-admin-tab="contributions">📚 مساهمات السكريبتات</button>
+        <button class="admin-tab-btn" id="btnTab9" data-admin-tab="lock" style="display:none;">🛑 إيقاف مؤقت</button>
       </div>
 
       <!-- Tab 1: Manage Scripts -->
@@ -595,6 +604,19 @@
       <div id="adminTabContributions" style="display:none;">
         <p style="font-size:12px; color:var(--slate); margin-top:0;" id="lblContribAdminDesc">مساهمات الموظفين بحلول جاهزة — راجعها ثم انشرها بمكتبة السكريبتات أو ارفضها:</p>
         <div id="contributionsAdminList" style="max-height:340px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+      </div>
+
+      <!-- Tab 9: Temporary shutdown / maintenance mode (full admin only) -->
+      <div id="adminTabLock" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;">لما تفعّلها، كل الموظفين (غير الأدمن الكامل) بيشوفوا رسالة "الموقع متوقف مؤقتًا" بدل الصفحة الرئيسية — خلال ٢٠ ثانية كحد أقصى وبدون ما يحتاجوا يعملوا Refresh. تقدر تعطّلها بنفس الطريقة بأي وقت.</p>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:14px 0; font-weight:700; font-size:13px;">
+          <input type="checkbox" id="lockToggle" style="width:18px; height:18px; cursor:pointer;">
+          <span id="lockToggleLabel">إيقاف الموقع مؤقتًا عن كل الموظفين</span>
+        </label>
+        <label style="font-size:12px; font-weight:600;">الرسالة اللي بتظهر للموظفين:</label>
+        <textarea id="lockMessage" rows="3" maxlength="300" style="width:100%; margin:6px 0 10px;" placeholder="جاري العمل على تحديث أو صيانة سريعة — رح يرجع الموقع خلال شوي."></textarea>
+        <button id="btnSaveLock" style="width:100%; background:#B91C1C; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">حفظ</button>
+        <p style="font-size:11px; color:var(--slate-soft); margin-top:10px;" id="lockStatusLine"></p>
       </div>
 
       <button id="btnCloseAdmin" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;">إغلاق الواجهة</button>

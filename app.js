@@ -378,6 +378,7 @@
       const user = data && data.user;
       const uid = user && user.id;
       if (!uid) return;
+      checkSystemLock();
       if (isNewSession || !currentSessionStartedAt) currentSessionStartedAt = new Date().toISOString();
       const { error } = await sb.from('user_presence').upsert({
         user_id: uid,
@@ -389,6 +390,62 @@
     } catch (err) {
       console.warn('presence heartbeat error:', err);
     }
+  }
+
+  // ===================== Temporary shutdown / maintenance mode =====================
+  // Piggybacks on the presence heartbeat above (already a live round trip to
+  // the server every ~20s) instead of running its own timer, so a full admin
+  // flipping the switch reaches every other open tab within one heartbeat —
+  // no page refresh needed, same mechanism as the deleted-user sign-out.
+  async function checkSystemLock() {
+    try {
+      const { data, error } = await sb.from('system_lock').select('locked, message, message_ar').eq('id', 1).single();
+      const overlay = document.getElementById('maintenanceOverlay');
+      if (error || !data || !overlay) return;
+      const shouldBlock = !!data.locked && adminRole !== 'full';
+      overlay.classList.toggle('show', shouldBlock);
+      if (shouldBlock) {
+        const isAr = currentLang === 'ar';
+        const fallback = isAr
+          ? 'جاري العمل على تحديث أو صيانة سريعة — رح يرجع الموقع خلال شوي.'
+          : 'A quick maintenance/update is in progress — the site will be back shortly.';
+        document.getElementById('maintenanceMsg').textContent = (isAr ? data.message_ar : data.message) || fallback;
+      }
+    } catch (err) {
+      console.warn('تعذّر التحقق من حالة الإيقاف المؤقت:', err);
+    }
+  }
+
+  async function loadLockTabState() {
+    const statusLine = document.getElementById('lockStatusLine');
+    const { data, error } = await sb.from('system_lock').select('locked, message, message_ar').eq('id', 1).single();
+    if (error || !data) {
+      if (statusLine) statusLine.textContent = 'تعذّر تحميل الحالة الحالية.';
+      return;
+    }
+    document.getElementById('lockToggle').checked = !!data.locked;
+    document.getElementById('lockMessage').value = data.message_ar || data.message || '';
+    if (statusLine) statusLine.textContent = data.locked ? '🔴 الموقع متوقف حاليًا لكل الموظفين.' : '🟢 الموقع شغال بشكل طبيعي.';
+  }
+
+  async function saveLockState() {
+    const locked = document.getElementById('lockToggle').checked;
+    const message = document.getElementById('lockMessage').value.trim();
+    const isAr = currentLang === 'ar';
+    const { error } = await sb.from('system_lock').update({
+      locked, message: message || null, message_ar: message || null,
+      updated_by: currentUserEmail, updated_at: new Date().toISOString()
+    }).eq('id', 1);
+    if (error) {
+      showToast(isAr ? 'تعذّر الحفظ.' : 'Could not save.', 'error');
+      return;
+    }
+    showToast(
+      locked ? (isAr ? 'تم إيقاف الموقع مؤقتًا.' : 'The site is now paused.') : (isAr ? 'تم تشغيل الموقع.' : 'The site is back on.'),
+      'success'
+    );
+    loadLockTabState();
+    checkSystemLock();
   }
 
   function startPresenceHeartbeat() {
@@ -3231,6 +3288,8 @@
   function updateAdminRoleLabel() {
     const isAr = currentLang === 'ar';
     const el = document.getElementById('lblAdminActive');
+    const lockTabBtn = document.getElementById('btnTab9');
+    if (lockTabBtn) lockTabBtn.style.display = adminRole === 'full' ? 'inline-flex' : 'none';
     if (!el) return;
     const perm = ROLE_PERMISSIONS[currentUserRole];
     const roleName = perm ? (isAr ? perm.label.ar : perm.label.en) : '';
@@ -3251,6 +3310,7 @@
     document.getElementById('adminTabPresence').style.display = type === 'presence' ? 'block' : 'none';
     document.getElementById('adminTabTraining').style.display = type === 'training' ? 'block' : 'none';
     document.getElementById('adminTabContributions').style.display = type === 'contributions' ? 'block' : 'none';
+    document.getElementById('adminTabLock').style.display = type === 'lock' ? 'block' : 'none';
 
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
@@ -3260,6 +3320,9 @@
     document.getElementById('btnTab6').classList.toggle('active', type === 'presence');
     document.getElementById('btnTab7').classList.toggle('active', type === 'training');
     document.getElementById('btnTab8').classList.toggle('active', type === 'contributions');
+    document.getElementById('btnTab9').classList.toggle('active', type === 'lock');
+
+    if (type === 'lock') loadLockTabState();
 
     if (type === 'presence') {
       loadPresenceUsers();
@@ -3672,6 +3735,7 @@
     on('skyThemeCheckbox', 'change', toggleTheme);
     on('profileLangBtn', 'click', toggleLanguage);
     on('logoutBtn', 'click', employeeLogout);
+    on('btnSaveLock', 'click', saveLockState);
     on('searchInput', 'input', render);
 
     // تفويض الأحداث (event delegation) للعناصر يلي تتولّد ديناميكيًا بالجافاسكربت
