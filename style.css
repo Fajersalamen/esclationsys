@@ -920,56 +920,49 @@
     .cmd-hero {
       position: relative; z-index: 1; overflow: hidden;
       display: flex; flex-direction: column; align-items: center;
-      padding: 24px 20px 28px; background: var(--bg); color: var(--text-main);
+      min-height: min(74vh, 780px);
+      padding: 24px 20px 40px; color: var(--text-main);
+      background: linear-gradient(160deg, #eef9f6 0%, #dcf4ee 50%, #cdeee5 100%);
+      --hero-accent: #0d9488; --hero-line: rgba(13,148,136,.4);
+    }
+    body.dark-mode .cmd-hero {
+      background: linear-gradient(160deg, #071b26 0%, #0a2e2b 55%, #0d3b34 100%);
+      --hero-accent: #2dd4bf; --hero-line: rgba(45,212,191,.55);
     }
     .cmd-hero .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
     /* The hero stays mounted (and its animations keep running) behind every full-page
        overlay, since those slide in with transform/opacity rather than unmounting.
        Pause them while a page is open on top so the CPU cost isn't paid site-wide. */
     body.cmd-hero-paused .cmd-hero, body.cmd-hero-paused .cmd-hero * { animation-play-state: paused !important; }
-    .cmd-mesh { position: absolute; inset: -20%; z-index: 0; filter: blur(56px); pointer-events: none; opacity: .65; }
-    body.dark-mode .cmd-mesh { opacity: 1; }
+    .cmd-mesh { position: absolute; inset: -20%; z-index: 0; filter: blur(56px); pointer-events: none; opacity: .5; }
+    body.dark-mode .cmd-mesh { opacity: .8; }
     .cmd-mesh span { position: absolute; border-radius: 50%; }
-    .cmd-mesh .m1 { width: 44vw; height: 44vw; top: -8%; inset-inline-end: -8%; background: radial-gradient(circle, rgba(11,132,255,.42), transparent 66%); animation: cmdDriftA 26s ease-in-out infinite alternate; }
-    .cmd-mesh .m2 { width: 36vw; height: 36vw; bottom: -12%; inset-inline-start: -8%; background: radial-gradient(circle, rgba(16,185,129,.34), transparent 66%); animation: cmdDriftB 30s ease-in-out infinite alternate; }
+    .cmd-mesh .m1 { width: 44vw; height: 44vw; top: -8%; inset-inline-end: -8%; background: radial-gradient(circle, rgba(13,148,136,.4), transparent 66%); animation: cmdDriftA 26s ease-in-out infinite alternate; }
+    .cmd-mesh .m2 { width: 36vw; height: 36vw; bottom: -12%; inset-inline-start: -8%; background: radial-gradient(circle, rgba(45,212,191,.3), transparent 66%); animation: cmdDriftB 30s ease-in-out infinite alternate; }
     @keyframes cmdDriftA { to { transform: translate(-5%,7%) scale(1.08); } }
     @keyframes cmdDriftB { to { transform: translate(6%,-6%) scale(1.05); } }
     .cmd-circuit-bg {
-      position: absolute; inset: 0; z-index: 0; opacity: .3; pointer-events: none;
-      background-image: linear-gradient(rgba(34,211,238,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,.055) 1px, transparent 1px);
-      background-size: 38px 38px;
-      mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 0%, transparent 78%);
+      position: absolute; inset: 0; z-index: 0; opacity: .5; pointer-events: none;
+      background-image: linear-gradient(var(--hero-line) 1px, transparent 1px), linear-gradient(90deg, var(--hero-line) 1px, transparent 1px);
+      background-size: 34px 34px; opacity: .12;
+      mask-image: radial-gradient(ellipse 85% 80% at 50% 40%, #000 0%, transparent 85%);
     }
+    body.dark-mode .cmd-circuit-bg { opacity: .22; }
 
     .cmd-eyebrow {
       position: relative; z-index: 3; display: inline-flex; align-items: center; gap: 9px; font-size: 11.5px; font-weight: 800; color: var(--slate);
       background: color-mix(in srgb, var(--text-main) 5%, transparent); border: 1px solid color-mix(in srgb, var(--text-main) 10%, transparent);
       padding: 7px 16px; border-radius: 22px; margin-bottom: 26px;
     }
-    .cmd-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 0 rgba(16,185,129,.5); animation: cmdLivedot 1.8s infinite; }
-    @keyframes cmdLivedot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.45); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
+    .cmd-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--hero-accent); box-shadow: 0 0 0 0 rgba(45,212,191,.5); animation: cmdLivedot 1.8s infinite; }
+    @keyframes cmdLivedot { 0%,100% { box-shadow: 0 0 0 0 rgba(45,212,191,.45); } 50% { box-shadow: 0 0 0 6px rgba(45,212,191,0); } }
 
     .cmd-node {
       position: relative; z-index: 2;
-      background: linear-gradient(165deg, color-mix(in srgb, var(--card) 97%, var(--text-main) 3%), var(--card));
-      border: 1px solid color-mix(in srgb, var(--brand-blue) 20%, transparent); backdrop-filter: blur(10px);
-      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-main) 12%, transparent), 0 20px 46px -26px color-mix(in srgb, var(--text-main) 45%, transparent);
-      border-radius: 18px; opacity: 0; animation: cmdNodeIn .5s cubic-bezier(.16,1,.3,1) forwards;
-    }
-    /* Corner-bracket accents instead of a full border ring — a lighter, more
-       technical "readout panel" signature than the earlier bezel treatment. */
-    .cmd-node::before, .cmd-node::after {
-      content: ''; position: absolute; z-index: 3; width: 26px; height: 26px; pointer-events: none; opacity: .6;
-    }
-    .cmd-node::before {
-      top: -1px; inset-inline-end: -1px;
-      border-top: 2px solid var(--brand-teal); border-inline-end: 2px solid var(--brand-teal);
-      border-start-end-radius: 15px;
-    }
-    .cmd-node::after {
-      bottom: -1px; inset-inline-start: -1px;
-      border-bottom: 2px solid var(--brand-blue); border-inline-start: 2px solid var(--brand-blue);
-      border-end-start-radius: 15px;
+      background: color-mix(in srgb, var(--card) 62%, transparent);
+      border: 1px solid color-mix(in srgb, var(--hero-accent) 26%, transparent); backdrop-filter: blur(14px);
+      box-shadow: 0 20px 46px -26px color-mix(in srgb, var(--text-main) 45%, transparent);
+      border-radius: 20px; opacity: 0; animation: cmdNodeIn .5s cubic-bezier(.16,1,.3,1) forwards;
     }
 
     .cmd-board {
@@ -985,18 +978,18 @@
     .cmd-mentor { margin-top: 44px; }
     .cmd-updates { margin-top: 14px; }
 
-    /* Soft flowing glow lines through the negative space behind the cards —
-       ambient background motion, not literal card-to-card connectors, and a
-       different, lighter treatment (2 layers, not 5) than the earlier wires. */
+    /* Thin connecting lines forming a mesh between the cards — a light,
+       two-layer treatment (soft base + animated flowing core), not the
+       earlier bold 5-layer glow tubes. */
     .cmd-glow-lines { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
     .cmd-glow-lines path { fill: none; vector-effect: non-scaling-stroke; }
-    .cmd-glow-base { stroke: url(#cmdLineGrad); stroke-width: 1.3; opacity: .28; filter: blur(1.5px); }
-    body.dark-mode .cmd-glow-base { opacity: .5; }
+    .cmd-glow-base { stroke: url(#cmdLineGrad); stroke-width: 1.2; opacity: .3; }
+    body.dark-mode .cmd-glow-base { opacity: .55; }
     .cmd-glow-flow {
-      stroke: url(#cmdLineGrad); stroke-width: 1.3; opacity: .85; stroke-dasharray: 5 21;
-      filter: drop-shadow(0 0 4px var(--brand-teal)); animation: cmdLineFlow 4s linear infinite;
+      stroke: url(#cmdLineGrad); stroke-width: 1.2; opacity: .9; stroke-dasharray: 4 16;
+      filter: drop-shadow(0 0 3px var(--hero-accent)); animation: cmdLineFlow 3.5s linear infinite;
     }
-    @keyframes cmdLineFlow { from { stroke-dashoffset: 52; } to { stroke-dashoffset: 0; } }
+    @keyframes cmdLineFlow { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
     /* .cmd-board is forced ltr so the grid-area layout stays physically
        stable regardless of language (same "fixed diagram" decision as
        before) — but the cards' own text content must still follow the
@@ -1025,7 +1018,7 @@
       display: flex; align-items: center; gap: 8px; padding: 6px 7px; border-radius: 9px;
       border: none; background: none; font: inherit; color: inherit; cursor: pointer; width: 100%; text-align: start;
     }
-    .cmd-rail-item.on { background: color-mix(in srgb, var(--brand-blue) 16%, transparent); }
+    .cmd-rail-item.on { background: color-mix(in srgb, var(--hero-accent) 16%, transparent); }
     .cmd-rail-item .sw { width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .cmd-rail-item .sw i { width: 8px; height: 8px; border-radius: 50%; display: block; }
     .cmd-rail-item .tx { display: flex; flex-direction: column; min-width: 0; }
@@ -1037,9 +1030,9 @@
       border: none; background: none; font: inherit; color: inherit; cursor: pointer; text-align: start;
     }
     .cmd-mb-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .cmd-ic { position: relative; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(150deg,#0B84FF,#22D3EE); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .cmd-ic svg { width: 20px; height: 20px; position: relative; z-index: 1; }
-    .cmd-ic-glow { position: absolute; inset: -9px; border-radius: 50%; background: radial-gradient(circle,rgba(11,132,255,.55),transparent 70%); filter: blur(7px); }
+    .cmd-ic { position: relative; width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--hero-accent) 22%, transparent); border: 1px solid color-mix(in srgb, var(--hero-accent) 35%, transparent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cmd-ic svg { width: 19px; height: 19px; position: relative; z-index: 1; stroke: var(--hero-accent) !important; }
+    .cmd-ic-glow { position: absolute; inset: -9px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--hero-accent) 45%, transparent), transparent 70%); filter: blur(7px); }
     .cmd-mb-head h2 { margin: 0; font-size: 15.5px; font-weight: 800; color: var(--text-main); }
     .cmd-mb-head p { margin: 2px 0 0; font-size: 9.5px; color: var(--slate-soft); }
 
@@ -1058,11 +1051,15 @@
 
     /* Satellite card shared head */
     .cmd-card-head { display: flex; align-items: center; gap: 9px; padding: 15px 15px 0; margin-bottom: 11px; }
-    .cmd-c-ic { position: relative; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .cmd-c-ic svg { width: 16px; height: 16px; position: relative; z-index: 1; }
+    .cmd-c-ic {
+      position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      background: color-mix(in srgb, var(--hero-accent) 22%, transparent) !important; border: 1px solid color-mix(in srgb, var(--hero-accent) 35%, transparent);
+    }
+    .cmd-c-ic svg { width: 16px; height: 16px; position: relative; z-index: 1; stroke: var(--hero-accent) !important; }
+    .cmd-c-ic .cmd-ic-glow { background: radial-gradient(circle, color-mix(in srgb, var(--hero-accent) 45%, transparent), transparent 70%) !important; }
     .cmd-c-t { font-size: 11.5px; font-weight: 800; color: var(--text-main); }
     .cmd-c-m { font-size: 8.5px; color: var(--slate-soft); }
-    .cmd-badge { font-size: 10px; font-weight: 800; color: #fff; padding: 3px 9px; border-radius: 20px; margin-inline-start: auto; background: linear-gradient(120deg,#8B6CF0,#0B84FF); }
+    .cmd-badge { font-size: 10px; font-weight: 800; color: #fff; padding: 3px 9px; border-radius: 20px; margin-inline-start: auto; background: var(--hero-accent); }
 
     .cmd-tech { grid-area: tech; }
     .cmd-tech > div:last-child { padding: 0 15px 15px; }
@@ -1084,26 +1081,28 @@
 
     .cmd-mentor { grid-area: mentor; padding: 14px 22px; display: flex; flex-direction: column; justify-content: center; }
     .cmd-mentor-title { font-size: 10.5px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; color: var(--text-main); }
+    .cmd-mentor-title svg { stroke: var(--hero-accent) !important; }
     .cmd-stepper { display: flex; align-items: center; }
     .cmd-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
     .cmd-step .circ { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; position: relative; z-index: 1; }
     .cmd-step .lbl { font-size: 8px; font-weight: 700; color: var(--slate); text-align: center; white-space: nowrap; }
     .cmd-step .lbl b { display: block; font-size: 9px; color: var(--text-main); margin-bottom: 1px; }
     .cmd-step-link { flex: 1; height: 2px; background: color-mix(in srgb, var(--text-main) 10%, transparent); margin: 0 3px 24px; position: relative; overflow: hidden; }
-    .cmd-step-link.done::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #10B981, #22D3EE); }
+    .cmd-step-link.done::after { content: ''; position: absolute; inset: 0; background: var(--hero-accent); }
     .cmd-mentor-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .cmd-mentor-cta p { margin: 0; font-size: 11px; color: var(--slate); }
-    .cmd-mentor-cta span.btn { font-size: 10.5px; font-weight: 800; color: #fff; background: linear-gradient(120deg,#0B84FF,#10B981); padding: 8px 16px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
+    .cmd-mentor-cta span.btn { font-size: 10.5px; font-weight: 800; color: #fff; background: var(--hero-accent); padding: 8px 16px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
 
     .cmd-updates { grid-area: updates; }
     .cmd-updates > div:last-child { padding: 0 15px 15px; }
     .cmd-upd-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
-    .cmd-upd-row .bell { width: 6px; height: 6px; border-radius: 50%; background: #8B6CF0; flex-shrink: 0; }
+    .cmd-upd-row .bell { width: 6px; height: 6px; border-radius: 50%; background: var(--hero-accent); flex-shrink: 0; }
     .cmd-upd-row .skel { font-size: 9.5px; color: var(--slate); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cmd-upd-row .new { font-size: 7px; font-weight: 800; background: #8B6CF0; color: #fff; padding: 2px 6px; border-radius: 20px; flex-shrink: 0; }
+    .cmd-upd-row .new { font-size: 7px; font-weight: 800; background: var(--hero-accent); color: #fff; padding: 2px 6px; border-radius: 20px; flex-shrink: 0; }
     .cmd-upd-empty { font-size: 9.5px; color: var(--slate-soft); padding: 4px 0 12px; }
 
     @media (max-width: 900px) {
+      .cmd-hero { min-height: 0; }
       .cmd-board {
         grid-template-columns: 1fr 1fr;
         grid-template-areas: "main main" "tech training" "mentor updates";
