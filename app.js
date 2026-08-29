@@ -363,7 +363,19 @@
   async function upsertPresence(isNewSession) {
     if (!currentUserEmail) return;
     try {
-      const { data: { user } } = await sb.auth.getUser();
+      // sb.auth.getUser() (unlike getSession()) verifies the token against
+      // the Supabase server on every call instead of just reading the local
+      // cached one — so this heartbeat, already running every 20s, is also
+      // what detects an account an admin just deleted and signs it out right
+      // here, in this same tab, with no page refresh needed. A locally-valid
+      // but server-rejected token comes back as an error here.
+      const { data, error: userErr } = await sb.auth.getUser();
+      if (userErr) {
+        stopPresenceHeartbeat();
+        await sb.auth.signOut();
+        return;
+      }
+      const user = data && data.user;
       const uid = user && user.id;
       if (!uid) return;
       if (isNewSession || !currentSessionStartedAt) currentSessionStartedAt = new Date().toISOString();
