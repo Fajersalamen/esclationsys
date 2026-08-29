@@ -478,7 +478,7 @@
       position: absolute; z-index: 2; background: rgba(20,20,26,.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; gap: 9px;
       box-shadow: 0 20px 50px -18px rgba(0,0,0,.7); animation: loginFloaty 6s ease-in-out infinite; color: #fff;
-      font-family: 'Cairo', sans-serif; font-size: 12px;
+      font-family: 'Cairo', sans-serif; font-size: 12px; will-change: transform;
     }
     .login-image-panel .login-float-card .dot { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(11,132,255,.25); flex-shrink: 0; }
     .login-image-panel .login-float-card b { display: block; font-size: 12px; }
