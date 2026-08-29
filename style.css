@@ -950,7 +950,7 @@
     @keyframes cmdLivedot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.45); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
 
     .cmd-node {
-      position: relative;
+      position: relative; z-index: 2;
       background: linear-gradient(165deg, color-mix(in srgb, var(--card) 97%, var(--text-main) 3%), var(--card));
       border: 1px solid color-mix(in srgb, var(--brand-blue) 20%, transparent); backdrop-filter: blur(10px);
       box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-main) 12%, transparent), 0 20px 46px -26px color-mix(in srgb, var(--text-main) 45%, transparent);
@@ -974,10 +974,29 @@
 
     .cmd-board {
       position: relative; z-index: 2; width: min(94vw, 1600px); direction: ltr;
-      display: grid; gap: 16px;
+      display: grid; align-items: start; gap: 16px;
       grid-template-columns: minmax(320px, 1.25fr) minmax(220px, .8fr) minmax(220px, .8fr);
       grid-template-areas: "main tech training" "main mentor updates";
     }
+    /* A gentle vertical stagger on the satellites — breaks the strict
+       row-aligned grid look without going back to manual positioning. */
+    .cmd-tech { margin-top: 4px; }
+    .cmd-training { margin-top: 34px; }
+    .cmd-mentor { margin-top: 44px; }
+    .cmd-updates { margin-top: 14px; }
+
+    /* Soft flowing glow lines through the negative space behind the cards —
+       ambient background motion, not literal card-to-card connectors, and a
+       different, lighter treatment (2 layers, not 5) than the earlier wires. */
+    .cmd-glow-lines { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .cmd-glow-lines path { fill: none; vector-effect: non-scaling-stroke; }
+    .cmd-glow-base { stroke: url(#cmdLineGrad); stroke-width: 1.3; opacity: .28; filter: blur(1.5px); }
+    body.dark-mode .cmd-glow-base { opacity: .5; }
+    .cmd-glow-flow {
+      stroke: url(#cmdLineGrad); stroke-width: 1.3; opacity: .85; stroke-dasharray: 5 21;
+      filter: drop-shadow(0 0 4px var(--brand-teal)); animation: cmdLineFlow 4s linear infinite;
+    }
+    @keyframes cmdLineFlow { from { stroke-dashoffset: 52; } to { stroke-dashoffset: 0; } }
     /* .cmd-board is forced ltr so the grid-area layout stays physically
        stable regardless of language (same "fixed diagram" decision as
        before) — but the cards' own text content must still follow the
@@ -992,7 +1011,7 @@
     .cmd-node.cmd-tech, .cmd-node.cmd-training, .cmd-node.cmd-mentor, .cmd-node.cmd-updates {
       border: none; padding: 0; font: inherit; color: inherit; text-align: start; cursor: pointer;
     }
-    .cmd-main { grid-area: main; display: flex; overflow: hidden; z-index: 2; }
+    .cmd-main { grid-area: main; align-self: stretch; display: flex; overflow: hidden; z-index: 2; }
     @keyframes cmdNodeIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .cmd-gp { animation: cmdGp 2.8s ease-in-out infinite; }
     @keyframes cmdGp { 0%,100% { opacity: .7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
@@ -1089,6 +1108,8 @@
         grid-template-columns: 1fr 1fr;
         grid-template-areas: "main main" "tech training" "mentor updates";
       }
+      .cmd-tech, .cmd-training, .cmd-mentor, .cmd-updates { margin-top: 0; }
+      .cmd-glow-lines { display: none; }
     }
     @media (max-width: 620px) {
       .cmd-board { grid-template-columns: 1fr; grid-template-areas: "main" "tech" "training" "mentor" "updates"; }
