@@ -465,33 +465,10 @@
     .login-gate.hide { display: none; }
     .login-image-panel {
       flex: 1 1 55%; min-width: 0;
-      background: radial-gradient(1px 1px at center, rgba(255,255,255,.06) 1px, transparent 1px) 0 0/28px 28px;
+      background: #050b12;
       position: relative; overflow: hidden;
     }
-    .login-image-panel .login-orb {
-      position: absolute; width: 560px; height: 560px; border-radius: 50%; top: 50%; inset-inline-start: 8%;
-      transform: translateY(-50%);
-      background:
-        radial-gradient(circle at 38% 30%, rgba(255,255,255,.85), transparent 8%),
-        radial-gradient(circle at 42% 35%, rgba(20,184,166,.9), rgba(11,132,255,.5) 35%, rgba(8,18,35,.3) 60%, transparent 72%),
-        conic-gradient(from 0deg, #0B84FF, #14B8A6, #10B981, #0B84FF);
-      filter: blur(2px);
-      box-shadow: 0 0 160px 40px rgba(11,132,255,.35), inset -40px -40px 100px rgba(0,0,0,.55), inset 20px 20px 80px rgba(255,255,255,.08);
-      animation: orbSpin 26s linear infinite;
-    }
-    @keyframes orbSpin { to { transform: translateY(-50%) rotate(360deg); } }
-    .login-image-panel .login-orb-ring {
-      position: absolute; width: 760px; height: 230px; top: 50%; inset-inline-start: 8%;
-      transform: translateY(-50%) translateX(-100px) rotate(-16deg);
-      border-radius: 50%; pointer-events: none; opacity: .85;
-      border: 3px solid transparent;
-      background: linear-gradient(100deg, rgba(11,132,255,.05), rgba(11,132,255,.75) 15%, rgba(20,184,166,.6) 50%, rgba(16,185,129,.75) 78%, rgba(16,185,129,.05)) border-box;
-      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
-      filter: drop-shadow(0 0 14px rgba(20,184,166,.35));
-      animation: ringPulse 5s ease-in-out infinite;
-    }
-    @keyframes ringPulse { 0%, 100% { opacity: .65; } 50% { opacity: .95; } }
+    .login-spline { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     .login-image-panel .login-float-card {
       position: absolute; z-index: 2; background: rgba(20,20,26,.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; gap: 9px;
@@ -509,7 +486,15 @@
       position: relative; z-index: 1;
       animation: modalEnter .4s cubic-bezier(.2,.75,.25,1) both;
     }
-    .login-card { width: 100%; text-align: center; }
+    /* Spotlight: a soft glow that follows the cursor, positioned via --spot-x/--spot-y
+       (set in app.js on mousemove). Pure CSS/JS — no framer-motion needed. */
+    .login-form-panel::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(260px circle at var(--spot-x, 50%) var(--spot-y, 15%), rgba(255,255,255,.16), transparent 70%);
+      opacity: 0; transition: opacity .3s ease;
+    }
+    .login-form-panel:hover::before { opacity: 1; }
+    .login-card { position: relative; z-index: 1; width: 100%; text-align: center; }
     .login-brand { display: flex; align-items: center; justify-content: center; margin-bottom: 26px; }
     .login-wordmark {
       display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
