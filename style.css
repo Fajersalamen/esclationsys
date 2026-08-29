@@ -552,6 +552,18 @@
 
     .header-right { display: flex; align-items: center; gap: 14px; position: relative; z-index: 5; }
 
+    /* ===== Language toggle — visible in the header instead of buried in the
+       profile dropdown, same reasoning as the sky theme switch below. ===== */
+    .lang-toggle-btn {
+      display: flex; align-items: center; gap: 6px; font-family: inherit; cursor: pointer;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.22); color: #fff;
+      border-radius: 999px; padding: 7px 14px; font-size: 12.5px; font-weight: 700;
+      transition: background-color .2s ease, transform .16s ease;
+    }
+    .lang-toggle-btn:hover { background: rgba(255,255,255,0.14); }
+    .lang-toggle-btn:active { transform: scale(.95); }
+    @media (max-width: 640px) { .lang-toggle-btn { padding: 6px 10px; font-size: 11px; gap: 4px; } }
+
     /* ===== Sky theme switch — day/night toggle, visible in the header instead of
        buried in the profile dropdown. Ported to plain CSS (no styled-components). ===== */
     .theme-switch {

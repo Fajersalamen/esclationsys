@@ -1488,7 +1488,6 @@
     document.getElementById('langBtnText').textContent = isAr ? 'English' : 'العربية';
     document.getElementById('logoutBtnText').textContent = isAr ? 'خروج' : 'Logout';
     document.getElementById('profileRoleLabel').textContent = isAr ? 'موظف' : 'Employee';
-    document.getElementById('profileDecorLabel').textContent = isAr ? 'الإعدادات والمظهر' : 'Settings & Appearance';
     document.getElementById('searchInput').placeholder = isAr ? 'البحث بالعنوان أو محتوى الرد...' : 'Search by title or response content...';
     document.getElementById('workspaceTitle').textContent = isAr ? 'تصعيد التذكرة' : 'Escalation Ticket';
     document.getElementById('scriptCountLabel').textContent = isAr ? 'سكريبت متاح' : 'available scripts';
