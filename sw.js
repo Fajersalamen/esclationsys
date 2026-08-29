@@ -1,6 +1,6 @@
 // Minimal app-shell service worker. Only ever touches same-origin GET requests —
 // Supabase calls (auth, REST, realtime) are cross-origin and pass straight through untouched.
-const CACHE_VERSION = 'nova-shell-v5';
+const CACHE_VERSION = 'nova-shell-v6';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -30,27 +30,21 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   if (new URL(req.url).origin !== self.location.origin) return;
 
-  // Stale-while-revalidate: serve instantly from cache when we have it (no
-  // network round trip on the critical path at all), while a fetch runs in
-  // the background to refresh that cache entry for the *next* load. This
-  // used to be network-first - every single load of index.html/app.js/
-  // style.css waited on a live round trip before rendering anything, even on
-  // a repeat visit two seconds later. The trade-off is a page can be one
-  // deploy behind for a single load right after a release; it self-heals on
-  // the very next request, and index.html/app.js/style.css/sw.js are all
-  // still served with Cache-Control: no-cache from _headers, so the
-  // background fetch itself always revalidates against the origin.
+  // Network-first for the app shell itself. A stale-while-revalidate version
+  // of this was tried and reverted: this app is under active daily
+  // development (several deploys a day), and serving the *previous* cached
+  // version on the very first load after each deploy - self-healing only on
+  // the next request - meant every fix looked like it "didn't work" on the
+  // first test right after shipping it. Falls back to the cached shell only
+  // when offline or the network fails.
   event.respondWith(
-    caches.match(req).then((cached) => {
-      const fetchPromise = fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => cached || caches.match('/index.html'));
-      return cached || fetchPromise;
-    })
+    fetch(req)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+        return res;
+      })
+      .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
   );
 });
 
