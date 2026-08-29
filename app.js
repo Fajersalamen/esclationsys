@@ -74,6 +74,16 @@
     return map[msg] || 'Login failed, please try again.';
   }
 
+  // Spotlight effect on the login card: a soft glow that follows the cursor.
+  const loginFormPanel = document.querySelector('.login-form-panel');
+  if (loginFormPanel) {
+    loginFormPanel.addEventListener('mousemove', function (e) {
+      const rect = loginFormPanel.getBoundingClientRect();
+      loginFormPanel.style.setProperty('--spot-x', (e.clientX - rect.left) + 'px');
+      loginFormPanel.style.setProperty('--spot-y', (e.clientY - rect.top) + 'px');
+    });
+  }
+
   document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     hideLoginError();
