@@ -3109,10 +3109,10 @@
         <input type="text" class="track-input" maxlength="60" placeholder="${escapeHtml(trackPlaceholder)}" aria-label="${escapeHtml(trackPlaceholder)}">
       </div>
       <div class="card-actions">
-        <button class="copy-btn" type="button">${iconCopy}${copyTxt}</button>
+        <button class="copy-btn" type="button" title="${escapeHtml(copyTxt)}" aria-label="${escapeHtml(copyTxt)}">${iconCopy}</button>
         ${index >= 0 ? `
-          <button class="edit-btn" data-edit-idx="${index}">${iconEdit}${editTxt}</button>
-          <button class="delete-btn" data-del-idx="${index}">${iconDelete}${delTxt}</button>
+          <button class="edit-btn" data-edit-idx="${index}" title="${escapeHtml(editTxt)}" aria-label="${escapeHtml(editTxt)}">${iconEdit}</button>
+          <button class="delete-btn" data-del-idx="${index}" title="${escapeHtml(delTxt)}" aria-label="${escapeHtml(delTxt)}">${iconDelete}</button>
         ` : ''}
       </div>
     `;
@@ -3155,10 +3155,16 @@
         .then(({ error }) => { if (error) console.error('تعذّر تحديث عداد الاستخدام:', error.message); });
     }
 
-    btn.innerHTML = iconCheck + (isAr ? 'تم النسخ!' : 'Copied!');
+    const copyTitle = isAr ? 'نسخ النص' : 'Copy Text';
+    const copiedTitle = isAr ? 'تم النسخ!' : 'Copied!';
+    btn.innerHTML = iconCheck;
+    btn.title = copiedTitle;
+    btn.setAttribute('aria-label', copiedTitle);
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.innerHTML = iconCopy + (isAr ? 'نسخ النص' : 'Copy Text');
+      btn.innerHTML = iconCopy;
+      btn.title = copyTitle;
+      btn.setAttribute('aria-label', copyTitle);
       btn.classList.remove('copied');
       if (trackInput) trackInput.value = '';
     }, 1200);

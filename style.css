@@ -106,13 +106,25 @@
     .card-title { font-weight: 700; font-size: 14.5px; margin: 0 0 8px; color: var(--text-main); }
     .card-text { font-size: 13px; line-height: 1.65; color: var(--slate); margin: 0 0 14px; flex: 1; white-space: pre-line; }
     
-    .copy-btn { display: flex; align-items: center; gap: 6px; background: var(--card); color: var(--text-main); border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 13px; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .btn-icon { width: 14px; height: 14px; flex-shrink: 0; }
+    /* Icon-only action buttons: a soft neutral circle at rest, the function's
+       color only appears on hover/focus so the card-actions row stays quiet
+       until you actually reach for it. title="" attributes on the buttons
+       (see app.js) carry the label for accessibility/tooltips since there's
+       no visible text. */
+    .card-actions { justify-content: center; }
+    .copy-btn, .edit-btn, .delete-btn {
+      width: 38px; height: 38px; padding: 0; border-radius: 999px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card); border: 1.5px solid var(--border); color: var(--slate);
+      transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+    }
+    .btn-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .copy-btn:hover { border-color: var(--brand-teal); color: var(--brand-teal); }
     .copy-btn.copied { background: #0D9488; border-color: #0D9488; color: #fff; }
-    .delete-btn, .edit-btn { border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; align-items: center; gap: 5px; margin-inline-start: 6px; }
-    .delete-btn { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
-    .edit-btn { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-    .admin-mode .delete-btn, .admin-mode .edit-btn { display: inline-flex; }
+    .edit-btn:hover { border-color: #D97706; color: #D97706; background: rgba(217,119,6,.1); }
+    .delete-btn:hover { border-color: #B91C1C; color: #B91C1C; background: rgba(185,28,28,.1); }
+    .edit-btn, .delete-btn { display: none; margin-inline-start: 0; }
+    .admin-mode .delete-btn, .admin-mode .edit-btn { display: flex; }
     .admin-limited .delete-btn, .admin-limited .danger-btn { display: none !important; }
 
     footer { text-align: center; padding: 20px; color: var(--slate-soft); font-size: 11.5px; border-top: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -245,11 +257,7 @@
     .usage-badge { border-radius: 999px; font-size: 9.5px; padding: 3px 8px; }
     .card-title { font-size: 14px; margin-bottom: 8px; }
     .card-text { font-size: 12.5px; line-height: 1.75; margin-bottom: 16px; }
-    .card-actions { display: flex; align-items: center; gap: 6px; padding-top: 12px; border-top: 1px dashed var(--border); }
-    .copy-btn { border-radius: 5px; padding: 7px 11px; background: var(--text-main); border-color: var(--text-main); color: var(--card); }
-    .copy-btn:hover { opacity: .88; }
-    .copy-btn.copied { background: var(--brand-blue); border-color: var(--brand-blue); }
-    .edit-btn, .delete-btn { border-radius: 5px; margin-inline-start: 0; }
+    .card-actions { display: flex; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--border); }
     .empty-state { max-width: 1240px; margin: 40px auto; text-align: center; padding: 36px; border: 1px dashed var(--border); color: var(--slate); background: var(--card); border-radius: 6px; }
 
     .panel-overlay { background: rgba(10,15,18,.58); backdrop-filter: blur(2px); }
@@ -801,8 +809,6 @@
     .card-top { margin-bottom: 16px; padding-inline-end: 46px; }
     .badge { border-radius: 999px; }
     .card-actions { border-top: 1px solid color-mix(in srgb, var(--card-accent, var(--navy)) 14%, var(--border)); padding-top: 14px; }
-    .copy-btn { border-radius: 999px; padding: 7px 15px; }
-    .edit-btn, .delete-btn { border-radius: 999px; }
 
     /* ===== Masonry layout: variable-height columns instead of a uniform grid ===== */
     .grid {
