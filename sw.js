@@ -1,6 +1,6 @@
 // Minimal app-shell service worker. Only ever touches same-origin GET requests —
 // Supabase calls (auth, REST, realtime) are cross-origin and pass straight through untouched.
-const CACHE_VERSION = 'nova-shell-v4';
+const CACHE_VERSION = 'nova-shell-v5';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -30,16 +30,27 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   if (new URL(req.url).origin !== self.location.origin) return;
 
-  // Network-first for the app shell itself, so agents always get the latest scripts/logic
-  // when online; falls back to the cached shell when offline or the network fails.
+  // Stale-while-revalidate: serve instantly from cache when we have it (no
+  // network round trip on the critical path at all), while a fetch runs in
+  // the background to refresh that cache entry for the *next* load. This
+  // used to be network-first - every single load of index.html/app.js/
+  // style.css waited on a live round trip before rendering anything, even on
+  // a repeat visit two seconds later. The trade-off is a page can be one
+  // deploy behind for a single load right after a release; it self-heals on
+  // the very next request, and index.html/app.js/style.css/sw.js are all
+  // still served with Cache-Control: no-cache from _headers, so the
+  // background fetch itself always revalidates against the origin.
   event.respondWith(
-    fetch(req)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
-        return res;
-      })
-      .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
+    caches.match(req).then((cached) => {
+      const fetchPromise = fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => cached || caches.match('/index.html'));
+      return cached || fetchPromise;
+    })
   );
 });
 

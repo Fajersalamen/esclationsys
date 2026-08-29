@@ -293,15 +293,32 @@
   let SCRIPT_SUBMISSIONS = [];
   let MENTOR_REQUESTS = [];
 
-  // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول
+  // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول.
+  // كل الاستعلامات هون تنطلق مع بعض بنفس اللحظة (Promise.all واحد بس) بدل
+  // ما تنتظر وحدة الثانية بالدور — كانت مقسّمة لأربع مراحل متسلسلة (الجدول
+  // الأساسي، ثم الاقتراحات، ثم المساهمات، ثم طلبات الرعاية، ثم بيانات
+  // التدريب)، فكان وقت التحميل الكلي = مجموع وقت كل مرحلة بدل أطول مرحلة
+  // فيهم بس — وهذا كان يبطّئ كل تسجيل دخول لكل مستخدم.
   async function loadAllData() {
-    const [catRes, scrRes, genRes, critRes, etiqRes, updRes] = await Promise.all([
+    const sugPromise = isAdmin
+      ? sb.from('suggestions').select('*').order('id', { ascending: false })
+      : Promise.resolve({ data: [], error: null });
+
+    const [catRes, scrRes, genRes, critRes, etiqRes, updRes, sugRes, subRes, mentReqRes] = await Promise.all([
       sb.from('categories').select('*').order('created_at', { ascending: true }),
       sb.from('scripts').select('*').order('id', { ascending: true }),
       sb.from('general_info').select('*').order('id', { ascending: true }),
       sb.from('critical_items').select('*').order('id', { ascending: true }),
       sb.from('etiquette_items').select('*').order('id', { ascending: true }),
-      sb.from('updates').select('*').order('id', { ascending: false })
+      sb.from('updates').select('*').order('id', { ascending: false }),
+      // الاقتراحات يشوفها بس اللي عندهم صلاحية admin/team_leader
+      sugPromise,
+      // مساهمات السكريبتات: كل موظف يشوف مساهماته هو، والأدمن يشوفهم كلهم (RLS بتحدد هيك تلقائياً)
+      sb.from('script_submissions').select('*').order('id', { ascending: false }),
+      // طلبات الرعاية/التدريب — كل موظف يشوف بس الطلبات اللي هو طرف فيها (متدرب أو راعي)
+      sb.from('mentor_requests').select('*').order('id', { ascending: false }),
+      // بيانات مركز التدريب (Dynamic) — يتم تحميلها لكل المستخدمين (RLS بتحدد شو يوصلهم فعلياً)
+      loadTrainingData()
     ]);
 
     CATEGORIES = catRes.error ? DEFAULT_CATEGORIES : (catRes.data || []).map(c => ({ key: c.key, label: c.label, labelAr: c.label_ar, color: c.color }));
@@ -310,31 +327,15 @@
     CRITICAL_ITEMS = critRes.error ? DEFAULT_CRITICAL_ITEMS.map(t => ({ text: t })) : (critRes.data || []).map(c => ({ id: c.id, text: c.text, textAr: c.text_ar }));
     ETIQUETTE_ITEMS = etiqRes.error ? DEFAULT_ETIQUETTE_ITEMS.map(t => ({ text: t })) : (etiqRes.data || []).map(e => ({ id: e.id, text: e.text, textAr: e.text_ar }));
     UPDATES = updRes.error ? [] : (updRes.data || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
-
-    // الاقتراحات يشوفها بس اللي عندهم صلاحية admin/team_leader
-    if (isAdmin) {
-      const sugRes = await sb.from('suggestions').select('*').order('id', { ascending: false });
-      SUGGESTIONS = sugRes.error ? [] : (sugRes.data || []).map(s => ({ id: s.id, name: s.name, text: s.text, createdAt: new Date(s.created_at).getTime() }));
-    } else {
-      SUGGESTIONS = [];
-    }
-
-    // مساهمات السكريبتات: كل موظف يشوف مساهماته هو، والأدمن يشوفهم كلهم (RLS بتحدد هيك تلقائياً)
-    const subRes = await sb.from('script_submissions').select('*').order('id', { ascending: false });
+    SUGGESTIONS = sugRes.error ? [] : (sugRes.data || []).map(s => ({ id: s.id, name: s.name, text: s.text, createdAt: new Date(s.created_at).getTime() }));
     SCRIPT_SUBMISSIONS = subRes.error ? [] : (subRes.data || []).map(s => ({
       id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar,
       submittedBy: s.submitted_by, status: s.status, createdAt: new Date(s.created_at).getTime()
     }));
-
-    // طلبات الرعاية/التدريب — كل موظف يشوف بس الطلبات اللي هو طرف فيها (متدرب أو راعي)
-    const mentReqRes = await sb.from('mentor_requests').select('*').order('id', { ascending: false });
     MENTOR_REQUESTS = mentReqRes.error ? [] : (mentReqRes.data || []).map(r => ({
       id: r.id, traineeEmail: r.trainee_email, mentorEmail: r.mentor_email, note: r.note,
       status: r.status, createdAt: new Date(r.created_at).getTime()
     }));
-
-    // بيانات مركز التدريب (Dynamic) — يتم تحميلها لكل المستخدمين (RLS بتحدد شو يوصلهم فعلياً)
-    await loadTrainingData();
   }
 
   // ===================== Online Users (Presence) =====================
