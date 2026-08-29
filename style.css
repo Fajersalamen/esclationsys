@@ -535,36 +535,6 @@
       display: block; margin: 16px auto 0; background: none; border: none; cursor: pointer;
       font-size: 11.5px; color: var(--brand-blue); font-family: inherit; text-decoration: underline;
     }
-    /* Animated typing chat-bubbles overlay on the login image panel */
-    .chat-animation {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-start;
-      direction: ltr; padding: 60px 0 60px 100px; pointer-events: none; overflow: hidden;
-    }
-    .chat-bubble-track {
-      display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px;
-    }
-    .chat-bubble {
-      align-self: flex-start; max-width: 82%; padding: 12px 17px; border-radius: 16px 16px 16px 4px;
-      background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.7);
-      backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
-      color: #14202B; font-size: 19px; font-weight: 600; line-height: 1.55; font-family: 'Inter', sans-serif;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.22);
-      opacity: 0; transform: translateY(10px) scale(0.98);
-      transition: opacity .45s ease, transform .45s ease, background .3s ease, color .3s ease, border-color .3s ease;
-      white-space: pre-wrap; word-break: break-word;
-    }
-    body.dark-mode .chat-bubble {
-      background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.9);
-    }
-    .chat-bubble.from-agent { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: rgba(11,132,255,0.3); border-color: rgba(11,132,255,0.5); }
-    body.dark-mode .chat-bubble.from-agent { background: rgba(11,132,255,0.18); border-color: rgba(11,132,255,0.3); }
-    .chat-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-    .chat-bubble.fade-out { opacity: 0; transform: translateY(-8px) scale(0.98); }
-    .chat-caret {
-      display: inline-block; width: 2px; height: 1em; margin-inline-start: 2px;
-      background: currentColor; vertical-align: -0.15em; animation: caretBlink .85s steps(1) infinite;
-    }
-    @keyframes caretBlink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
     @media (max-width: 860px) {
       .login-image-panel { display: none; }
