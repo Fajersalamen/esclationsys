@@ -377,43 +377,43 @@
 
 <!-- General Info Panel -->
 <div class="side-panel" id="generalPanel">
-  <div class="panel-head"><h2 style="color:#bf7a2b;" id="hGenInfo">General Information</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div class="panel-head"><h2 id="hGenInfo">General Information</h2><button class="panel-close" aria-label="Close">×</button></div>
   <div id="generalList"></div>
 </div>
 
 <!-- Etiquette Panel -->
 <div class="side-panel" id="etiquettePanel">
-  <div class="panel-head"><h2 style="color:var(--brand-blue);" id="hEtiqCall">Etiquette Call</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div class="panel-head"><h2 id="hEtiqCall">Etiquette Call</h2><button class="panel-close" aria-label="Close">×</button></div>
   <div id="etiquetteList"></div>
 </div>
 
 <!-- Critical Panel -->
 <div class="side-panel" id="criticalPanel">
-  <div class="panel-head"><h2 style="color:#B5473D;" id="hCritMist">Critical Mistakes</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div class="panel-head"><h2 id="hCritMist">Critical Mistakes</h2><button class="panel-close" aria-label="Close">×</button></div>
   <div id="criticalList"></div>
 </div>
 
 <!-- Suggestion Panel -->
 <div class="side-panel" id="suggestPanel">
-  <div class="panel-head"><h2 style="color:#be185d;" id="hSuggest">💡 اقتراح جديد</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div class="panel-head"><h2 id="hSuggest">💡 اقتراح جديد</h2><button class="panel-close" aria-label="Close">×</button></div>
   <p style="font-size:12.5px; color:var(--slate); margin-top:0;" id="lblSuggestDesc">شاركنا اقتراحك لتحسين العمل — يصل مباشرة للإدارة فقط.</p>
   <div id="suggestSenderRow" style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--slate); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:10px;">
     <span id="lblSuggestAs">سيصل الاقتراح باسم:</span>
     <span id="suggestSenderEmail" style="font-weight:700; color:var(--text-main);">—</span>
   </div>
   <textarea id="suggestText" rows="5" maxlength="2000" placeholder="اكتب اقتراحك هنا..." style="width:100%; margin-bottom:10px;"></textarea>
-  <button id="btnSubmitSuggest" style="width:100%; background:#be185d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال الاقتراح</button>
+  <button id="btnSubmitSuggest" style="width:100%; background:var(--panel-accent); color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال الاقتراح</button>
 </div>
 
 <!-- Contribute a Fix Panel -->
 <div class="side-panel" id="contributePanel">
-  <div class="panel-head"><h2 style="color:#D97706;" id="hContribute">📚 ساهم بحل</h2><button class="panel-close" aria-label="Close">×</button></div>
+  <div class="panel-head"><h2 id="hContribute">📚 ساهم بحل</h2><button class="panel-close" aria-label="Close">×</button></div>
   <p style="font-size:12.5px; color:var(--slate); margin-top:0;" id="lblContribDesc">واجهت موقف ما إلو سكريبت جاهز وحليته بنفسك؟ شاركه هون — الأدمن بيراجعه وممكن يضيفه للمكتبة الرسمية.</p>
   <label style="font-size:12px; font-weight:600;" id="lblContribCat">التصنيف:</label>
   <select id="contributeCat" style="width:100%; margin-bottom:8px; margin-top:4px;"></select>
   <input type="text" id="contributeTitle" maxlength="120" placeholder="عنوان السكريبت..." style="width:100%; margin-bottom:8px;">
   <textarea id="contributeText" rows="5" maxlength="4000" placeholder="نص الحل..." style="width:100%; margin-bottom:10px;"></textarea>
-  <button id="btnSubmitContribute" style="width:100%; background:#D97706; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال للمراجعة</button>
+  <button id="btnSubmitContribute" style="width:100%; background:var(--panel-accent); color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">إرسال للمراجعة</button>
 
   <p style="font-size:12px; font-weight:700; margin:18px 0 6px; color:var(--text-main);" id="lblMyContribs">مساهماتي:</p>
   <div id="myContributionsList"></div>
