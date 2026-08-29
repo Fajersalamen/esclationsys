@@ -210,6 +210,7 @@ drop policy if exists "updates_delete_full_admin" on public.updates;
 drop policy if exists "read_updates_policy" on public.updates;
 drop policy if exists "insert_updates_policy" on public.updates;
 drop policy if exists "delete_updates_policy" on public.updates;
+drop policy if exists "update_updates_policy" on public.updates;
 
 drop policy if exists "suggestions_insert_own_email" on public.suggestions;
 drop policy if exists "suggestions_select_admin" on public.suggestions;
@@ -319,7 +320,11 @@ begin
   end loop;
 end $$;
 
--- updates — same read-all/write-admin shape.
+-- updates — same read-all/write-admin shape. No UPDATE policy: app.js
+-- only ever inserts a new update or deletes one, never edits an
+-- existing row in place, so none is granted (a leftover admin-only
+-- UPDATE policy from the legacy dashboard-created generation was
+-- dropped above for exactly this reason).
 alter table public.updates enable row level security;
 create policy "updates_select_authenticated" on public.updates
   for select using (auth.role() = 'authenticated');
