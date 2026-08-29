@@ -39,7 +39,11 @@
     }
 
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Cairo', 'Inter', sans-serif; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+    /* The home page (header + full-screen hero) is designed to fit one screen —
+       no scrolling needed there. Every other "page" (Scripts, Tech Issues, etc.)
+       is its own fixed-position overlay with its own independent overflow-y:auto,
+       so locking body scroll here doesn't affect scrolling inside them. */
+    body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Cairo', 'Inter', sans-serif; min-height: 100vh; overflow: hidden; transition: background 0.3s, color 0.3s; }
     /* Suspended for one frame during the dark/light toggle (see toggleTheme in
        app.js) so every element recolors together instead of a staggered wave. */
     html.theme-switching, html.theme-switching * { transition: none !important; animation-duration: 0s !important; }
