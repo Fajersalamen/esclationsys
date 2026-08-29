@@ -137,12 +137,20 @@
   function toggleProfileMenu() {
     const dd = document.getElementById('profileDropdown');
     const btn = document.getElementById('profileBtn');
+    const wasOpen = dd.classList.contains('open');
     const isOpen = dd.classList.toggle('open');
     btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    // Same idea as the side panels: don't leave the hero's background animations
+    // competing with this dropdown's own open/close transition for frame budget.
+    if (isOpen && !wasOpen) pauseCmdHero();
+    else if (!isOpen && wasOpen) resumeCmdHero();
   }
   function closeProfileMenu() {
-    document.getElementById('profileDropdown').classList.remove('open');
+    const dd = document.getElementById('profileDropdown');
+    const wasOpen = dd.classList.contains('open');
+    dd.classList.remove('open');
     document.getElementById('profileBtn').setAttribute('aria-expanded', 'false');
+    if (wasOpen) resumeCmdHero();
   }
   document.addEventListener('click', function (e) {
     const menu = document.getElementById('profileMenu');
@@ -1778,8 +1786,20 @@
   // overlay (Tech Issues, Training, Mentorship, Updates) is open on top of it, since
   // those slide in with transform/opacity rather than unmounting the hero. Pause them
   // while any such page is open so the browser isn't animating an invisible section.
-  function pauseCmdHero() { document.body.classList.add('cmd-hero-paused'); }
-  function resumeCmdHero() { document.body.classList.remove('cmd-hero-paused'); }
+  // Reference-counted (not a plain toggle) because a side panel (General Info,
+  // Suggest, ...) can now also request a pause while it's opened from *within* an
+  // already-paused full-page overlay (e.g. the Training page's "suggest" footer
+  // button) - closing just the panel must not wake the hero back up under a page
+  // that's still open behind it.
+  let cmdHeroPauseCount = 0;
+  function pauseCmdHero() {
+    cmdHeroPauseCount++;
+    document.body.classList.add('cmd-hero-paused');
+  }
+  function resumeCmdHero() {
+    cmdHeroPauseCount = Math.max(0, cmdHeroPauseCount - 1);
+    if (cmdHeroPauseCount === 0) document.body.classList.remove('cmd-hero-paused');
+  }
 
   function openScriptsPage() {
     closePanels();
@@ -3514,13 +3534,22 @@
     }).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">${isArAdmin ? 'لا توجد مساهمات بعد.' : 'No contributions yet.'}</div>`;
   }
 
+  // Opening a side panel used to leave the whole animated hero background (blurred
+  // drifting blobs, flowing glow lines, the particle canvas) running at full cost
+  // right underneath it - competing with the panel's own slide-in/backdrop-blur
+  // transition for the same frame budget and making that transition visibly janky.
+  // Pausing it for the moment the panel is open removes that competition; the hero
+  // is dimmed behind the panel overlay anyway, so nothing is visually lost.
   function openPanel(type) {
     document.getElementById('overlay').classList.add('show');
     document.getElementById(type + 'Panel').classList.add('open');
+    pauseCmdHero();
   }
   function closePanels() {
+    const wasAnyOpen = document.querySelector('.side-panel.open') !== null;
     document.getElementById('overlay').classList.remove('show');
     document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+    if (wasAnyOpen) resumeCmdHero();
   }
   function closePanelsByUser() {
     closePanels();
