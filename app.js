@@ -1485,7 +1485,7 @@
     document.documentElement.dir = isAr ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLang;
 
-    document.getElementById('langBtnText').textContent = isAr ? 'English' : 'العربية';
+    document.getElementById('langBtnText').textContent = isAr ? 'EN' : 'AR';
     document.getElementById('logoutBtnText').textContent = isAr ? 'خروج' : 'Logout';
     document.getElementById('profileRoleLabel').textContent = isAr ? 'موظف' : 'Employee';
     document.getElementById('searchInput').placeholder = isAr ? 'البحث بالعنوان أو محتوى الرد...' : 'Search by title or response content...';
