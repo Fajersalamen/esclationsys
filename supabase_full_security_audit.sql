@@ -171,7 +171,17 @@ drop policy if exists "Allow authenticated read on user_presence" on public.user
 drop policy if exists "user_presence_select_admin_or_own" on public.user_presence;
 drop policy if exists "user_presence_upsert_own" on public.user_presence;
 drop policy if exists "user_presence_update_own" on public.user_presence;
+drop policy if exists "users can upsert own presence" on public.user_presence;
+drop policy if exists "users can update own presence" on public.user_presence;
 
+-- NOTE: the live database turned out to carry a THIRD generation of
+-- policies on the original core tables, never reflected in any file in
+-- this repo — almost certainly created by hand once, early on, via the
+-- Supabase Dashboard's "New Policy" template UI (which is exactly where
+-- names like "Allow authenticated read on X" / "delete X - admin only"
+-- / "X_delete_policy" come from). Found live via this script's own
+-- PART 2 duplicate check. All three generations' names are dropped
+-- below so this finally converges regardless of history.
 do $$
 declare
   t text;
@@ -181,20 +191,38 @@ begin
     execute format('drop policy if exists "%s_insert_admin" on public.%I;', t, t);
     execute format('drop policy if exists "%s_update_admin" on public.%I;', t, t);
     execute format('drop policy if exists "%s_delete_full_admin" on public.%I;', t, t);
+    -- generation 3: "<table>_<cmd>_policy"
+    execute format('drop policy if exists "%s_select_policy" on public.%I;', t, t);
+    execute format('drop policy if exists "%s_insert_policy" on public.%I;', t, t);
+    execute format('drop policy if exists "%s_update_policy" on public.%I;', t, t);
+    execute format('drop policy if exists "%s_delete_policy" on public.%I;', t, t);
+    -- generation 3b: dashboard-template free-text names
+    execute format('drop policy if exists "Allow authenticated read on %s" on public.%I;', t, t);
+    execute format('drop policy if exists "write %s - admin team_leader" on public.%I;', t, t);
+    execute format('drop policy if exists "update %s - admin team_leader" on public.%I;', t, t);
+    execute format('drop policy if exists "delete %s - admin only" on public.%I;', t, t);
   end loop;
 end $$;
 
 drop policy if exists "updates_select_authenticated" on public.updates;
 drop policy if exists "updates_insert_admin" on public.updates;
 drop policy if exists "updates_delete_full_admin" on public.updates;
+drop policy if exists "read_updates_policy" on public.updates;
+drop policy if exists "insert_updates_policy" on public.updates;
+drop policy if exists "delete_updates_policy" on public.updates;
 
 drop policy if exists "suggestions_insert_own_email" on public.suggestions;
 drop policy if exists "suggestions_select_admin" on public.suggestions;
 drop policy if exists "suggestions_delete_full_admin" on public.suggestions;
+drop policy if exists "suggestions_select_policy" on public.suggestions;
+drop policy if exists "suggestions_insert_policy" on public.suggestions;
+drop policy if exists "suggestions_delete_policy" on public.suggestions;
 
 drop policy if exists "technical_issues_select_authenticated" on public.technical_issues;
 drop policy if exists "technical_issues_insert_own_email" on public.technical_issues;
 drop policy if exists "technical_issues_delete_full_admin" on public.technical_issues;
+drop policy if exists "insert technical_issues - own email only" on public.technical_issues;
+drop policy if exists "delete technical_issues - admin only" on public.technical_issues;
 
 do $$
 declare
@@ -207,12 +235,23 @@ begin
     execute format('drop policy if exists "%s_delete_full_admin" on public.%I;', t, t);
   end loop;
 end $$;
+drop policy if exists "read active problems or admin" on public.training_problems;
+drop policy if exists "admins can insert problems" on public.training_problems;
+drop policy if exists "admins can update problems" on public.training_problems;
+drop policy if exists "full admins can delete problems" on public.training_problems;
+drop policy if exists "read active nodes or admin" on public.training_nodes;
+drop policy if exists "admins can insert nodes" on public.training_nodes;
+drop policy if exists "admins can update nodes" on public.training_nodes;
+drop policy if exists "full admins can delete nodes" on public.training_nodes;
 
 drop policy if exists "training_options_select_visible" on public.training_options;
 drop policy if exists "read options of visible nodes or admin" on public.training_options;
 drop policy if exists "training_options_insert_admin" on public.training_options;
 drop policy if exists "training_options_update_admin" on public.training_options;
 drop policy if exists "training_options_delete_full_admin" on public.training_options;
+drop policy if exists "admins can insert options" on public.training_options;
+drop policy if exists "admins can update options" on public.training_options;
+drop policy if exists "full admins can delete options" on public.training_options;
 
 drop policy if exists "script_submissions_select_own_or_admin" on public.script_submissions;
 drop policy if exists "script_submissions_insert_own_email" on public.script_submissions;
