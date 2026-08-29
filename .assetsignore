@@ -1,0 +1,9 @@
+# Cloudflare Workers Assets: files matched here are never uploaded or
+# publicly served, even though wrangler.jsonc points assets.directory at
+# the whole repo ("./"). Without this file, everything below was being
+# deployed as a public static file on the live site.
+.claude/
+supabase/
+supabase_*.sql
+wrangler.jsonc
+.gitignore
