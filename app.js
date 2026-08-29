@@ -1721,13 +1721,26 @@
         if (p.x < 0 || p.x > W) p.vx *= -1;
         if (p.y < 0 || p.y > H) p.vy *= -1;
       }
+      // This inner loop runs once per pair of particles, every single frame
+      // (~8,400 pairs/frame at the default ~130-particle count on a full HD
+      // screen) - it was the single hottest spot in the whole app, so every
+      // operation inside it is deliberately as cheap as possible: bail out on
+      // a plain subtraction before ever touching Math.sqrt (only needed once
+      // per qualifying pair, not per candidate pair), and reuse one strokeStyle
+      // string on the rare frame where nothing is close enough to connect.
+      const maxDist = 120, maxDistSq = maxDist * maxDist;
       for (let i = 0; i < points.length; i++) {
+        const a = points[i];
         for (let j = i + 1; j < points.length; j++) {
-          const a = points[i], b = points[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.strokeStyle = `rgba(20,184,166,${0.16 * (1 - dist / 120)})`;
+          const b = points[j];
+          const dx = a.x - b.x;
+          if (dx > maxDist || dx < -maxDist) continue;
+          const dy = a.y - b.y;
+          if (dy > maxDist || dy < -maxDist) continue;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < maxDistSq) {
+            const dist = Math.sqrt(distSq);
+            ctx.strokeStyle = `rgba(20,184,166,${0.16 * (1 - dist / maxDist)})`;
             ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
           }
