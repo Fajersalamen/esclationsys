@@ -379,14 +379,27 @@
       const uid = user && user.id;
       if (!uid) return;
       checkSystemLock();
-      if (isNewSession || !currentSessionStartedAt) currentSessionStartedAt = new Date().toISOString();
-      const { error } = await sb.from('user_presence').upsert({
+      const isFreshLogin = isNewSession || !currentSessionStartedAt;
+      if (isFreshLogin) currentSessionStartedAt = new Date().toISOString();
+      const { data: presRow, error } = await sb.from('user_presence').upsert({
         user_id: uid,
         email: currentUserEmail,
         session_started_at: currentSessionStartedAt,
         last_seen: new Date().toISOString()
-      }, { onConflict: 'user_id' });
+      }, { onConflict: 'user_id' }).select('force_logout_at').single();
       if (error) console.warn('تعذّر تحديث حالة الاتصال (presence):', error.message);
+      // An admin can force-logout a specific person from the Online Users list
+      // (stamps this same row's force_logout_at). If that stamp is newer than
+      // when THIS session started, it targets us — sign out right here, no
+      // refresh needed. A fresh login always sets a later session_started_at,
+      // so this naturally stops matching after logging back in - nothing to
+      // reset. Skipped on the very login that just set currentSessionStartedAt,
+      // since a stale stamp from a previous session shouldn't kill the new one.
+      if (!isFreshLogin && presRow && presRow.force_logout_at &&
+          new Date(presRow.force_logout_at) > new Date(currentSessionStartedAt)) {
+        stopPresenceHeartbeat();
+        await sb.auth.signOut();
+      }
     } catch (err) {
       console.warn('presence heartbeat error:', err);
     }
@@ -572,6 +585,20 @@
     return `${day}d ago`;
   }
 
+  async function forceLogoutUser(userId, email) {
+    const isAr = currentLang === 'ar';
+    const msg = isAr
+      ? `تسجيل خروج "${email}" فورًا من كل الأجهزة اللي عندو فاتحها؟`
+      : `Sign "${email}" out immediately from every device they have open?`;
+    if (!confirm(msg)) return;
+    const { error } = await sb.from('user_presence').update({ force_logout_at: new Date().toISOString() }).eq('user_id', userId);
+    if (error) {
+      showToast(isAr ? 'تعذّر تنفيذ العملية.' : 'Could not complete the action.', 'error');
+      return;
+    }
+    showToast(isAr ? 'تم — رح يطلع خلال ٢٠ ثانية بدون رفرش.' : 'Done — they\'ll be signed out within 20s, no refresh needed.', 'success');
+  }
+
   function renderPresenceList() {
     const isAr = currentLang === 'ar';
     const body = document.getElementById('presenceTableBody');
@@ -595,19 +622,31 @@
     const timeFn = isAr ? relativeTimeAr : relativeTimeEn;
     const loginTimeFmt = (iso) => iso ? new Date(iso).toLocaleString(isAr ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
 
+    const iconLogout = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8"></path><path d="M18 15l4-3-4-3"></path><path d="M22 12H10"></path></svg>`;
+    const canForceLogout = adminRole === 'full';
+
     body.innerHTML = PRESENCE_USERS.map(u => {
       const statusText = u.isOnline ? (isAr ? 'متصل' : 'Online') : (isAr ? 'غير متصل' : 'Offline');
       const lastActiveText = timeFn(now - new Date(u.lastSeen).getTime());
       const loginTimeText = u.isOnline ? loginTimeFmt(u.sessionStartedAt) : '—';
       const initials = (u.email || '؟').trim().slice(0, 2).toUpperCase();
+      const isSelf = u.email && currentUserEmail && u.email.toLowerCase() === currentUserEmail.toLowerCase();
+      const actionCell = (canForceLogout && !isSelf)
+        ? `<button class="presence-logout-btn" data-force-logout="${escapeHtml(u.userId)}" data-force-logout-email="${escapeHtml(u.email || '')}" title="${isAr ? 'تسجيل خروج فوري' : 'Force logout'}" aria-label="${isAr ? 'تسجيل خروج فوري' : 'Force logout'}">${iconLogout}</button>`
+        : '';
       return `<tr>
         <td><span class="presence-dot ${u.isOnline ? 'on' : 'off'}" title="${escapeHtml(statusText)}"></span></td>
         <td><span class="presence-user" title="${escapeHtml(u.email || '')}">${escapeHtml(u.email || initials)}</span></td>
         <td><span class="presence-status-pill ${u.isOnline ? 'on' : 'off'}">${statusText}</span></td>
         <td class="presence-time">${lastActiveText}</td>
         <td class="presence-time">${loginTimeText}</td>
+        <td>${actionCell}</td>
       </tr>`;
     }).join('');
+
+    body.querySelectorAll('[data-force-logout]').forEach(btn => {
+      btn.addEventListener('click', () => forceLogoutUser(btn.dataset.forceLogout, btn.dataset.forceLogoutEmail));
+    });
   }
   // ===================== End Online Users (Presence) =====================
 
@@ -3860,7 +3899,13 @@
   // the (short) wait for anyone who clicks it first.
   if ('serviceWorker' in navigator) {
     let refreshingForUpdate = false;
+    // clients.claim() in sw.js's activate handler ALSO fires controllerchange
+    // on a page's very first-ever visit (going from no controller to
+    // controlled) - not just on real updates. Ignore that first transition,
+    // or every fresh session would reload itself once for no reason.
+    let hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController) { hadController = true; return; }
       if (refreshingForUpdate) return;
       refreshingForUpdate = true;
       window.location.reload();

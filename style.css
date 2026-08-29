@@ -1503,6 +1503,14 @@
     .presence-status-pill.on { background: rgba(22,163,74,.12); color: #16A34A; }
     .presence-status-pill.off { background: color-mix(in srgb, var(--slate-soft) 16%, transparent); color: var(--slate); }
     .presence-time { color: var(--slate-soft); font-size: 11px; white-space: nowrap; }
+    .presence-logout-btn {
+      width: 30px; height: 30px; padding: 0; border-radius: 999px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card); border: 1.5px solid var(--border); color: var(--slate);
+      transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+    }
+    .presence-logout-btn:hover { border-color: #B91C1C; color: #B91C1C; background: rgba(185,28,28,.1); }
+    .presence-logout-btn:active { transform: scale(.92); }
     .presence-empty { text-align: center; padding: 26px 10px; color: var(--slate-soft); font-size: 12px; }
 
     /* ===== Shipment tracking number field (on script cards) ===== */
