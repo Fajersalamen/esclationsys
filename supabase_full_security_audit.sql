@@ -271,6 +271,7 @@ drop policy if exists "mentor_messages_select_participant" on public.mentor_mess
 drop policy if exists "mentor_messages_select_own_thread" on public.mentor_messages;
 drop policy if exists "mentor_messages_insert_participant" on public.mentor_messages;
 drop policy if exists "mentor_messages_insert_own_thread" on public.mentor_messages;
+drop policy if exists "mentor_messages_insert_accepted_participant" on public.mentor_messages;
 drop policy if exists "mentor_messages_delete_full_admin" on public.mentor_messages;
 
 drop policy if exists "push_subscriptions_insert_own" on public.push_subscriptions;
