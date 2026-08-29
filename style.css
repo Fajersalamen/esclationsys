@@ -333,6 +333,23 @@
     ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--brand-blue), var(--brand-teal)); border-radius: 10px; border: 2px solid var(--bg); }
     ::-webkit-scrollbar-thumb:hover { background: var(--brand-teal); }
 
+    /* Maintenance kill-switch overlay — blocks the app for everyone except
+       full admins while public.system_lock.locked is true. Hidden by
+       default; app.js toggles the .show class once it polls the flag. */
+    .maintenance-overlay {
+      display: none; position: fixed; inset: 0; z-index: 400; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--bg) 96%, transparent); backdrop-filter: blur(6px);
+      padding: 20px; text-align: center;
+    }
+    .maintenance-overlay.show { display: flex; }
+    .maintenance-card {
+      max-width: 380px; padding: 36px 30px; border-radius: 18px; background: var(--card);
+      border: 1px solid var(--border); box-shadow: 0 24px 60px -24px rgba(0,0,0,.35);
+    }
+    .maintenance-icon { font-size: 34px; display: block; margin-bottom: 14px; }
+    .maintenance-card h2 { font-size: 17px; margin: 0 0 8px; color: var(--text-main); }
+    .maintenance-card p { font-size: 13px; line-height: 1.7; color: var(--slate); margin: 0; white-space: pre-line; }
+
     /* First-visit-of-the-day splash */
     .splash-overlay {
       position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
