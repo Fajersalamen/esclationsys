@@ -3848,13 +3848,23 @@
   }
 
   // ====== PWA: install the app-shell service worker (icons/scripts only — Supabase calls pass straight through) ======
-  // Also watches for a freshly-deployed build and prompts the user to refresh, instead of them
-  // having to notice on their own and hit reload manually.
-  function showUpdateToast() {
-    const el = document.getElementById('swUpdateToast');
-    if (el) el.classList.add('show');
-  }
+  // Also watches for a freshly-deployed build and reloads automatically once
+  // it's live, instead of leaving people on a stale version until they
+  // happen to notice and refresh by hand. sw.js already calls
+  // self.skipWaiting() unconditionally on install and self.clients.claim()
+  // on activate, so a newly-installed worker takes over this page's
+  // controller on its own within moments — "controllerchange" firing here
+  // is exactly that moment, and is what actually triggers the reload. The
+  // toast shown at "installed" is only a heads-up a beat earlier, so the
+  // reload doesn't feel like an unexplained jump; #swUpdateBtn just skips
+  // the (short) wait for anyone who clicks it first.
   if ('serviceWorker' in navigator) {
+    let refreshingForUpdate = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshingForUpdate) return;
+      refreshingForUpdate = true;
+      window.location.reload();
+    });
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').then((reg) => {
         reg.addEventListener('updatefound', () => {
@@ -3864,7 +3874,8 @@
             // A worker reaching "installed" while an existing controller is active means
             // this is an update, not the very first install — that's when we prompt.
             if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateToast();
+              const el = document.getElementById('swUpdateToast');
+              if (el) el.classList.add('show');
             }
           });
         });
