@@ -3941,19 +3941,24 @@
   // ETag/Last-Modified caching header every static file server already sends.
   // Works identically everywhere, PWA or plain tab, any browser.
   (function watchForNewDeployByETag() {
-    let knownTag = null;
+    // Compares the actual response body (length + a slice from each end),
+    // not a caching header - HEAD + ETag/Last-Modified turned out to not be
+    // reliable enough to trust here, and this can't fail to detect a real
+    // change since it never depends on any specific header being present.
+    let knownSignature = null;
     let reloadingForNewDeploy = false;
     async function checkForNewDeploy() {
       if (reloadingForNewDeploy) return;
       try {
-        const res = await fetch('/app.js', { method: 'HEAD', cache: 'no-store' });
-        const tag = res.headers.get('etag') || res.headers.get('last-modified');
+        const res = await fetch('/app.js', { cache: 'no-store' });
+        const text = await res.text();
+        const signature = text.length + ':' + text.slice(0, 300) + text.slice(-300);
         // Temporary diagnostic — remove once we confirm this actually runs
         // against the live site. Open DevTools Console (F12) to see it.
-        console.log('[deploy-check]', new Date().toLocaleTimeString(), 'status:', res.status, 'tag:', tag, 'known:', knownTag);
-        if (!tag) return;
-        if (knownTag === null) { knownTag = tag; return; }
-        if (tag !== knownTag) {
+        console.log('[deploy-check]', new Date().toLocaleTimeString(), 'status:', res.status, 'len:', text.length, 'known:', knownSignature === null ? 'null (first check)' : 'set');
+        if (knownSignature === null) { knownSignature = signature; return; }
+        if (signature !== knownSignature) {
+          console.log('[deploy-check] CHANGE DETECTED — reloading now');
           reloadingForNewDeploy = true;
           window.location.reload();
         }
@@ -3962,7 +3967,7 @@
       }
     }
     checkForNewDeploy();
-    setInterval(checkForNewDeploy, 60 * 1000);
+    setInterval(checkForNewDeploy, 20 * 1000);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') checkForNewDeploy();
     });
