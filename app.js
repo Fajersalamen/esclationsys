@@ -3948,13 +3948,18 @@
       try {
         const res = await fetch('/app.js', { method: 'HEAD', cache: 'no-store' });
         const tag = res.headers.get('etag') || res.headers.get('last-modified');
+        // Temporary diagnostic — remove once we confirm this actually runs
+        // against the live site. Open DevTools Console (F12) to see it.
+        console.log('[deploy-check]', new Date().toLocaleTimeString(), 'status:', res.status, 'tag:', tag, 'known:', knownTag);
         if (!tag) return;
         if (knownTag === null) { knownTag = tag; return; }
         if (tag !== knownTag) {
           reloadingForNewDeploy = true;
           window.location.reload();
         }
-      } catch (err) { /* offline or blocked right now — just try again next tick */ }
+      } catch (err) {
+        console.log('[deploy-check] ERROR:', err.message);
+      }
     }
     checkForNewDeploy();
     setInterval(checkForNewDeploy, 60 * 1000);
