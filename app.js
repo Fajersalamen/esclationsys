@@ -3924,7 +3924,7 @@
             }
           });
         });
-        setInterval(() => reg.update().catch(() => {}), 10 * 60 * 1000);
+        setInterval(() => reg.update().catch(() => {}), 2 * 60 * 1000);
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') reg.update().catch(() => {});
         });
