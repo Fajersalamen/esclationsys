@@ -74,6 +74,31 @@
     return map[msg] || 'Login failed, please try again.';
   }
 
+  // ====== Cloudflare Turnstile (bot/brute-force protection on the login card) ======
+  // The actual verification happens server-side inside Supabase Auth (it holds the
+  // secret key) — this only collects the token and hands it to signInWithPassword() /
+  // resetPasswordForEmail(). Until CAPTCHA protection is turned on in the Supabase
+  // dashboard, Supabase just ignores this token, so shipping this has zero effect on
+  // login until that flip is made on their end.
+  const TURNSTILE_SITE_KEY = '0x4AAAAAAEiJuT9Mbp7DSKSf';
+  let turnstileWidgetId = null;
+  let turnstileToken = null;
+  function onTurnstileApiLoad() {
+    const el = document.getElementById('turnstileWidget');
+    if (!el || typeof turnstile === 'undefined') return;
+    turnstileWidgetId = turnstile.render(el, {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+      callback: (token) => { turnstileToken = token; },
+      'expired-callback': () => { turnstileToken = null; },
+      'error-callback': () => { turnstileToken = null; }
+    });
+  }
+  function resetTurnstile() {
+    turnstileToken = null;
+    if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') turnstile.reset(turnstileWidgetId);
+  }
+
   // Spotlight effect on the login card: a soft glow that follows the cursor.
   const loginFormPanel = document.querySelector('.login-form-panel');
   if (loginFormPanel) {
@@ -161,7 +186,7 @@
     btn.disabled = true;
     spinner.style.display = 'inline-block';
     text.style.opacity = '0.6';
-    sb.auth.signInWithPassword({ email, password: pass })
+    sb.auth.signInWithPassword({ email, password: pass, options: { captchaToken: turnstileToken } })
       .then(({ error }) => {
         if (error) {
           showLoginError(authErrorMessage(error.message));
@@ -174,6 +199,7 @@
         spinner.style.display = 'none';
         text.style.opacity = '1';
         applyLoginLockoutUI();
+        resetTurnstile();
       });
   });
 
@@ -183,11 +209,12 @@
       showLoginError('Enter your email above first, then click "Forgot password" again.');
       return;
     }
-    sb.auth.resetPasswordForEmail(email)
+    sb.auth.resetPasswordForEmail(email, { captchaToken: turnstileToken })
       .then(({ error }) => {
         if (error) showLoginError(authErrorMessage(error.message));
         else showLoginError('✅ A reset link was sent to your email.');
-      });
+      })
+      .finally(() => resetTurnstile());
   });
 
   function employeeLogout() {

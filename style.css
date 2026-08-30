@@ -561,6 +561,7 @@
       margin-top: 14px; padding: 10px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
       background: rgba(229,72,77,.12); color: #e5484d; text-align: center;
     }
+    .turnstile-widget { margin-top: 14px; display: flex; justify-content: center; min-height: 65px; }
     .login-forgot {
       display: block; margin: 16px auto 0; background: none; border: none; cursor: pointer;
       font-size: 11.5px; color: var(--brand-blue); font-family: inherit; text-decoration: underline;

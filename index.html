@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://raw.githubusercontent.com; connect-src 'self' https://cdn.jsdelivr.net https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://raw.githubusercontent.com; connect-src 'self' https://cdn.jsdelivr.net https://tyykcgsifuhsvlfwuzkb.supabase.co wss://tyykcgsifuhsvlfwuzkb.supabase.co https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Customer Service — FAJER AL SALAMEEN</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%2764%27%20y2%3D%2764%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2314506B%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%232E8C82%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2716%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Georgia%2C%20serif%27%20font-weight%3D%27700%27%20font-size%3D%2734%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EN%3C/text%3E%3C/svg%3E">
@@ -36,6 +36,7 @@
       <input type="email" id="loginEmail" autocomplete="username" required>
       <label id="lblLoginPass" for="loginPassword">Password</label>
       <input type="password" id="loginPassword" autocomplete="current-password" required>
+      <div id="turnstileWidget" class="turnstile-widget"></div>
       <button type="submit" id="loginSubmitBtn">
         <span id="loginSubmitText">Sign In</span>
         <span class="login-spinner" id="loginSpinner" style="display:none;"></span>
@@ -818,6 +819,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4/dist/umd/supabase.js" integrity="sha384-ysv13JVP3fufiEXfjML9OdCa/rRbMJvUBOWyor82wfuK8INNZAvmbxHgKIHi+oqz" crossorigin="anonymous"></script>
 <script src="app.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileApiLoad" async defer></script>
 <script type="module" src="login-moon.js"></script>
 </body>
 </html>
