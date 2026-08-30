@@ -308,10 +308,6 @@
   // التدريب)، فكان وقت التحميل الكلي = مجموع وقت كل مرحلة بدل أطول مرحلة
   // فيهم بس — وهذا كان يبطّئ كل تسجيل دخول لكل مستخدم.
   async function loadAllData() {
-    const sugPromise = isAdmin
-      ? sb.from('suggestions').select('*').order('id', { ascending: false })
-      : Promise.resolve({ data: [], error: null });
-
     const [catRes, scrRes, genRes, critRes, etiqRes, updRes, sugRes, subRes, mentReqRes] = await Promise.all([
       sb.from('categories').select('*').order('created_at', { ascending: true }),
       sb.from('scripts').select('*').order('id', { ascending: true }),
@@ -319,8 +315,11 @@
       sb.from('critical_items').select('*').order('id', { ascending: true }),
       sb.from('etiquette_items').select('*').order('id', { ascending: true }),
       sb.from('updates').select('*').order('id', { ascending: false }),
-      // الاقتراحات يشوفها بس اللي عندهم صلاحية admin/team_leader
-      sugPromise,
+      // الاقتراحات: الاستعلام بيصير دايمًا (مش بس للأدمن) — RLS نفسها بترجع صفوف فاضية
+      // لغير الأدمن/تيم ليدر، فما في داعي نستنى نعرف الدور قبل ما نطلق الاستعلام.
+      // هذا هو اللي كان يجبر bootApp() تنتظر fetchUserRole() كامل قبل ما تبلش
+      // loadAllData() أصلاً — يعني رحلة شبكة كاملة زيادة بالتسلسل بكل تسجيل دخول.
+      sb.from('suggestions').select('*').order('id', { ascending: false }),
       // مساهمات السكريبتات: كل موظف يشوف مساهماته هو، والأدمن يشوفهم كلهم (RLS بتحدد هيك تلقائياً)
       sb.from('script_submissions').select('*').order('id', { ascending: false }),
       // طلبات الرعاية/التدريب — كل موظف يشوف بس الطلبات اللي هو طرف فيها (متدرب أو راعي)
@@ -2440,9 +2439,22 @@
     }, 3200);
   }
 
+  // Despite the name, this never actually checked the date — it ran the full splash
+  // animation (a fixed 1.2s hold + 550ms fade, ~1.75s total) on every single login and
+  // every page reload while already signed in, all day, every day. That's a mandatory
+  // delay on top of however fast the real data actually loaded, on every boot. Now it
+  // really is once-per-day: any boot after the first one today skips straight past it.
   function checkFirstVisitToday() {
     const splash = document.getElementById('splashOverlay');
     if (!splash) return;
+    const today = new Date().toISOString().slice(0, 10);
+    let lastShown = null;
+    try { lastShown = localStorage.getItem('novaSplashLastShown'); } catch (e) { /* storage blocked — fall back to showing it */ }
+    if (lastShown === today) {
+      splash.remove();
+      return;
+    }
+    try { localStorage.setItem('novaSplashLastShown', today); } catch (e) { /* best-effort only */ }
     setTimeout(() => {
       splash.classList.add('hide');
       setTimeout(() => splash.remove(), 550);
@@ -4175,9 +4187,11 @@
   async function bootApp(userId) {
     checkFirstVisitToday();
     showSkeleton();
-    const role = await fetchUserRole(userId);
+    // fetchUserRole() and loadAllData() don't actually depend on each other (RLS, not
+    // client-side role checks, decides what each query returns) — they used to run one
+    // after the other, adding a full extra network round trip to every single login.
+    const [role] = await Promise.all([fetchUserRole(userId), loadAllData()]);
     applyUserRole(role);
-    await loadAllData();
     pickDashTip();
     render();
     refreshHeroCounts();
