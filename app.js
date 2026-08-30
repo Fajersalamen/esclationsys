@@ -3949,12 +3949,22 @@
     // an already-open tab onto a fresh deploy with zero manual action.
     let knownSignature = null;
     let reloadingForNewDeploy = false;
+    async function fileSignature(path) {
+      const res = await fetch(path, { cache: 'no-store' });
+      const text = await res.text();
+      return text.length + ':' + text.slice(0, 300) + text.slice(-300);
+    }
     async function checkForNewDeploy() {
       if (reloadingForNewDeploy) return;
       try {
-        const res = await fetch('/app.js', { cache: 'no-store' });
-        const text = await res.text();
-        const signature = text.length + ':' + text.slice(0, 300) + text.slice(-300);
+        // Watches app.js AND style.css/index.html — a CSS-only or markup-only deploy
+        // never touches app.js, so checking app.js alone misses those entirely.
+        const [appSig, cssSig, htmlSig] = await Promise.all([
+          fileSignature('/app.js'),
+          fileSignature('/style.css'),
+          fileSignature('/index.html'),
+        ]);
+        const signature = appSig + '|' + cssSig + '|' + htmlSig;
         if (knownSignature === null) { knownSignature = signature; return; }
         if (signature !== knownSignature) {
           reloadingForNewDeploy = true;
