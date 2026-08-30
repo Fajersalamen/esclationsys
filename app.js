@@ -3940,11 +3940,13 @@
   // asks the server "has app.js changed?" on a plain timer, using the same
   // ETag/Last-Modified caching header every static file server already sends.
   // Works identically everywhere, PWA or plain tab, any browser.
-  (function watchForNewDeployByETag() {
+  (function watchForNewDeployByContent() {
     // Compares the actual response body (length + a slice from each end),
     // not a caching header - HEAD + ETag/Last-Modified turned out to not be
     // reliable enough to trust here, and this can't fail to detect a real
     // change since it never depends on any specific header being present.
+    // Verified end-to-end on the live site: this is what actually reloads
+    // an already-open tab onto a fresh deploy with zero manual action.
     let knownSignature = null;
     let reloadingForNewDeploy = false;
     async function checkForNewDeploy() {
@@ -3953,18 +3955,12 @@
         const res = await fetch('/app.js', { cache: 'no-store' });
         const text = await res.text();
         const signature = text.length + ':' + text.slice(0, 300) + text.slice(-300);
-        // Temporary diagnostic — remove once we confirm this actually runs
-        // against the live site. Open DevTools Console (F12) to see it.
-        console.log('[deploy-check]', new Date().toLocaleTimeString(), 'status:', res.status, 'len:', text.length, 'known:', knownSignature === null ? 'null (first check)' : 'set');
         if (knownSignature === null) { knownSignature = signature; return; }
         if (signature !== knownSignature) {
-          console.log('[deploy-check] CHANGE DETECTED — reloading now');
           reloadingForNewDeploy = true;
           window.location.reload();
         }
-      } catch (err) {
-        console.log('[deploy-check] ERROR:', err.message);
-      }
+      } catch (err) { /* offline or blocked right now — just try again next tick */ }
     }
     checkForNewDeploy();
     setInterval(checkForNewDeploy, 20 * 1000);
