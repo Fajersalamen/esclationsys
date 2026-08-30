@@ -3107,7 +3107,13 @@
       return;
     }
     const csvCell = (val) => {
-      const s = String(val == null ? '' : val);
+      let s = String(val == null ? '' : val);
+      // Formula/CSV injection guard: a phoneNumber value is an employee-controlled free-text
+      // field. If it starts with =, +, -, or @, Excel/Sheets treats the cell as a formula on
+      // open — a malicious value like `=HYPERLINK(...)` would run as a live formula on
+      // whoever opens this export. Prefixing with a tab neutralizes that without changing
+      // how the value displays.
+      if (/^[=+\-@]/.test(s)) s = '\t' + s;
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     };
     const headers = isAr ? ['الرقم', 'المشكلة', 'الموظف', 'الوقت'] : ['Number', 'Issue', 'Employee', 'Time'];
