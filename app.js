@@ -558,6 +558,63 @@
     checkSystemLock();
   }
 
+  // Read-only view onto the database-level audit_log table (see
+  // supabase_audit_log.sql) — this app never writes to that table itself,
+  // triggers do, so this is purely for a full admin to review it.
+  async function loadAuditLog() {
+    const list = document.getElementById('auditLogList');
+    if (!list) return;
+    const isAr = currentLang === 'ar';
+    list.innerHTML = `<div style="font-size:11.5px; color:var(--slate-soft);">${isAr ? 'جاري التحميل...' : 'Loading...'}</div>`;
+    const { data, error } = await sb.from('audit_log').select('*').order('id', { ascending: false }).limit(200);
+    if (error) {
+      list.innerHTML = `<div style="font-size:11.5px; color:var(--slate-soft);">${isAr ? 'تعذّر تحميل السجل.' : 'Could not load the log.'}</div>`;
+      return;
+    }
+    renderAuditLog(data || []);
+  }
+
+  function renderAuditLog(rows) {
+    const list = document.getElementById('auditLogList');
+    const isAr = currentLang === 'ar';
+    if (!list) return;
+    if (!rows.length) {
+      list.innerHTML = `<div style="font-size:11.5px; color:var(--slate-soft);">${isAr ? 'لا يوجد أي سجل بعد.' : 'No entries yet.'}</div>`;
+      return;
+    }
+    const actionColor = { INSERT: '#10B981', UPDATE: '#D97706', DELETE: '#B91C1C' };
+    const actionLabel = isAr
+      ? { INSERT: 'إضافة', UPDATE: 'تعديل', DELETE: 'حذف' }
+      : { INSERT: 'Insert', UPDATE: 'Update', DELETE: 'Delete' };
+    list.innerHTML = rows.map(r => {
+      const color = actionColor[r.action] || '#64748B';
+      const label = actionLabel[r.action] || r.action;
+      const dateStr = new Date(r.created_at).toLocaleString(isAr ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const summary = summarizeAuditDetails(r.details);
+      return `<div style="border-bottom:1px solid var(--border); padding:7px 0; font-size:11.5px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span><span style="font-weight:800; color:${color}; background:color-mix(in srgb, ${color} 14%, transparent); padding:2px 8px; border-radius:999px; font-size:10px;">${escapeHtml(label)}</span>
+            <span style="font-weight:700; margin-inline-start:6px;">${escapeHtml(r.target_table)}</span>${r.target_id ? ` <span style="color:var(--slate-soft); font-family:'JetBrains Mono', monospace; font-size:10px;">#${escapeHtml(r.target_id)}</span>` : ''}</span>
+          <span style="color:var(--slate-soft); font-size:10px; flex-shrink:0;">${dateStr}</span>
+        </div>
+        <div style="color:var(--slate-soft); margin-top:2px;">${escapeHtml(r.actor_email || (isAr ? 'غير معروف' : 'unknown'))}${summary ? ' — ' + escapeHtml(summary) : ''}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Best-effort one-line summary of a details payload for the audit list —
+  // not every table has the same shape, so try the common text-ish fields.
+  function summarizeAuditDetails(details) {
+    if (!details || typeof details !== 'object') return '';
+    const candidates = ['title', 'title_ar', 'label', 'label_ar', 'text', 'text_ar', 'phone_number', 'role', 'locked', 'force_logout_at'];
+    for (const key of candidates) {
+      if (details[key] !== undefined && details[key] !== null && details[key] !== '') {
+        return String(details[key]).slice(0, 80);
+      }
+    }
+    return '';
+  }
+
   function startPresenceHeartbeat() {
     stopPresenceHeartbeat();
     upsertPresence(true);
@@ -3456,6 +3513,8 @@
     const el = document.getElementById('lblAdminActive');
     const lockTabBtn = document.getElementById('btnTab9');
     if (lockTabBtn) lockTabBtn.style.display = adminRole === 'full' ? 'inline-flex' : 'none';
+    const auditTabBtn = document.getElementById('btnTab10');
+    if (auditTabBtn) auditTabBtn.style.display = adminRole === 'full' ? 'inline-flex' : 'none';
     if (!el) return;
     const perm = ROLE_PERMISSIONS[currentUserRole];
     const roleName = perm ? (isAr ? perm.label.ar : perm.label.en) : '';
@@ -3477,6 +3536,7 @@
     document.getElementById('adminTabTraining').style.display = type === 'training' ? 'block' : 'none';
     document.getElementById('adminTabContributions').style.display = type === 'contributions' ? 'block' : 'none';
     document.getElementById('adminTabLock').style.display = type === 'lock' ? 'block' : 'none';
+    document.getElementById('adminTabAudit').style.display = type === 'audit' ? 'block' : 'none';
 
     document.getElementById('btnTab1').classList.toggle('active', type === 'scripts');
     document.getElementById('btnTab2').classList.toggle('active', type === 'categories');
@@ -3487,8 +3547,10 @@
     document.getElementById('btnTab7').classList.toggle('active', type === 'training');
     document.getElementById('btnTab8').classList.toggle('active', type === 'contributions');
     document.getElementById('btnTab9').classList.toggle('active', type === 'lock');
+    document.getElementById('btnTab10').classList.toggle('active', type === 'audit');
 
     if (type === 'lock') loadLockTabState();
+    if (type === 'audit') loadAuditLog();
 
     if (type === 'presence') {
       loadPresenceUsers();
@@ -3902,6 +3964,7 @@
     on('profileLangBtn', 'click', toggleLanguage);
     on('logoutBtn', 'click', employeeLogout);
     on('btnSaveLock', 'click', saveLockState);
+    on('btnRefreshAudit', 'click', loadAuditLog);
     on('searchInput', 'input', render);
 
     // تفويض الأحداث (event delegation) للعناصر يلي تتولّد ديناميكيًا بالجافاسكربت
