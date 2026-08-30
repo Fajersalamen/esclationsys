@@ -2916,6 +2916,7 @@
   // ===================== Technical Issue (شريط سفلي — مشاكل تقنية) =====================
   // البيانات مشتركة بين كل الموظفين عبر جدول technical_issues على Supabase.
   let TECH_ISSUES = [];
+  let techIssuesLoadedOnce = false;
   let techAttachedNumber = null;
 
   const TECH_ISSUE_LABELS = {
@@ -2951,8 +2952,17 @@
     document.getElementById('techPage').classList.add('open');
     const searchEl = document.getElementById('techRecordSearch');
     if (searchEl) searchEl.value = '';
-    showTechSkeleton();
-    loadTechIssues();
+    // First open in the session: nothing cached yet, so show the loading skeleton while
+    // the full table fetches. Every open after that renders instantly from the already-
+    // loaded TECH_ISSUES and refreshes it quietly in the background — no more re-showing
+    // the skeleton and waiting on a network round trip every single time this page opens.
+    if (techIssuesLoadedOnce) {
+      renderTechSheet();
+      loadTechIssues();
+    } else {
+      showTechSkeleton();
+      loadTechIssues();
+    }
     pauseAllOrbits();
     pauseCmdHero();
     orbitControllers.orbitCanvasTech.start();
@@ -3040,6 +3050,7 @@
         employeeEmail: r.employee_email,
         createdAt: r.created_at
       }));
+      techIssuesLoadedOnce = true;
     }
     renderTechSheet();
   }

@@ -753,10 +753,13 @@
       transition: border-color .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s cubic-bezier(.2,.8,.2,1), transform .3s cubic-bezier(.2,.8,.2,1);
     }
 
-    /* Side panels & modal: light frosted overlay, kept only where content truly floats above the page */
+    /* Side panels & modal: nearly-opaque background (96%), so the frosted backdrop-filter
+       this used to carry had almost nothing left behind it to actually blur — it was pure
+       recompute cost on every frame of the slide-in transition (the panel's own transform
+       animating forces the browser to re-blur what's behind it continuously), with no
+       visible payoff. Dropped for a plain opaque panel: same look, no per-frame cost. */
     .side-panel {
       background: color-mix(in srgb, var(--card) 96%, transparent);
-      backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
       border-inline-start: 1px solid color-mix(in srgb, var(--panel-accent) 22%, var(--border));
     }
     body[dir="ltr"] .side-panel { border-inline-start: none; border-inline-end: 1px solid color-mix(in srgb, var(--panel-accent) 22%, var(--border)); }
@@ -857,11 +860,16 @@
       pointer-events: auto; position: relative;
       display: flex; align-items: stretch; justify-content: center; gap: 6px;
       width: 100%; max-width: 620px;
-      background: linear-gradient(180deg, color-mix(in srgb, var(--card) 62%, transparent), color-mix(in srgb, var(--card) 78%, transparent));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--card) 74%, transparent), color-mix(in srgb, var(--card) 88%, transparent));
       border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
       border-radius: 20px;
       box-shadow: 0 16px 38px -12px rgba(20,91,140,.22), 0 2px 8px rgba(23,33,43,.06), inset 0 1px 0 rgba(255,255,255,.35);
-      backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%);
+      /* This bar is fixed on screen on every single page, sitting directly over the
+         continuously-animating hero particles/glow behind it - a blur(18px)+saturate(180%)
+         here had to be recomputed on every animation frame, permanently, everywhere in the
+         app. Cut to a much lighter blur with no saturate pass, and made the background a
+         touch more opaque to keep the same frosted look with a fraction of the GPU cost. */
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       padding: 7px; height: 68px;
     }
     /* Only the home planet remains in the bar — keep it centered instead of stretched */
