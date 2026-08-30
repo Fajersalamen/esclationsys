@@ -84,8 +84,74 @@
     });
   }
 
+  // Client-side brute-force friction: an escalating lockout on repeated failed logins
+  // from this browser. This is a UX/defense-in-depth layer only — it lives in JS and
+  // localStorage, so anyone hitting the Supabase Auth API directly (curl, a script)
+  // bypasses it entirely. The real backstop against credential-stuffing/brute-force is
+  // Supabase Auth's own server-side rate limiting on the token endpoint, which this
+  // can't see or control from the client — see Project Settings > Authentication >
+  // Rate Limits in the Supabase dashboard for that.
+  const LOGIN_LOCKOUT_KEY = 'novaLoginLockout';
+  const LOGIN_LOCKOUT_THRESHOLD = 5;   // failed attempts before any cooldown kicks in
+  const LOGIN_LOCKOUT_STEPS_MS = [10000, 30000, 60000, 120000, 300000]; // escalating cooldowns, caps at 5 min
+  let loginLockoutTimer = null;
+
+  function readLoginLockoutState() {
+    try {
+      const raw = localStorage.getItem(LOGIN_LOCKOUT_KEY);
+      return raw ? JSON.parse(raw) : { fails: 0, lockedUntil: 0 };
+    } catch (e) { return { fails: 0, lockedUntil: 0 }; }
+  }
+  function writeLoginLockoutState(state) {
+    try { localStorage.setItem(LOGIN_LOCKOUT_KEY, JSON.stringify(state)); } catch (e) { /* best-effort only */ }
+  }
+  function recordLoginFailure() {
+    const state = readLoginLockoutState();
+    state.fails += 1;
+    if (state.fails >= LOGIN_LOCKOUT_THRESHOLD) {
+      const stepIdx = Math.min(state.fails - LOGIN_LOCKOUT_THRESHOLD, LOGIN_LOCKOUT_STEPS_MS.length - 1);
+      state.lockedUntil = Date.now() + LOGIN_LOCKOUT_STEPS_MS[stepIdx];
+    }
+    writeLoginLockoutState(state);
+    return state;
+  }
+  function clearLoginLockout() {
+    writeLoginLockoutState({ fails: 0, lockedUntil: 0 });
+  }
+  function applyLoginLockoutUI() {
+    const state = readLoginLockoutState();
+    const btn = document.getElementById('loginSubmitBtn');
+    const text = document.getElementById('loginSubmitText');
+    const remaining = state.lockedUntil - Date.now();
+    if (loginLockoutTimer) { clearInterval(loginLockoutTimer); loginLockoutTimer = null; }
+    if (remaining <= 0) {
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = true;
+    const tick = () => {
+      const left = Math.ceil((state.lockedUntil - Date.now()) / 1000);
+      if (left <= 0) {
+        clearInterval(loginLockoutTimer);
+        loginLockoutTimer = null;
+        btn.disabled = false;
+        hideLoginError();
+        return;
+      }
+      showLoginError(`Too many failed attempts — try again in ${left}s.`);
+    };
+    tick();
+    loginLockoutTimer = setInterval(tick, 1000);
+  }
+  applyLoginLockoutUI();
+
   document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
+    const lockState = readLoginLockoutState();
+    if (lockState.lockedUntil > Date.now()) {
+      applyLoginLockoutUI();
+      return;
+    }
     hideLoginError();
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPassword').value;
@@ -97,12 +163,17 @@
     text.style.opacity = '0.6';
     sb.auth.signInWithPassword({ email, password: pass })
       .then(({ error }) => {
-        if (error) showLoginError(authErrorMessage(error.message));
+        if (error) {
+          showLoginError(authErrorMessage(error.message));
+          recordLoginFailure();
+        } else {
+          clearLoginLockout();
+        }
       })
       .finally(() => {
-        btn.disabled = false;
         spinner.style.display = 'none';
         text.style.opacity = '1';
+        applyLoginLockoutUI();
       });
   });
 
