@@ -449,6 +449,7 @@
         <button class="admin-tab-btn" id="btnTab7" data-admin-tab="training">🎓 مركز التدريب</button>
         <button class="admin-tab-btn" id="btnTab8" data-admin-tab="contributions">📚 مساهمات السكريبتات</button>
         <button class="admin-tab-btn" id="btnTab9" data-admin-tab="lock" style="display:none;">🛑 إيقاف مؤقت</button>
+        <button class="admin-tab-btn" id="btnTab10" data-admin-tab="audit" style="display:none;">🧾 سجل التدقيق</button>
       </div>
 
       <!-- Tab 1: Manage Scripts -->
@@ -619,6 +620,13 @@
         <textarea id="lockMessage" rows="3" maxlength="300" style="width:100%; margin:6px 0 10px;" placeholder="جاري العمل على تحديث أو صيانة سريعة — رح يرجع الموقع خلال شوي."></textarea>
         <button id="btnSaveLock" style="width:100%; background:#B91C1C; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">حفظ</button>
         <p style="font-size:11px; color:var(--slate-soft); margin-top:10px;" id="lockStatusLine"></p>
+      </div>
+
+      <!-- Tab 10: Read-only trail of destructive/sensitive admin actions (full admin only) -->
+      <div id="adminTabAudit" style="display:none;">
+        <p style="font-size:12px; color:var(--slate); margin-top:0;">سجل تلقائي من قاعدة البيانات نفسها — ما فيه طريقة لأي حد يعدله أو يحذفه، حتى الأدمن الكامل. آخر ٢٠٠ عملية:</p>
+        <button id="btnRefreshAudit" style="margin-bottom:8px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:11.5px;">🔄 تحديث</button>
+        <div id="auditLogList" style="max-height:380px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
       </div>
 
       <button id="btnCloseAdmin" style="width:100%; margin-top:14px; background:var(--bg); color:var(--text-main); border:1px solid var(--border); padding:8px; border-radius:8px; cursor:pointer; font-weight:600;">إغلاق الواجهة</button>
