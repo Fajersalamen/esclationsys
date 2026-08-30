@@ -3932,6 +3932,37 @@
     });
   }
 
+  // Service-worker update detection above depends on browser-specific lifecycle
+  // behavior (skipWaiting/clients.claim/controllerchange) that's known to be
+  // inconsistent across browsers, particularly mobile Safari — it can end up
+  // never firing at all on some devices. This is a second, much simpler
+  // mechanism that doesn't touch the Service Worker API in any way: it just
+  // asks the server "has app.js changed?" on a plain timer, using the same
+  // ETag/Last-Modified caching header every static file server already sends.
+  // Works identically everywhere, PWA or plain tab, any browser.
+  (function watchForNewDeployByETag() {
+    let knownTag = null;
+    let reloadingForNewDeploy = false;
+    async function checkForNewDeploy() {
+      if (reloadingForNewDeploy) return;
+      try {
+        const res = await fetch('/app.js', { method: 'HEAD', cache: 'no-store' });
+        const tag = res.headers.get('etag') || res.headers.get('last-modified');
+        if (!tag) return;
+        if (knownTag === null) { knownTag = tag; return; }
+        if (tag !== knownTag) {
+          reloadingForNewDeploy = true;
+          window.location.reload();
+        }
+      } catch (err) { /* offline or blocked right now — just try again next tick */ }
+    }
+    checkForNewDeploy();
+    setInterval(checkForNewDeploy, 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') checkForNewDeploy();
+    });
+  })();
+
   // ====== Web Push: real OS notifications for mentor-chat messages, even with the site closed ======
   function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
