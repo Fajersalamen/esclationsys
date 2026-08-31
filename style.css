@@ -2005,6 +2005,39 @@
     .onboarding-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .onboarding-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
 
+    /* ===== Shared page background: every full-page overlay gets the exact same
+       gradient + grid + drifting glow as the home hero (.cmd-hero), instead of a
+       flat solid fill, so opening any page never feels like jumping to plain
+       black/white. Each real page's own opaque cards/content sit at z-index:1
+       (see e.g. .breaks-page-inner), so these two z-index:0 glow blobs never
+       show through or clash with anything readable. */
+    .app-page-bg {
+      background:
+        linear-gradient(rgba(13,148,136,.048) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(13,148,136,.048) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(160deg, #eef9f6 0%, #dcf4ee 50%, #cdeee5 100%);
+    }
+    body.dark-mode .app-page-bg {
+      background:
+        linear-gradient(rgba(45,212,191,.121) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(45,212,191,.121) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(160deg, #071b26 0%, #0a2e2b 55%, #0d3b34 100%);
+    }
+    .app-page-bg::before, .app-page-bg::after {
+      content: ''; position: absolute; z-index: 0; border-radius: 50%; filter: blur(56px); pointer-events: none; opacity: .5;
+    }
+    body.dark-mode .app-page-bg::before, body.dark-mode .app-page-bg::after { opacity: .8; }
+    .app-page-bg::before {
+      width: 44vw; height: 44vw; top: -8%; inset-inline-end: -8%;
+      background: radial-gradient(circle, rgba(13,148,136,.4), transparent 66%);
+      animation: cmdDriftA 26s ease-in-out infinite alternate;
+    }
+    .app-page-bg::after {
+      width: 36vw; height: 36vw; bottom: -12%; inset-inline-start: -8%;
+      background: radial-gradient(circle, rgba(45,212,191,.3), transparent 66%);
+      animation: cmdDriftB 30s ease-in-out infinite alternate;
+    }
+
     .onboarding-top { display: flex; justify-content: flex-end; margin-bottom: 6px; }
     .onboarding-skip {
       display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--slate-soft);
