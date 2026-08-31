@@ -1155,18 +1155,28 @@
     renderBreaksPage();
   }
   // Auto-distribute suggested break times instead of leaving them blank for the admin to
-  // type one at a time: break 1 is a 15-minute slot early in the day, break 2 a 30-minute
-  // slot midday, break 3 a 15-minute slot later on, all within the 1:00 PM - 8:45 PM shift
-  // window, staggered 15 minutes apart per employee (round-robin) so the whole team isn't
-  // on the same break at once. Still just a starting point — any block stays editable.
+  // type one at a time: break 1 is a 15-minute slot starting at 1:00 PM, break 2 a
+  // 30-minute slot, break 3 another 15-minute slot, staggered per employee (round-robin)
+  // so the whole team isn't on the same break at once. Still just a starting point — any
+  // block stays editable.
   // Each slot's stagger step must match its own duration, or consecutive employees'
-  // breaks overlap into each other. Was previously a flat 15-minute step for all three
-  // slots, so break 2 (a real 30-minute break) only got 15 minutes before the next
-  // employee's break 2 started — a 15-minute overlap, not the full half hour.
+  // breaks overlap into each other. On top of that, break 2 must not start until every
+  // employee's break 1 has actually finished, and break 3 must not start until every
+  // employee's break 2 has finished — otherwise one employee's later break number lands
+  // during another employee's earlier break number and two people are on break at once.
+  // So each slot's start is derived from the previous slot's start + its full span
+  // (step * count), not a separate hardcoded clock time.
+  const BREAK1_START_MIN = 13 * 60; // 13:00
   const BREAK_AUTO_WINDOWS = {
-    1: { startMin: 13 * 60, stepMin: 15, count: 10 },       // 13:00 .. 15:15, 15-min breaks
-    2: { startMin: 15 * 60 + 30, stepMin: 30, count: 10 },  // 15:30 .. 20:00, 30-min breaks
-    3: { startMin: 18 * 60 + 15, stepMin: 15, count: 10 },  // 18:15 .. 20:30, 15-min breaks
+    1: { startMin: BREAK1_START_MIN, stepMin: 15, count: 10 },
+  };
+  BREAK_AUTO_WINDOWS[2] = {
+    startMin: BREAK_AUTO_WINDOWS[1].startMin + BREAK_AUTO_WINDOWS[1].stepMin * BREAK_AUTO_WINDOWS[1].count,
+    stepMin: 30, count: 10,
+  };
+  BREAK_AUTO_WINDOWS[3] = {
+    startMin: BREAK_AUTO_WINDOWS[2].startMin + BREAK_AUTO_WINDOWS[2].stepMin * BREAK_AUTO_WINDOWS[2].count,
+    stepMin: 15, count: 10,
   };
   function computeAutoBreakTime(index, slotNum) {
     const w = BREAK_AUTO_WINDOWS[slotNum];
