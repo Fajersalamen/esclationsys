@@ -52,6 +52,7 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5eWtjZ3NpZnVoc3ZsZnd1emtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NzExNDEsImV4cCI6MjEwMTE0NzE0MX0.QJhYVN1-YfVTuodG8VEe6o0BMM3uhKlCsj5ahCXaVnY";
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let appBooted = false;
+  let hasEverLoggedIn = false;
 
   // Public VAPID key for Web Push (safe to expose client-side — it's the public half of the
   // keypair; the private half lives only in the send-mentor-push Edge Function's secrets).
@@ -97,6 +98,18 @@
   function resetTurnstile() {
     turnstileToken = null;
     if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') turnstile.reset(turnstileWidgetId);
+  }
+  // The login gate is only ever hidden with display:none, not removed from the
+  // DOM - so without this, the Turnstile iframe (and whatever background bot-
+  // detection work it keeps doing inside itself) stays alive for the rest of
+  // the session after login, long after anyone can see or need it again.
+  // turnstile.remove() fully tears the widget/iframe down.
+  function destroyTurnstile() {
+    if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') {
+      turnstile.remove(turnstileWidgetId);
+      turnstileWidgetId = null;
+    }
+    turnstileToken = null;
   }
 
   // Spotlight effect on the login card: a soft glow that follows the cursor.
@@ -306,6 +319,8 @@
       gate.classList.add('hide');
       document.getElementById('loginForm').reset();
       hideLoginError();
+      destroyTurnstile();
+      hasEverLoggedIn = true;
       updateProfileIdentity(session.user.email);
       if (!appBooted) {
         appBooted = true;
@@ -329,6 +344,12 @@
       stopPresenceAdminRefresh();
       stopUpdatesPolling();
       stopMentorChatPoll();
+      // Only re-render if this is a real sign-out after a real login
+      // (hasEverLoggedIn) - the very first page load also fires this branch
+      // with no session yet, and at that point the widget either hasn't
+      // rendered yet (the CDN script's own onload will do it) or already
+      // has, so re-rendering here would either race it or duplicate it.
+      if (hasEverLoggedIn && turnstileWidgetId === null) onTurnstileApiLoad();
     }
   });
   // ====== End Supabase Authentication ======
