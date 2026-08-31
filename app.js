@@ -1166,17 +1166,23 @@
   // during another employee's earlier break number and two people are on break at once.
   // So each slot's start is derived from the previous slot's start + its full span
   // (step * count), not a separate hardcoded clock time.
+  // The whole rotation must also fit inside the 1:00 PM - 8:45 PM shift (the shift itself
+  // ends at 9:00 PM). Each employee needs 15+30+15 = 60 minutes of break time total, and
+  // with zero overlap ever allowed, that caps the round-robin at floor(465 / 60) = 7
+  // employees before an auto-suggested time would have to repeat. count is shared across
+  // all three slots so that cap is consistent everywhere.
   const BREAK1_START_MIN = 13 * 60; // 13:00
+  const BREAK_ROTATION_COUNT = 7;
   const BREAK_AUTO_WINDOWS = {
-    1: { startMin: BREAK1_START_MIN, stepMin: 15, count: 10 },
+    1: { startMin: BREAK1_START_MIN, stepMin: 15, count: BREAK_ROTATION_COUNT },
   };
   BREAK_AUTO_WINDOWS[2] = {
     startMin: BREAK_AUTO_WINDOWS[1].startMin + BREAK_AUTO_WINDOWS[1].stepMin * BREAK_AUTO_WINDOWS[1].count,
-    stepMin: 30, count: 10,
+    stepMin: 30, count: BREAK_ROTATION_COUNT,
   };
   BREAK_AUTO_WINDOWS[3] = {
     startMin: BREAK_AUTO_WINDOWS[2].startMin + BREAK_AUTO_WINDOWS[2].stepMin * BREAK_AUTO_WINDOWS[2].count,
-    stepMin: 15, count: 10,
+    stepMin: 15, count: BREAK_ROTATION_COUNT,
   };
   function computeAutoBreakTime(index, slotNum) {
     const w = BREAK_AUTO_WINDOWS[slotNum];
