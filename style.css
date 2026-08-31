@@ -1326,13 +1326,18 @@
       padding: 2px 8px; border-radius: 6px; margin-inline-start: 7px; white-space: nowrap;
     }
 
-    .breaks-remove-btn {
+    .breaks-row-actions { display: flex; align-items: center; gap: 7px; margin-inline-start: auto; flex-shrink: 0; }
+
+    .breaks-remove-btn, .breaks-swap-request-btn {
       width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-soft);
       color: var(--slate-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
-      margin-inline-start: auto; transition: background .15s ease, border-color .15s ease, color .15s ease;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
     }
     .breaks-remove-btn:hover { background: rgba(185,28,28,.1); border-color: #B91C1C; color: #B91C1C; }
     .breaks-remove-btn svg { width: 14px; height: 14px; }
+    .breaks-swap-request-btn { background: var(--brand-teal); border-color: var(--brand-teal); color: #fff; }
+    .breaks-swap-request-btn:hover { background: var(--brand-blue); border-color: var(--brand-blue); }
+    .breaks-swap-request-btn svg { width: 14px; height: 14px; }
 
     .breaks-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 2 1 320px; }
     .breaks-chip {
@@ -1347,20 +1352,14 @@
     .breaks-chip .t { white-space: nowrap; }
     .breaks-chip.editing { background: var(--card); border: 1.5px solid var(--brand-blue); }
 
-    .breaks-chip .breaks-time-edit-btn, .breaks-chip .break-swap-btn {
-      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; border: none; padding: 0;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      opacity: 0; transition: opacity .12s ease, background .12s ease, color .12s ease;
+    .breaks-chip .breaks-time-edit-btn {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; border: none; padding: 0; background: none;
+      color: var(--slate-soft); display: flex; align-items: center; justify-content: center; cursor: pointer;
+      opacity: 0; transition: opacity .12s ease, color .12s ease;
     }
-    .breaks-row:hover .breaks-chip .breaks-time-edit-btn,
-    .breaks-row:hover .breaks-chip .break-swap-btn { opacity: .8; }
-    .breaks-chip .breaks-time-edit-btn:hover, .breaks-chip .break-swap-btn:hover { opacity: 1 !important; }
-    .breaks-chip .breaks-time-edit-btn { background: none; color: var(--slate-soft); }
-    .breaks-chip .breaks-time-edit-btn:hover { color: var(--brand-blue); }
-    .breaks-chip .break-swap-btn { background: var(--brand-teal); color: #fff; }
-    .breaks-chip .break-swap-btn:hover { background: var(--brand-blue); }
+    .breaks-row:hover .breaks-chip .breaks-time-edit-btn { opacity: .8; }
+    .breaks-chip .breaks-time-edit-btn:hover { opacity: 1 !important; color: var(--brand-blue); }
     .breaks-chip .breaks-time-edit-btn svg { width: 10.5px; height: 10.5px; }
-    .breaks-chip .break-swap-btn svg { width: 10px; height: 10px; }
 
     .breaks-chip input[type="time"] {
       width: 100%; border: none; background: none; outline: none; font: inherit; color: inherit; text-align: center; padding: 0;

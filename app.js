@@ -949,11 +949,10 @@
       }
     }
 
-    const rows = [...BREAK_SCHEDULE].sort((a, b) => {
-      if (a.employeeEmail === currentUserEmail) return -1;
-      if (b.employeeEmail === currentUserEmail) return 1;
-      return a.employeeEmail.localeCompare(b.employeeEmail);
-    });
+    // Sorted by seat id (creation order), never by name/email — a seat's position on
+    // screen must stay put when its occupant changes, or a swap would look like the
+    // times themselves moved.
+    const rows = [...BREAK_SCHEDULE].sort((a, b) => a.id - b.id);
     const countEl = document.getElementById('breaksEmployeeCount');
     if (countEl) countEl.textContent = rows.length;
 
@@ -968,18 +967,18 @@
       roster.innerHTML = rows.map(r => {
         const isMe = r.employeeEmail === currentUserEmail;
         const picked = breaksEditMode && r.id === breaksPickedSeatId;
+        const hasAnyTime = [1, 2, 3].some(slot => !!r['break' + slot]);
         const chips = [1, 2, 3].map(slot => {
           const raw = r['break' + slot];
           const formatted = formatBreakTime(raw);
-          const canRequestSwap = isMe && !!raw;
           const editBtn = isAdmin
             ? `<button type="button" class="breaks-time-edit-btn" data-edit-row="${r.id}" data-edit-slot="${slot}" title="${isAr ? 'تعديل الوقت يدويًا' : 'Edit time manually'}">${pencilIcon}</button>`
             : '';
-          const swapBtn = canRequestSwap
-            ? `<button type="button" class="break-swap-btn" data-swap-slot="${slot}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
-            : '';
-          return `<span class="breaks-chip b${slot}"><span class="ic">${breakChipIcons[slot]}</span><span class="t">${formatted ? escapeHtml(formatted) : '—'}</span>${editBtn}${swapBtn}</span>`;
+          return `<span class="breaks-chip b${slot}"><span class="ic">${breakChipIcons[slot]}</span><span class="t">${formatted ? escapeHtml(formatted) : '—'}</span>${editBtn}</span>`;
         }).join('');
+        const swapBtn = (isMe && hasAnyTime)
+          ? `<button type="button" class="breaks-swap-request-btn" data-swap-row="${r.id}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
+          : '';
         const removeBtn = isAdmin
           ? `<button type="button" class="breaks-remove-btn" data-remove-email="${escapeHtml(r.employeeEmail)}" title="${isAr ? 'إزالة من الجدول' : 'Remove from schedule'}">${removeIcon}</button>`
           : '';
@@ -989,7 +988,7 @@
             <span class="breaks-name">${escapeHtml(breakDisplayName(r.employeeEmail))}${isMe ? `<span class="breaks-you-tag">${isAr ? 'هذا صفك' : 'This is you'}</span>` : ''}</span>
           </span>
           <span class="breaks-chips">${chips}</span>
-          ${removeBtn}
+          <span class="breaks-row-actions">${swapBtn}${removeBtn}</span>
         </div>`;
       }).join('');
     }
@@ -1194,14 +1193,22 @@
 
   // ----- Swap request flow -----
   let breakSwapRequesterSlot = null;
-  function openBreakSwapPicker(slot) {
+  function openBreakSwapPicker() {
     const isAr = currentLang === 'ar';
-    breakSwapRequesterSlot = slot;
     const myRow = myBreakRow();
-    const myTime = myRow ? formatBreakTime(myRow['break' + slot]) : '';
+    const mySlots = myRow ? [1, 2, 3].filter(s => myRow['break' + s]) : [];
+    if (!mySlots.length) return;
+    const mySlotSel = document.getElementById('breakSwapMySlot');
+    mySlotSel.innerHTML = mySlots.map(s =>
+      `<option value="${s}">${isAr ? 'بريك' : 'Break'} ${s} — ${escapeHtml(formatBreakTime(myRow['break' + s]))}</option>`
+    ).join('');
+    breakSwapRequesterSlot = mySlots[0];
+    mySlotSel.value = String(mySlots[0]);
+    mySlotSel.onchange = () => { breakSwapRequesterSlot = parseInt(mySlotSel.value, 10); };
+
     document.getElementById('breakSwapSub').textContent = isAr
-      ? `بريكك ${myTime || ''} (بريك ${slot}) — اختار مين وأي بريك بدك تبادله فيه`
-      : `Your break ${slot} (${myTime || ''}) — pick who and which of their breaks`;
+      ? 'اختار بريكك، وبعدين مين وأي بريك من بريكاته بدك تاخذه'
+      : 'Pick your break, then who and which of their breaks you want';
     const colSel = document.getElementById('breakSwapColleague');
     const others = BREAK_SCHEDULE.filter(r => r.employeeEmail !== currentUserEmail);
     colSel.innerHTML = others.map(r => `<option value="${escapeHtml(r.employeeEmail)}">${escapeHtml(breakDisplayName(r.employeeEmail))}</option>`).join('');
@@ -2442,6 +2449,7 @@
     document.getElementById('breaksIncomingLabel').textContent = isAr ? '📥 طلبات سواب واردة' : '📥 Incoming Swap Requests';
     document.getElementById('breaksOutgoingLabel').textContent = isAr ? '📤 طلباتي المرسلة' : '📤 My Sent Requests';
     document.getElementById('breakSwapTitle').textContent = isAr ? 'طلب سواب بريك' : 'Request a Break Swap';
+    document.getElementById('breakSwapMySlotLabel').textContent = isAr ? 'بريكك اللي بدك تبدله' : 'Your break to swap';
     document.getElementById('breakSwapColleagueLabel').textContent = isAr ? 'الزميل' : 'Colleague';
     document.getElementById('breakSwapTargetLabel').textContent = isAr ? 'بريكه اللي بدك تاخذه' : "Which of their breaks you want";
     document.getElementById('breakSwapCancel').textContent = isAr ? 'إلغاء' : 'Cancel';
@@ -4580,8 +4588,8 @@
     document.getElementById('breaksTableBody').addEventListener('click', (e) => {
       const editBtn = e.target.closest('.breaks-time-edit-btn');
       if (editBtn) { e.stopPropagation(); handleBreakTimeEditClick(editBtn); return; }
-      const swapBtn = e.target.closest('.break-swap-btn');
-      if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(parseInt(swapBtn.dataset.swapSlot, 10)); return; }
+      const swapBtn = e.target.closest('.breaks-swap-request-btn');
+      if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(); return; }
       const removeBtn = e.target.closest('[data-remove-email]');
       if (removeBtn) { e.stopPropagation(); removeBreaksEmployee(removeBtn.dataset.removeEmail); return; }
       if (!breaksEditMode) return;
