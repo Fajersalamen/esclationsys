@@ -889,7 +889,7 @@
     document.getElementById('breaksPage').classList.add('open');
     pauseAllOrbits();
     pauseCmdHero();
-    reloadBreakData().then(renderBreaksPage);
+    Promise.all([loadDirectoryEmails(), reloadBreakData()]).then(renderBreaksPage);
   }
   function closeBreaksPage() {
     const el = document.getElementById('breaksPage');
@@ -966,7 +966,7 @@
           const raw = r['break' + slot];
           const formatted = formatBreakTime(raw);
           const editable = isAdmin;
-          const canSwap = !isAdmin && isMe && !!raw;
+          const canSwap = isMe && !!raw;
           const blockClass = 'break-block' + (formatted ? '' : ' empty-slot');
           const swapBtn = canSwap
             ? `<button type="button" class="break-swap-btn" data-swap-slot="${slot}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
@@ -4506,7 +4506,6 @@
 
     // جدول البريكات
     on('breaksMenuBtn', 'click', () => { closeProfileMenu(); openBreaksPage(); });
-    on('breaksBackBtn', 'click', () => { closeBreaksPage(); goHome(); });
     on('breaksAddSelectedBtn', 'click', addSelectedBreaksEmployees);
     document.getElementById('breaksAddChips').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-add-email]');

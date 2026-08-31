@@ -1329,7 +1329,6 @@
       display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .12s ease;
     }
     body.breaks-admin-edit .break-block[data-editable="1"]:hover::after { opacity: 1; }
-    body.breaks-admin-edit .break-swap-btn { display: none; }
     .break-block.editing { background: var(--card); border: 1.5px solid var(--brand-blue); border-inline-start-width: 3px; padding: 5px 8px; }
     .break-block.editing input {
       width: 100%; border: none; background: none; outline: none; font: inherit; color: inherit; text-align: center; padding: 0;
