@@ -4805,12 +4805,69 @@
     // change since it never depends on any specific header being present.
     // Verified end-to-end on the live site: this is what actually reloads
     // an already-open tab onto a fresh deploy with zero manual action.
+    //
+    // Below, the SAME comparison (byte length + first 300 bytes + last 300
+    // bytes) is still what decides "changed or not" — nothing about what's
+    // being compared changed, only how those bytes get fetched: an HTTP
+    // Range request for just those two small slices instead of downloading
+    // the entire file, when the server honors it. If Range support can't be
+    // confirmed (no 206, no usable Content-Range, or the request errors),
+    // this permanently falls back to the original full-body fetch for the
+    // rest of the tab's session — decided once, up front, so the signature
+    // format can never flip mid-session and look like a false "changed".
     let knownSignature = null;
     let reloadingForNewDeploy = false;
-    async function fileSignature(path) {
+    let rangeCheckMode = null; // decided once by probeRangeSupport(): true | false
+
+    // A file's bytes, read as raw bytes (not decoded as UTF-8 text) and turned
+    // into a comparable string one code unit per byte. This matters because
+    // app.js/index.html contain Arabic text: a byte-Range slice can end in
+    // the middle of a multi-byte UTF-8 character, and decoding that as text
+    // (like the fallback's res.text() does on the *complete* file) would
+    // produce a different, unstable result depending on exactly where a
+    // change happens to fall. Comparing raw bytes sidesteps that entirely.
+    function bytesToComparableString(bytes) {
+      let out = '';
+      for (let i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i]);
+      return out;
+    }
+    async function fetchByteRange(path, rangeHeader) {
+      const res = await fetch(path, { cache: 'no-store', headers: { Range: rangeHeader } });
+      if (res.status !== 206) return null; // not honored as a partial response - can't trust it
+      const contentRange = res.headers.get('content-range'); // e.g. "bytes 0-299/280532"
+      const match = contentRange && /bytes \d+-\d+\/(\d+)/.exec(contentRange);
+      if (!match) return null;
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      if (!bytes.length) return null;
+      return { totalBytes: parseInt(match[1], 10), bytes };
+    }
+    async function fileSignatureViaRange(path) {
+      const [head, tail] = await Promise.all([
+        fetchByteRange(path, 'bytes=0-299'),
+        fetchByteRange(path, 'bytes=-300'),
+      ]);
+      if (!head || !tail || head.totalBytes !== tail.totalBytes) return null;
+      return head.totalBytes + ':' + bytesToComparableString(head.bytes) + bytesToComparableString(tail.bytes);
+    }
+    async function fileSignatureViaFullBody(path) {
       const res = await fetch(path, { cache: 'no-store' });
       const text = await res.text();
       return text.length + ':' + text.slice(0, 300) + text.slice(-300);
+    }
+    // One-time capability check, run before the watcher ever starts comparing
+    // anything - not decided lazily inside a real check, so a mixed result
+    // (e.g. Range working for one file but not another on the same first
+    // attempt) can't leave the watcher stuck. Whatever this decides is used
+    // for the rest of the session; it is never re-evaluated afterward.
+    async function probeRangeSupport() {
+      try {
+        rangeCheckMode = (await fileSignatureViaRange('/app.js')) !== null;
+      } catch (err) {
+        rangeCheckMode = false;
+      }
+    }
+    async function fileSignature(path) {
+      return rangeCheckMode ? fileSignatureViaRange(path) : fileSignatureViaFullBody(path);
     }
     async function checkForNewDeploy() {
       if (reloadingForNewDeploy) return;
@@ -4830,10 +4887,12 @@
         }
       } catch (err) { /* offline or blocked right now — just try again next tick */ }
     }
-    checkForNewDeploy();
-    setInterval(checkForNewDeploy, 20 * 1000);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') checkForNewDeploy();
+    probeRangeSupport().then(() => {
+      checkForNewDeploy();
+      setInterval(checkForNewDeploy, 20 * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForNewDeploy();
+      });
     });
   })();
 
