@@ -237,6 +237,7 @@
     stopUpdatesPolling();
     stopMentorChatPoll();
     stopBreakWatcher();
+    stopMentorRequestsRealtime();
     sb.auth.signOut().then(({ error }) => {
       if (error) console.error('Supabase signOut error:', error);
       // Force the login gate open immediately — don't rely solely on the
@@ -346,6 +347,7 @@
       stopUpdatesPolling();
       stopMentorChatPoll();
       stopBreakWatcher();
+      stopMentorRequestsRealtime();
       // Only re-render if this is a real sign-out after a real login
       // (hasEverLoggedIn) - the very first page load also fires this branch
       // with no session yet, and at that point the widget either hasn't
@@ -716,6 +718,17 @@
     refreshHeroCounts();
     if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
     playNotificationSound();
+    fireUpdateNotification(UPDATES[0]);
+  }
+  // An OS-level notification for a brand-new update, so it reaches you even while
+  // you're away from the tab — not just the in-page badge/sound, which only helps
+  // if you're actually looking at (or listening to) the site right now.
+  function fireUpdateNotification(update) {
+    if (!update || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    const isAr = currentLang === 'ar';
+    const title = isAr ? '📢 تحديث جديد' : '📢 New update';
+    const body = (update.text || '').slice(0, 140);
+    try { new Notification(title, { body, icon: '/icons/icon-192.png' }); } catch (e) { /* best-effort only */ }
   }
 
   function startUpdatesPolling() {
@@ -3350,7 +3363,14 @@
     if (!sel) return;
     const isAr = currentLang === 'ar';
     const previous = sel.value;
-    const others = DIRECTORY_EMAILS.filter(e => e !== currentUserEmail);
+    // Exclude colleagues you already have a live request with (pending or accepted) —
+    // no point offering to re-request someone who's already your mentor or who
+    // already has your request sitting in their inbox. A declined request can be
+    // retried, so it doesn't get excluded.
+    const alreadyRequested = new Set(
+      MENTOR_REQUESTS.filter(r => r.traineeEmail === currentUserEmail && r.status !== 'declined').map(r => r.mentorEmail)
+    );
+    const others = DIRECTORY_EMAILS.filter(e => e !== currentUserEmail && !alreadyRequested.has(e));
     const placeholder = `<option value="">${isAr ? '— اختر زميل —' : '— Select a colleague —'}</option>`;
     sel.innerHTML = placeholder + others.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
     if (previous && others.includes(previous)) sel.value = previous;
@@ -3621,6 +3641,66 @@
       if (pendingCount > 0) { badge.textContent = label; badge.style.display = 'flex'; }
       else badge.style.display = 'none';
     });
+  }
+
+  // ----- Live mentor_requests updates, so a new incoming request, an accepted/declined
+  // outcome, or a colleague becoming unavailable all show up without a manual refresh —
+  // runs from login regardless of whether the Mentorship page is ever opened, same as
+  // the break-time watcher. Requires mentor_requests to be added to the supabase_realtime
+  // publication (see supabase_mentorship.sql). -----
+  function mapMentorRequestRow(r) {
+    return {
+      id: r.id, traineeEmail: r.trainee_email, mentorEmail: r.mentor_email, note: r.note,
+      status: r.status, createdAt: new Date(r.created_at).getTime()
+    };
+  }
+  let mentorRequestsChannel = null;
+  function startMentorRequestsRealtime() {
+    stopMentorRequestsRealtime();
+    if (!currentUserEmail) return;
+    mentorRequestsChannel = sb.channel('mentor_requests_' + currentUserEmail)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_requests' }, handleMentorRequestRealtimeChange)
+      .subscribe();
+  }
+  function stopMentorRequestsRealtime() {
+    if (mentorRequestsChannel) { sb.removeChannel(mentorRequestsChannel); mentorRequestsChannel = null; }
+  }
+  function handleMentorRequestRealtimeChange(payload) {
+    const isAr = currentLang === 'ar';
+    if (payload.eventType === 'INSERT') {
+      const row = payload.new;
+      if (!MENTOR_REQUESTS.some(r => r.id === row.id)) MENTOR_REQUESTS.unshift(mapMentorRequestRow(row));
+      if (row.mentor_email === currentUserEmail) {
+        showToast(isAr ? `📥 ${row.trainee_email} أرسل لك طلب رعاية!` : `📥 ${row.trainee_email} sent you a mentorship request!`, 'success');
+      }
+    } else if (payload.eventType === 'UPDATE') {
+      const row = payload.new;
+      const idx = MENTOR_REQUESTS.findIndex(r => r.id === row.id);
+      const prevStatus = idx >= 0 ? MENTOR_REQUESTS[idx].status : null;
+      if (idx >= 0) MENTOR_REQUESTS[idx] = mapMentorRequestRow(row);
+      else MENTOR_REQUESTS.unshift(mapMentorRequestRow(row));
+      if (row.trainee_email === currentUserEmail && prevStatus === 'pending' && row.status !== 'pending') {
+        const accepted = row.status === 'accepted';
+        showToast(
+          isAr
+            ? (accepted ? `✅ ${row.mentor_email} قبل طلب رعايتك!` : `${row.mentor_email} رفض طلب رعايتك.`)
+            : (accepted ? `✅ ${row.mentor_email} accepted your mentorship request!` : `${row.mentor_email} declined your mentorship request.`),
+          accepted ? 'success' : 'error'
+        );
+      }
+    } else if (payload.eventType === 'DELETE') {
+      MENTOR_REQUESTS = MENTOR_REQUESTS.filter(r => r.id !== payload.old.id);
+    }
+
+    updateMentorBadge();
+    refreshHeroCounts();
+    renderMentorEmailOptions();
+    const mp = document.getElementById('mentorshipPage');
+    if (mp && mp.classList.contains('open')) {
+      if (activeMentorTab === 'request') renderMentorRequestPane();
+      if (activeMentorTab === 'incoming') renderMentorIncomingPane();
+      if (activeMentorTab === 'chats') renderMentorChatsList();
+    }
   }
 
   function canDelete() {
@@ -4949,6 +5029,7 @@
     startPresenceHeartbeat();
     startUpdatesPolling();
     startBreakWatcher();
+    startMentorRequestsRealtime();
     loadDirectoryEmails();
     loadCmdTechPreview();
     syncPushSubscriptionIfGranted();

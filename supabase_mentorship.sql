@@ -134,3 +134,21 @@ $$;
 
 revoke all on function public.list_directory_emails() from public;
 grant execute on function public.list_directory_emails() to authenticated;
+
+-- ---------------------------------------------------------------------
+-- Realtime: without this, a new request, an accept/decline, etc. only
+-- ever shows up for the other side after a manual refresh — Supabase
+-- only streams postgres_changes for tables explicitly added to this
+-- publication. Realtime still goes through mentor_requests' own RLS
+-- policies above (a client only receives rows it's allowed to select),
+-- so this doesn't widen who can see what.
+-- ---------------------------------------------------------------------
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'mentor_requests'
+  ) then
+    alter publication supabase_realtime add table public.mentor_requests;
+  end if;
+end $$;
