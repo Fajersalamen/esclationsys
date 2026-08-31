@@ -1172,7 +1172,7 @@
   // employees before an auto-suggested time would have to repeat. count is shared across
   // all three slots so that cap is consistent everywhere.
   const BREAK1_START_MIN = 13 * 60; // 13:00
-  const BREAK_ROTATION_COUNT = 7;
+  const BREAK_ROTATION_COUNT = 8;
   const BREAK_AUTO_WINDOWS = {
     1: { startMin: BREAK1_START_MIN, stepMin: 15, count: BREAK_ROTATION_COUNT },
   };
