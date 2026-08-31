@@ -236,6 +236,7 @@
     stopPresenceAdminRefresh();
     stopUpdatesPolling();
     stopMentorChatPoll();
+    stopBreakWatcher();
     sb.auth.signOut().then(({ error }) => {
       if (error) console.error('Supabase signOut error:', error);
       // Force the login gate open immediately — don't rely solely on the
@@ -344,6 +345,7 @@
       stopPresenceAdminRefresh();
       stopUpdatesPolling();
       stopMentorChatPoll();
+      stopBreakWatcher();
       // Only re-render if this is a real sign-out after a real login
       // (hasEverLoggedIn) - the very first page load also fires this branch
       // with no session yet, and at that point the widget either hasn't
@@ -419,6 +421,13 @@
   let SUGGESTIONS = [];
   let SCRIPT_SUBMISSIONS = [];
   let MENTOR_REQUESTS = [];
+  let BREAK_SCHEDULE = [];
+  let BREAK_SWAP_REQUESTS = [];
+
+  function todayDateStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
 
   // يجيب كل بيانات المشروع من Supabase مرة وحدة بعد تسجيل الدخول.
   // كل الاستعلامات هون تنطلق مع بعض بنفس اللحظة (Promise.all واحد بس) بدل
@@ -427,7 +436,7 @@
   // التدريب)، فكان وقت التحميل الكلي = مجموع وقت كل مرحلة بدل أطول مرحلة
   // فيهم بس — وهذا كان يبطّئ كل تسجيل دخول لكل مستخدم.
   async function loadAllData() {
-    const [catRes, scrRes, genRes, critRes, etiqRes, updRes, sugRes, subRes, mentReqRes] = await Promise.all([
+    const [catRes, scrRes, genRes, critRes, etiqRes, updRes, sugRes, subRes, mentReqRes, , breakSchedRes, breakSwapRes] = await Promise.all([
       sb.from('categories').select('*').order('created_at', { ascending: true }),
       sb.from('scripts').select('*').order('id', { ascending: true }),
       sb.from('general_info').select('*').order('id', { ascending: true }),
@@ -444,7 +453,12 @@
       // طلبات الرعاية/التدريب — كل موظف يشوف بس الطلبات اللي هو طرف فيها (متدرب أو راعي)
       sb.from('mentor_requests').select('*').order('id', { ascending: false }),
       // بيانات مركز التدريب (Dynamic) — يتم تحميلها لكل المستخدمين (RLS بتحدد شو يوصلهم فعلياً)
-      loadTrainingData()
+      loadTrainingData(),
+      // جدول البريكات وطلبات السواب: يوم اليوم بس (RLS بتحدد وصول القراءة/الكتابة).
+      // يتحمّل هون (مش عند فتح الصفحة بس) عشان مراقب التنبيه الصوتي يقدر يشتغل
+      // من لحظة تسجيل الدخول حتى لو الموظف ما فتح صفحة البريكات أصلاً.
+      sb.from('break_schedule').select('*').eq('work_date', todayDateStr()),
+      sb.from('break_swap_requests').select('*').eq('work_date', todayDateStr()).order('id', { ascending: false })
     ]);
 
     CATEGORIES = catRes.error ? DEFAULT_CATEGORIES : (catRes.data || []).map(c => ({ key: c.key, label: c.label, labelAr: c.label_ar, color: c.color }));
@@ -461,6 +475,16 @@
     MENTOR_REQUESTS = mentReqRes.error ? [] : (mentReqRes.data || []).map(r => ({
       id: r.id, traineeEmail: r.trainee_email, mentorEmail: r.mentor_email, note: r.note,
       status: r.status, createdAt: new Date(r.created_at).getTime()
+    }));
+    BREAK_SCHEDULE = breakSchedRes.error ? [] : (breakSchedRes.data || []).map(r => ({
+      id: r.id, employeeEmail: r.employee_email, workDate: r.work_date,
+      break1: r.break1_time, break2: r.break2_time, break3: r.break3_time
+    }));
+    BREAK_SWAP_REQUESTS = breakSwapRes.error ? [] : (breakSwapRes.data || []).map(r => ({
+      id: r.id, workDate: r.work_date,
+      requesterEmail: r.requester_email, requesterSlot: r.requester_break_slot,
+      targetEmail: r.target_email, targetSlot: r.target_break_slot,
+      status: r.status, createdAt: r.created_at
     }));
   }
 
@@ -825,6 +849,338 @@
   }
   // ===================== End Online Users (Presence) =====================
 
+  // ===================== Break Schedule (جدول البريكات) =====================
+  // بديل الصورة اليومية اللي كانت تُبعث على تيمز — جدول حي: كل موظف وبريكاته الثلاث،
+  // مع إمكانية طلب سواب بريك مع زميل (بموافقة الطرفين)، وتنبيه صوتي وقت البريك.
+  const BREAK_AVATAR_COLORS = ['#C2410C', '#B91C1C', '#0B84FF', '#7C3AED', '#A16207', '#BE185D', '#0D9488', '#4338CA'];
+  function breakAvatarColor(email) {
+    let hash = 0;
+    const s = email || '';
+    for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+    return BREAK_AVATAR_COLORS[hash % BREAK_AVATAR_COLORS.length];
+  }
+  function breakInitials(email) {
+    return ((email || '؟').split('@')[0] || '؟').slice(0, 2).toUpperCase();
+  }
+  function breakDisplayName(email) {
+    return (email || '').split('@')[0] || email || '—';
+  }
+  // t is 'HH:MM' or 'HH:MM:SS' from Postgres time, or null/empty.
+  function formatBreakTime(t) {
+    if (!t) return null;
+    const [hStr, mStr] = t.split(':');
+    const h = parseInt(hStr, 10);
+    const isAr = currentLang === 'ar';
+    const period = h >= 12 ? (isAr ? 'م' : 'PM') : (isAr ? 'ص' : 'AM');
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    return `${h12}:${mStr} ${period}`;
+  }
+  function myBreakRow() {
+    return BREAK_SCHEDULE.find(r => r.employeeEmail === currentUserEmail);
+  }
+
+  function openBreaksPage() {
+    closePanels();
+    closeScriptsPage();
+    closeUpdatesPage();
+    closeMentorshipPage();
+    closeTechPage();
+    closeTrainingPage();
+    document.getElementById('breaksPage').classList.add('open');
+    pauseAllOrbits();
+    pauseCmdHero();
+    reloadBreakData().then(renderBreaksPage);
+  }
+  function closeBreaksPage() {
+    const el = document.getElementById('breaksPage');
+    if (!el.classList.contains('open')) return;
+    el.classList.remove('open');
+    orbitControllers.orbitCanvasHome.start();
+    resumeCmdHero();
+  }
+
+  async function reloadBreakData() {
+    const today = todayDateStr();
+    const [schedRes, swapRes] = await Promise.all([
+      sb.from('break_schedule').select('*').eq('work_date', today),
+      sb.from('break_swap_requests').select('*').eq('work_date', today).order('id', { ascending: false })
+    ]);
+    if (!schedRes.error) {
+      BREAK_SCHEDULE = (schedRes.data || []).map(r => ({
+        id: r.id, employeeEmail: r.employee_email, workDate: r.work_date,
+        break1: r.break1_time, break2: r.break2_time, break3: r.break3_time
+      }));
+    }
+    if (!swapRes.error) {
+      BREAK_SWAP_REQUESTS = (swapRes.data || []).map(r => ({
+        id: r.id, workDate: r.work_date,
+        requesterEmail: r.requester_email, requesterSlot: r.requester_break_slot,
+        targetEmail: r.target_email, targetSlot: r.target_break_slot,
+        status: r.status, createdAt: r.created_at
+      }));
+    }
+  }
+
+  function renderBreaksPage() {
+    const isAr = currentLang === 'ar';
+    const dateLabel = document.getElementById('breaksDateLabel');
+    if (dateLabel) dateLabel.textContent = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    document.body.classList.toggle('breaks-admin-edit', !!isAdmin);
+
+    const addRow = document.getElementById('breaksAddRow');
+    if (addRow) {
+      addRow.style.display = isAdmin ? 'flex' : 'none';
+      if (isAdmin) {
+        const listedEmails = new Set(BREAK_SCHEDULE.map(r => r.employeeEmail));
+        const available = DIRECTORY_EMAILS.filter(e => !listedEmails.has(e));
+        const sel = document.getElementById('breaksAddEmployeeSelect');
+        sel.innerHTML = available.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(breakDisplayName(e))}</option>`).join('');
+        document.getElementById('breaksAddEmployeeBtn').disabled = !available.length;
+      }
+    }
+
+    const rows = [...BREAK_SCHEDULE].sort((a, b) => {
+      if (a.employeeEmail === currentUserEmail) return -1;
+      if (b.employeeEmail === currentUserEmail) return 1;
+      return a.employeeEmail.localeCompare(b.employeeEmail);
+    });
+    const countEl = document.getElementById('breaksEmployeeCount');
+    if (countEl) countEl.textContent = rows.length;
+
+    const swapIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`;
+
+    const body = document.getElementById('breaksTableBody');
+    if (body) {
+      body.innerHTML = rows.map(r => {
+        const isMe = r.employeeEmail === currentUserEmail;
+        const cells = [1, 2, 3].map(slot => {
+          const raw = r['break' + slot];
+          const formatted = formatBreakTime(raw);
+          const editable = isAdmin;
+          const canSwap = !isAdmin && isMe && !!raw;
+          const blockClass = 'break-block' + (formatted ? '' : ' empty-slot');
+          const swapBtn = canSwap
+            ? `<button type="button" class="break-swap-btn" data-swap-slot="${slot}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
+            : '';
+          return `<td class="break-cell"><span class="${blockClass}" data-editable="${editable ? '1' : '0'}" data-email="${escapeHtml(r.employeeEmail)}" data-slot="${slot}" data-time="${raw ? raw.slice(0, 5) : ''}">${formatted ? escapeHtml(formatted) : '—'}${swapBtn}</span></td>`;
+        }).join('');
+        return `<tr class="${isMe ? 'me-row' : ''}">
+          <td><div class="breaks-who"><span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span><div><b>${escapeHtml(breakDisplayName(r.employeeEmail))}</b>${isMe ? `<div class="me-tag">${isAr ? 'هذا صفك' : 'This is you'}</div>` : ''}</div></div></td>
+          ${cells}
+        </tr>`;
+      }).join('');
+    }
+
+    // Incoming: requests targeting me, still pending.
+    const incoming = BREAK_SWAP_REQUESTS.filter(r => r.targetEmail === currentUserEmail && r.status === 'pending');
+    const incomingCard = document.getElementById('breaksIncomingCard');
+    const incomingList = document.getElementById('breaksIncomingList');
+    if (incomingCard && incomingList) {
+      incomingCard.style.display = incoming.length ? 'block' : 'none';
+      document.getElementById('breaksIncomingCount').textContent = incoming.length;
+      incomingList.innerHTML = incoming.map(r => `
+        <div class="break-req-row">
+          <div class="break-req-info">
+            <span class="breaks-avatar" style="background:${breakAvatarColor(r.requesterEmail)}">${escapeHtml(breakInitials(r.requesterEmail))}</span>
+            <div class="break-req-detail">
+              <b>${escapeHtml(breakDisplayName(r.requesterEmail))}</b> ${isAr ? 'بده يعمل سواب معك' : 'wants to swap with you'}
+              <div class="swap-desc">${isAr ? 'بريكه' : 'their'} ${escapeHtml(formatBreakTime(findBreakTime(r.requesterEmail, r.requesterSlot)) || '—')} <span class="arrow">⇄</span> ${isAr ? 'بريكك' : 'your'} ${escapeHtml(formatBreakTime(findBreakTime(r.targetEmail, r.targetSlot)) || '—')}</div>
+            </div>
+          </div>
+          <div class="break-req-actions">
+            <button type="button" class="break-accept-btn" data-respond-swap="${r.id}" data-accept="1">${isAr ? '✓ قبول' : '✓ Accept'}</button>
+            <button type="button" class="break-decline-btn" data-respond-swap="${r.id}" data-accept="0">${isAr ? '✕ رفض' : '✕ Decline'}</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // Outgoing: requests I sent, still pending.
+    const outgoing = BREAK_SWAP_REQUESTS.filter(r => r.requesterEmail === currentUserEmail && r.status === 'pending');
+    const outgoingCard = document.getElementById('breaksOutgoingCard');
+    const outgoingList = document.getElementById('breaksOutgoingList');
+    if (outgoingCard && outgoingList) {
+      outgoingCard.style.display = outgoing.length ? 'block' : 'none';
+      outgoingList.innerHTML = outgoing.map(r => `
+        <div class="break-req-row">
+          <div class="break-req-info">
+            <span class="breaks-avatar" style="background:${breakAvatarColor(r.targetEmail)}">${escapeHtml(breakInitials(r.targetEmail))}</span>
+            <div class="break-req-detail">
+              <b>${escapeHtml(breakDisplayName(r.targetEmail))}</b>
+              <div class="swap-desc">${isAr ? 'بريكك' : 'your'} ${escapeHtml(formatBreakTime(findBreakTime(r.requesterEmail, r.requesterSlot)) || '—')} <span class="arrow">⇄</span> ${isAr ? 'بريكه' : 'their'} ${escapeHtml(formatBreakTime(findBreakTime(r.targetEmail, r.targetSlot)) || '—')}</div>
+            </div>
+          </div>
+          <span class="break-pending-tag">${isAr ? 'بانتظار الرد' : 'Awaiting response'}</span>
+        </div>`).join('');
+    }
+  }
+
+  function findBreakTime(email, slot) {
+    const row = BREAK_SCHEDULE.find(r => r.employeeEmail === email);
+    return row ? row['break' + slot] : null;
+  }
+
+  // ----- Admin inline edit: click a block, it turns into a native time input in place -----
+  function handleBreakBlockClick(e) {
+    const block = e.target.closest('.break-block');
+    if (!block || !isAdmin || block.dataset.editable !== '1' || block.classList.contains('editing')) return;
+    const email = block.dataset.email;
+    const slot = block.dataset.slot;
+    const current = block.dataset.time;
+    block.classList.add('editing');
+    block.textContent = '';
+    const input = document.createElement('input');
+    input.type = 'time';
+    input.value = current;
+    block.appendChild(input);
+    input.focus();
+    function commit() {
+      const val = input.value || null;
+      block.classList.remove('editing');
+      saveBreakTime(email, slot, val);
+    }
+    input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') input.blur(); });
+    input.addEventListener('blur', commit);
+  }
+
+  async function saveBreakTime(email, slot, val) {
+    const isAr = currentLang === 'ar';
+    const col = 'break' + slot + '_time';
+    const { error } = await sb.from('break_schedule')
+      .update({ [col]: val, updated_by: currentUserEmail, updated_at: new Date().toISOString() })
+      .eq('employee_email', email).eq('work_date', todayDateStr());
+    if (error) { showToast(isAr ? 'تعذّر الحفظ.' : 'Could not save.', 'error'); }
+    await reloadBreakData();
+    renderBreaksPage();
+  }
+
+  async function addBreaksEmployee(email) {
+    if (!email) return;
+    const isAr = currentLang === 'ar';
+    const { error } = await sb.from('break_schedule').insert({
+      employee_email: email, work_date: todayDateStr(), updated_by: currentUserEmail
+    });
+    if (error) { showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error'); return; }
+    await reloadBreakData();
+    renderBreaksPage();
+  }
+
+  // ----- Swap request flow -----
+  let breakSwapRequesterSlot = null;
+  function openBreakSwapPicker(slot) {
+    const isAr = currentLang === 'ar';
+    breakSwapRequesterSlot = slot;
+    const myRow = myBreakRow();
+    const myTime = myRow ? formatBreakTime(myRow['break' + slot]) : '';
+    document.getElementById('breakSwapSub').textContent = isAr
+      ? `بريكك ${myTime || ''} (بريك ${slot}) — اختار مين وأي بريك بدك تبادله فيه`
+      : `Your break ${slot} (${myTime || ''}) — pick who and which of their breaks`;
+    const colSel = document.getElementById('breakSwapColleague');
+    const others = BREAK_SCHEDULE.filter(r => r.employeeEmail !== currentUserEmail);
+    colSel.innerHTML = others.map(r => `<option value="${escapeHtml(r.employeeEmail)}">${escapeHtml(breakDisplayName(r.employeeEmail))}</option>`).join('');
+    function populateTargetSlots() {
+      const target = others.find(r => r.employeeEmail === colSel.value);
+      const slotSel = document.getElementById('breakSwapTargetSlot');
+      if (!target) { slotSel.innerHTML = ''; return; }
+      slotSel.innerHTML = [1, 2, 3].filter(s => target['break' + s]).map(s =>
+        `<option value="${s}">${isAr ? 'بريك' : 'Break'} ${s} — ${escapeHtml(formatBreakTime(target['break' + s]))}</option>`
+      ).join('');
+    }
+    colSel.onchange = populateTargetSlots;
+    populateTargetSlots();
+    document.getElementById('breakSwapOverlay').classList.add('show');
+  }
+  function closeBreakSwapPicker() {
+    document.getElementById('breakSwapOverlay').classList.remove('show');
+  }
+  async function sendBreakSwapRequest() {
+    const isAr = currentLang === 'ar';
+    const targetEmail = document.getElementById('breakSwapColleague').value;
+    const targetSlot = document.getElementById('breakSwapTargetSlot').value;
+    if (!targetEmail || !targetSlot || !breakSwapRequesterSlot) return;
+    const { error } = await sb.from('break_swap_requests').insert({
+      work_date: todayDateStr(), requester_email: currentUserEmail, requester_break_slot: breakSwapRequesterSlot,
+      target_email: targetEmail, target_break_slot: parseInt(targetSlot, 10)
+    });
+    closeBreakSwapPicker();
+    if (error) { showToast(isAr ? 'تعذّر إرسال الطلب.' : 'Could not send the request.', 'error'); return; }
+    showToast(isAr ? 'تم إرسال طلب السواب!' : 'Swap request sent!', 'success');
+    await reloadBreakData();
+    renderBreaksPage();
+  }
+  async function respondBreakSwap(requestId, accept) {
+    const isAr = currentLang === 'ar';
+    const { error } = await sb.rpc('respond_break_swap', { request_id: requestId, accept });
+    if (error) { showToast(isAr ? 'تعذّر تنفيذ الإجراء.' : 'Could not complete the action.', 'error'); return; }
+    showToast(accept ? (isAr ? 'تم القبول والتبديل!' : 'Accepted and swapped!') : (isAr ? 'تم الرفض.' : 'Declined.'), 'success');
+    await reloadBreakData();
+    renderBreaksPage();
+  }
+
+  // ----- Break-time notification watcher (with sound), runs from login regardless of
+  // whether the Breaks page is ever opened. Re-checks against the server every tick
+  // instead of relying on the schedule loaded at login, so an admin edit or an accepted
+  // swap made mid-day is still caught. -----
+  const breakNotifiedToday = new Set();
+  let breakWatcherTimer = null;
+  async function checkMyBreakTimes() {
+    if (!currentUserEmail) return;
+    const { data, error } = await sb.from('break_schedule')
+      .select('break1_time, break2_time, break3_time')
+      .eq('employee_email', currentUserEmail).eq('work_date', todayDateStr()).maybeSingle();
+    if (error || !data) return;
+    const now = new Date();
+    const nowHM = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    [1, 2, 3].forEach(slot => {
+      const t = data['break' + slot + '_time'];
+      if (!t) return;
+      const key = todayDateStr() + '-' + slot;
+      if (t.slice(0, 5) === nowHM && !breakNotifiedToday.has(key)) {
+        breakNotifiedToday.add(key);
+        fireBreakNotification(slot, t);
+      }
+    });
+  }
+  function fireBreakNotification(slot, timeStr) {
+    const isAr = currentLang === 'ar';
+    const title = isAr ? 'حان وقت بريكك! ☕' : 'Break time! ☕';
+    const body = isAr ? `بريك ${slot} — الساعة ${formatBreakTime(timeStr)}` : `Break ${slot} — ${formatBreakTime(timeStr)}`;
+    playBreakAlertSound();
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try { new Notification(title, { body, icon: '/icons/icon-192.png' }); } catch (e) { /* best-effort only */ }
+    }
+    showToast(`🔔 ${title} — ${body}`, 'success');
+  }
+  function playBreakAlertSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const beep = (freq, start, dur) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur + 0.05);
+      };
+      beep(880, 0, 0.18);
+      beep(1108, 0.22, 0.22);
+    } catch (e) { /* audio unavailable — the visible toast/notification still fired */ }
+  }
+  function startBreakWatcher() {
+    stopBreakWatcher();
+    checkMyBreakTimes();
+    breakWatcherTimer = setInterval(checkMyBreakTimes, 20000);
+  }
+  function stopBreakWatcher() {
+    if (breakWatcherTimer) { clearInterval(breakWatcherTimer); breakWatcherTimer = null; }
+  }
+  // ===================== End Break Schedule =====================
+
   // ===================== Training Center (مركز التدريب) — Supabase-driven =====================
   // البيانات هلأ Dynamic بالكامل ومخزّنة بـ Supabase (جداول training_problems / training_nodes / training_options)
   // بدل المصفوفة الثابتة يلي كانت بالكود سابقاً. الأدمن يقدر يدير كل شي من "Admin Portal".
@@ -888,6 +1244,7 @@
     closeUpdatesPage();
     closeMentorshipPage();
     closeTechPage();
+    closeBreaksPage();
     document.getElementById('trainingPage').classList.add('open');
     backToTrainingGrid();
     pauseAllOrbits();
@@ -2099,6 +2456,7 @@
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
+    closeBreaksPage();
     document.getElementById('scriptsPage').classList.add('open');
     pauseAllOrbits();
     pauseCmdHero();
@@ -2484,6 +2842,7 @@
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
+    closeBreaksPage();
     pauseAllOrbits();
     pauseCmdHero();
 
@@ -2852,6 +3211,7 @@
     closeUpdatesPage();
     closeTechPage();
     closeTrainingPage();
+    closeBreaksPage();
     switchMentorTab(activeMentorTab || 'request');
     document.getElementById('mentorshipPage').classList.add('open');
     pauseAllOrbits();
@@ -3130,6 +3490,7 @@
     closeMentorshipPage();
     closeTechPage();
     closeTrainingPage();
+    closeBreaksPage();
     closeAdminModal();
     setCategory(null);
     const searchEl = document.getElementById('searchInput');
@@ -3146,6 +3507,7 @@
     closeUpdatesPage();
     closeMentorshipPage();
     closeTrainingPage();
+    closeBreaksPage();
     resetTechForm();
     document.getElementById('techPage').classList.add('open');
     const searchEl = document.getElementById('techRecordSearch');
@@ -4055,6 +4417,25 @@
       if (btn) deleteTechIssue(parseInt(btn.dataset.delTech, 10));
     });
 
+    // جدول البريكات
+    on('breaksMenuBtn', 'click', () => { closeProfileMenu(); openBreaksPage(); });
+    on('breaksBackBtn', 'click', () => { closeBreaksPage(); goHome(); });
+    on('breaksAddEmployeeBtn', 'click', () => addBreaksEmployee(document.getElementById('breaksAddEmployeeSelect').value));
+    document.getElementById('breaksTableBody').addEventListener('click', (e) => {
+      const swapBtn = e.target.closest('.break-swap-btn');
+      if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(parseInt(swapBtn.dataset.swapSlot, 10)); return; }
+      handleBreakBlockClick(e);
+    });
+    document.getElementById('breaksIncomingList').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-respond-swap]');
+      if (btn) respondBreakSwap(parseInt(btn.dataset.respondSwap, 10), btn.dataset.accept === '1');
+    });
+    on('breakSwapCancel', 'click', closeBreakSwapPicker);
+    on('breakSwapSend', 'click', sendBreakSwapRequest);
+    document.getElementById('breakSwapOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'breakSwapOverlay') closeBreakSwapPicker();
+    });
+
     // مركز التدريب
     on('trainingSearchInput', 'input', renderTrainingGrid);
     on('trainingFooterBtn', 'click', () => openPanel('suggest'));
@@ -4397,6 +4778,7 @@
     if (isAdmin) renderAdminLists();
     startPresenceHeartbeat();
     startUpdatesPolling();
+    startBreakWatcher();
     loadDirectoryEmails();
     loadCmdTechPreview();
     syncPushSubscriptionIfGranted();
