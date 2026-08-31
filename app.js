@@ -956,6 +956,7 @@
     if (countEl) countEl.textContent = rows.length;
 
     const swapIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`;
+    const removeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"></path><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M7 7l1 12.5A2 2 0 0 0 10 21h4a2 2 0 0 0 2-1.5L17 7"></path></svg>`;
 
     const body = document.getElementById('breaksTableBody');
     if (body) {
@@ -972,8 +973,11 @@
             : '';
           return `<td class="break-cell"><span class="${blockClass}" data-editable="${editable ? '1' : '0'}" data-email="${escapeHtml(r.employeeEmail)}" data-slot="${slot}" data-time="${raw ? raw.slice(0, 5) : ''}">${formatted ? escapeHtml(formatted) : '—'}${swapBtn}</span></td>`;
         }).join('');
+        const removeBtn = isAdmin
+          ? `<button type="button" class="breaks-remove-btn" data-remove-email="${escapeHtml(r.employeeEmail)}" title="${isAr ? 'إزالة من الجدول' : 'Remove from schedule'}">${removeIcon}</button>`
+          : '';
         return `<tr class="${isMe ? 'me-row' : ''}">
-          <td><div class="breaks-who"><span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span><div><b>${escapeHtml(breakDisplayName(r.employeeEmail))}</b>${isMe ? `<div class="me-tag">${isAr ? 'هذا صفك' : 'This is you'}</div>` : ''}</div></div></td>
+          <td><div class="breaks-who"><span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span><div><b>${escapeHtml(breakDisplayName(r.employeeEmail))}</b>${isMe ? `<div class="me-tag">${isAr ? 'هذا صفك' : 'This is you'}</div>` : ''}</div>${removeBtn}</div></td>
           ${cells}
         </tr>`;
       }).join('');
@@ -1042,8 +1046,13 @@
     block.appendChild(input);
     input.focus();
     function commit() {
-      const val = input.value || null;
+      const val = input.value;
       block.classList.remove('editing');
+      // A native time input reports '' whenever any of its segments (hour/minute/AM-PM)
+      // isn't fully filled in yet — extremely easy to hit by typing and pressing Enter
+      // before finishing every segment. Treat that as "no change" and just redraw the
+      // existing value instead of wiping it out with an empty save.
+      if (!val) { renderBreaksPage(); return; }
       saveBreakTime(email, slot, val);
     }
     input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') input.blur(); });
@@ -1071,17 +1080,52 @@
     else breaksSelectedToAdd.add(email);
     renderBreaksPage();
   }
+  // Auto-distribute suggested break times instead of leaving them blank for the admin to
+  // type one at a time: break 1 is a 15-minute slot early in the day, break 2 a 30-minute
+  // slot midday, break 3 a 15-minute slot later on, all within the 1:00 PM - 8:45 PM shift
+  // window, staggered 15 minutes apart per employee (round-robin) so the whole team isn't
+  // on the same break at once. Still just a starting point — any block stays editable.
+  const BREAK_AUTO_WINDOWS = {
+    1: { startMin: 13 * 60, count: 10 },       // 13:00 .. 15:15, 15-min breaks
+    2: { startMin: 15 * 60 + 30, count: 10 },  // 15:30 .. 17:45, 30-min breaks
+    3: { startMin: 18 * 60 + 15, count: 10 },  // 18:15 .. 20:30, 15-min breaks
+  };
+  function computeAutoBreakTime(index, slotNum) {
+    const w = BREAK_AUTO_WINDOWS[slotNum];
+    const totalMin = w.startMin + (index % w.count) * 15;
+    return String(Math.floor(totalMin / 60)).padStart(2, '0') + ':' + String(totalMin % 60).padStart(2, '0');
+  }
+
   async function addSelectedBreaksEmployees() {
     const emails = [...breaksSelectedToAdd];
     if (!emails.length) return;
     const isAr = currentLang === 'ar';
     const today = todayDateStr();
+    const baseIndex = BREAK_SCHEDULE.length; // keep rotating past whoever's already on today's schedule
     const { error } = await sb.from('break_schedule').insert(
-      emails.map(email => ({ employee_email: email, work_date: today, updated_by: currentUserEmail }))
+      emails.map((email, i) => ({
+        employee_email: email, work_date: today, updated_by: currentUserEmail,
+        break1_time: computeAutoBreakTime(baseIndex + i, 1),
+        break2_time: computeAutoBreakTime(baseIndex + i, 2),
+        break3_time: computeAutoBreakTime(baseIndex + i, 3),
+      }))
     );
     if (error) { showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error'); return; }
     breaksSelectedToAdd = new Set();
-    showToast(isAr ? `تمت إضافة ${emails.length} موظف للجدول.` : `Added ${emails.length} employee(s) to the schedule.`, 'success');
+    showToast(
+      isAr ? `تمت إضافة ${emails.length} موظف مع أوقات بريكات مقترحة — عدّل أي وقت من الجدول إذا حبيت.` : `Added ${emails.length} employee(s) with suggested break times — edit any time in the grid if you'd like.`,
+      'success'
+    );
+    await reloadBreakData();
+    renderBreaksPage();
+  }
+
+  async function removeBreaksEmployee(email) {
+    const isAr = currentLang === 'ar';
+    if (!confirm(isAr ? `إزالة ${breakDisplayName(email)} من جدول اليوم؟` : `Remove ${breakDisplayName(email)} from today's schedule?`)) return;
+    const { error } = await sb.from('break_schedule').delete()
+      .eq('employee_email', email).eq('work_date', todayDateStr());
+    if (error) { showToast(isAr ? 'تعذّر الإزالة.' : 'Could not remove.', 'error'); return; }
     await reloadBreakData();
     renderBreaksPage();
   }
@@ -4471,6 +4515,8 @@
     document.getElementById('breaksTableBody').addEventListener('click', (e) => {
       const swapBtn = e.target.closest('.break-swap-btn');
       if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(parseInt(swapBtn.dataset.swapSlot, 10)); return; }
+      const removeBtn = e.target.closest('[data-remove-email]');
+      if (removeBtn) { e.stopPropagation(); removeBreaksEmployee(removeBtn.dataset.removeEmail); return; }
       handleBreakBlockClick(e);
     });
     document.getElementById('breaksIncomingList').addEventListener('click', (e) => {

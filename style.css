@@ -1296,6 +1296,13 @@
     }
     .breaks-who b { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .breaks-who .me-tag { font-size: 9.5px; color: var(--brand-teal); font-weight: 800; }
+    .breaks-remove-btn {
+      width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-soft);
+      color: var(--slate-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+      margin-inline-start: auto; transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .breaks-remove-btn:hover { background: rgba(185,28,28,.1); border-color: #B91C1C; color: #B91C1C; }
+    .breaks-remove-btn svg { width: 13px; height: 13px; }
 
     .break-cell { text-align: center; }
     .break-block {
