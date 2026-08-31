@@ -1985,6 +1985,16 @@
     }
     function step() {
       if (!running) return;
+      // A side panel or the admin modal opening pauses the hero's CSS animations
+      // (via the cmd-hero-paused body class) but that never touched this canvas -
+      // it kept redrawing every single frame underneath the panel's dimmed
+      // overlay the whole time the panel stayed open, for no visible benefit
+      // (the overlay hides it anyway). Skip the actual draw work while paused;
+      // keep the rAF loop alive so it resumes instantly once unpaused.
+      if (document.body.classList.contains('cmd-hero-paused')) {
+        requestAnimationFrame(step);
+        return;
+      }
       ctx.clearRect(0, 0, W, H);
       for (const p of points) {
         p.x += p.vx; p.y += p.vy;
