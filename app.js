@@ -928,15 +928,22 @@
 
     document.body.classList.toggle('breaks-admin-edit', !!isAdmin);
 
-    const addRow = document.getElementById('breaksAddRow');
-    if (addRow) {
-      addRow.style.display = isAdmin ? 'flex' : 'none';
+    const addPanel = document.getElementById('breaksAddPanel');
+    if (addPanel) {
+      addPanel.style.display = isAdmin ? 'block' : 'none';
       if (isAdmin) {
         const listedEmails = new Set(BREAK_SCHEDULE.map(r => r.employeeEmail));
         const available = DIRECTORY_EMAILS.filter(e => !listedEmails.has(e));
-        const sel = document.getElementById('breaksAddEmployeeSelect');
-        sel.innerHTML = available.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(breakDisplayName(e))}</option>`).join('');
-        document.getElementById('breaksAddEmployeeBtn').disabled = !available.length;
+        breaksSelectedToAdd = new Set([...breaksSelectedToAdd].filter(e => available.includes(e)));
+        const chips = document.getElementById('breaksAddChips');
+        chips.innerHTML = available.map(e =>
+          `<span class="chip${breaksSelectedToAdd.has(e) ? ' on' : ''}" data-add-email="${escapeHtml(e)}">${escapeHtml(breakDisplayName(e))}</span>`
+        ).join('') || `<span style="font-size:11.5px; color:var(--slate-soft);">${isAr ? 'كل الموظفين مضافين للجدول.' : 'Everyone is already on the schedule.'}</span>`;
+        const btn = document.getElementById('breaksAddSelectedBtn');
+        btn.disabled = breaksSelectedToAdd.size === 0;
+        btn.textContent = breaksSelectedToAdd.size
+          ? (isAr ? `+ إضافة ${breaksSelectedToAdd.size} للجدول` : `+ Add ${breaksSelectedToAdd.size} to schedule`)
+          : (isAr ? '+ إضافة المحددين للجدول' : '+ Add selected to schedule');
       }
     }
 
@@ -1054,13 +1061,27 @@
     renderBreaksPage();
   }
 
-  async function addBreaksEmployee(email) {
-    if (!email) return;
+  // Bulk-add: pick everyone on shift today as chips, one click adds all of them to the
+  // schedule in a single insert - filling in their actual break times happens right in
+  // the grid afterward (click a block, type the time), instead of a slow one-at-a-time
+  // dropdown flow.
+  let breaksSelectedToAdd = new Set();
+  function toggleBreaksAddSelection(email) {
+    if (breaksSelectedToAdd.has(email)) breaksSelectedToAdd.delete(email);
+    else breaksSelectedToAdd.add(email);
+    renderBreaksPage();
+  }
+  async function addSelectedBreaksEmployees() {
+    const emails = [...breaksSelectedToAdd];
+    if (!emails.length) return;
     const isAr = currentLang === 'ar';
-    const { error } = await sb.from('break_schedule').insert({
-      employee_email: email, work_date: todayDateStr(), updated_by: currentUserEmail
-    });
+    const today = todayDateStr();
+    const { error } = await sb.from('break_schedule').insert(
+      emails.map(email => ({ employee_email: email, work_date: today, updated_by: currentUserEmail }))
+    );
     if (error) { showToast(isAr ? 'تعذّر الإضافة.' : 'Could not add.', 'error'); return; }
+    breaksSelectedToAdd = new Set();
+    showToast(isAr ? `تمت إضافة ${emails.length} موظف للجدول.` : `Added ${emails.length} employee(s) to the schedule.`, 'success');
     await reloadBreakData();
     renderBreaksPage();
   }
@@ -2295,6 +2316,28 @@
         renderTrainingGrid();
       }
     }
+
+    document.getElementById('breaksMenuBtnText').textContent = isAr ? 'جدول البريكات' : 'Break Schedule';
+    document.getElementById('breaksPageTitle').textContent = isAr ? '🕐 جدول البريكات' : '🕐 Break Schedule';
+    document.getElementById('breaksNoticeText').textContent = isAr
+      ? 'رح توصلك رسالة تنبيه بصوت عند وصول موعد أي بريك من بريكاتك.'
+      : "You'll get a sound alert the moment any of your breaks starts.";
+    document.getElementById('breaksAddLabel').textContent = isAr
+      ? 'اختر الموظفين المداومين اليوم، ثم دوس إضافة — تقدر تحدد أكثر من موظف مرة وحدة:'
+      : "Pick today's employees on shift, then click add — you can select more than one at once:";
+    document.getElementById('breaksTodayLabel').textContent = isAr ? '👥 جدول اليوم' : "👥 Today's Schedule";
+    document.getElementById('breaksColEmployee').textContent = isAr ? 'الموظف' : 'Employee';
+    document.getElementById('breaksColBreak1').textContent = isAr ? '☕ بريك ١' : '☕ Break 1';
+    document.getElementById('breaksColBreak2').textContent = isAr ? '🍽️ بريك ٢' : '🍽️ Break 2';
+    document.getElementById('breaksColBreak3').textContent = isAr ? '☕ بريك ٣' : '☕ Break 3';
+    document.getElementById('breaksIncomingLabel').textContent = isAr ? '📥 طلبات سواب واردة' : '📥 Incoming Swap Requests';
+    document.getElementById('breaksOutgoingLabel').textContent = isAr ? '📤 طلباتي المرسلة' : '📤 My Sent Requests';
+    document.getElementById('breakSwapTitle').textContent = isAr ? 'طلب سواب بريك' : 'Request a Break Swap';
+    document.getElementById('breakSwapColleagueLabel').textContent = isAr ? 'الزميل' : 'Colleague';
+    document.getElementById('breakSwapTargetLabel').textContent = isAr ? 'بريكه اللي بدك تاخذه' : "Which of their breaks you want";
+    document.getElementById('breakSwapCancel').textContent = isAr ? 'إلغاء' : 'Cancel';
+    document.getElementById('breakSwapSend').textContent = isAr ? 'إرسال الطلب' : 'Send Request';
+    if (document.getElementById('breaksPage').classList.contains('open')) renderBreaksPage();
 
     updateThemeIcon();
   }
@@ -4420,7 +4463,11 @@
     // جدول البريكات
     on('breaksMenuBtn', 'click', () => { closeProfileMenu(); openBreaksPage(); });
     on('breaksBackBtn', 'click', () => { closeBreaksPage(); goHome(); });
-    on('breaksAddEmployeeBtn', 'click', () => addBreaksEmployee(document.getElementById('breaksAddEmployeeSelect').value));
+    on('breaksAddSelectedBtn', 'click', addSelectedBreaksEmployees);
+    document.getElementById('breaksAddChips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-add-email]');
+      if (chip) toggleBreaksAddSelection(chip.dataset.addEmail);
+    });
     document.getElementById('breaksTableBody').addEventListener('click', (e) => {
       const swapBtn = e.target.closest('.break-swap-btn');
       if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(parseInt(swapBtn.dataset.swapSlot, 10)); return; }
