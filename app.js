@@ -1159,14 +1159,18 @@
   // slot midday, break 3 a 15-minute slot later on, all within the 1:00 PM - 8:45 PM shift
   // window, staggered 15 minutes apart per employee (round-robin) so the whole team isn't
   // on the same break at once. Still just a starting point — any block stays editable.
+  // Each slot's stagger step must match its own duration, or consecutive employees'
+  // breaks overlap into each other. Was previously a flat 15-minute step for all three
+  // slots, so break 2 (a real 30-minute break) only got 15 minutes before the next
+  // employee's break 2 started — a 15-minute overlap, not the full half hour.
   const BREAK_AUTO_WINDOWS = {
-    1: { startMin: 13 * 60, count: 10 },       // 13:00 .. 15:15, 15-min breaks
-    2: { startMin: 15 * 60 + 30, count: 10 },  // 15:30 .. 17:45, 30-min breaks
-    3: { startMin: 18 * 60 + 15, count: 10 },  // 18:15 .. 20:30, 15-min breaks
+    1: { startMin: 13 * 60, stepMin: 15, count: 10 },       // 13:00 .. 15:15, 15-min breaks
+    2: { startMin: 15 * 60 + 30, stepMin: 30, count: 10 },  // 15:30 .. 20:00, 30-min breaks
+    3: { startMin: 18 * 60 + 15, stepMin: 15, count: 10 },  // 18:15 .. 20:30, 15-min breaks
   };
   function computeAutoBreakTime(index, slotNum) {
     const w = BREAK_AUTO_WINDOWS[slotNum];
-    const totalMin = w.startMin + (index % w.count) * 15;
+    const totalMin = w.startMin + (index % w.count) * w.stepMin;
     return String(Math.floor(totalMin / 60)).padStart(2, '0') + ':' + String(totalMin % 60).padStart(2, '0');
   }
 
