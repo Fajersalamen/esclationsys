@@ -136,12 +136,13 @@ revoke all on function public.list_directory_emails() from public;
 grant execute on function public.list_directory_emails() to authenticated;
 
 -- ---------------------------------------------------------------------
--- Realtime: without this, a new request, an accept/decline, etc. only
--- ever shows up for the other side after a manual refresh — Supabase
--- only streams postgres_changes for tables explicitly added to this
--- publication. Realtime still goes through mentor_requests' own RLS
--- policies above (a client only receives rows it's allowed to select),
--- so this doesn't widen who can see what.
+-- Realtime publication for mentor_requests. NOT currently used by the
+-- app — the client-side "no refresh needed" behavior is done by polling
+-- instead (see startMentorRequestsPolling() in app.js), since a
+-- WebSocket subscription depends on Realtime actually being reachable
+-- for this project, which isn't something that could be confirmed here.
+-- Left enabled in case Realtime is revisited later; harmless either way,
+-- and still scoped by mentor_requests' own RLS policies above.
 -- ---------------------------------------------------------------------
 do $$
 begin
