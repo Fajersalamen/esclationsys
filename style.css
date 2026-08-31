@@ -1649,7 +1649,7 @@
     .training-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .training-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .training-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
@@ -1851,7 +1851,7 @@
     .updates-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .updates-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .updates-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
@@ -1945,7 +1945,7 @@
     .mentorship-page {
       position: fixed; inset: 0; z-index: 90; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .mentorship-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .mentorship-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
@@ -2000,7 +2000,7 @@
     .onboarding-page {
       position: fixed; inset: 0; z-index: 95; background: var(--bg); color: var(--text-main);
       display: flex; flex-direction: column; transform: translateY(100%); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .onboarding-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .onboarding-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
