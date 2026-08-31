@@ -1275,65 +1275,96 @@
     }
 
     .breaks-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
-    .breaks-card-head { padding: 13px 16px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
-    .breaks-count { font-size: 10.5px; font-weight: 800; color: #fff; background: var(--brand-teal); padding: 2px 9px; border-radius: 999px; }
-    .breaks-table-scroll { overflow-x: auto; }
+    .breaks-card-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+    .breaks-card-head-actions { display: flex; align-items: center; gap: 10px; }
+    .breaks-count { font-size: 11px; font-weight: 800; color: #fff; background: var(--brand-teal); padding: 3px 10px; border-radius: 999px; }
 
-    .breaks-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; min-width: 460px; }
-    .breaks-table thead th {
-      text-align: center; padding: 10px 8px; font-size: 10px; font-weight: 800; color: var(--slate-soft);
-      border-bottom: 1px solid var(--border); background: var(--surface-soft);
+    .breaks-edit-toggle {
+      display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text-main); font: inherit; font-weight: 800; font-size: 12px; padding: 7px 14px;
+      border-radius: 9px; cursor: pointer; transition: background .15s, border-color .15s, color .15s;
     }
-    .breaks-table thead th:first-child { text-align: start; padding-inline-start: 14px; width: 34%; }
-    .breaks-table tbody td { padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .breaks-table tbody td:first-child { padding-inline-start: 14px; }
-    .breaks-table tbody tr:last-child td { border-bottom: none; }
-    .breaks-table tbody tr.me-row { background: color-mix(in srgb, var(--brand-blue) 5%, transparent); }
-    .breaks-who { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .breaks-edit-toggle svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .breaks-edit-toggle:hover { border-color: var(--brand-blue); color: var(--brand-blue); }
+    .breaks-edit-toggle.active { background: var(--brand-blue); border-color: var(--brand-blue); color: #fff; }
+    .breaks-edit-toggle.active:hover { color: #fff; }
+
+    .breaks-edit-hint {
+      margin: 0; font-size: 12px; font-weight: 700; color: var(--brand-blue); text-align: center;
+      max-height: 0; opacity: 0; overflow: hidden; transition: max-height .15s ease, opacity .15s ease, padding .15s ease;
+    }
+    .breaks-edit-hint.show { max-height: 40px; opacity: 1; padding: 10px 16px 0; }
+
+    .breaks-col-labels { display: flex; align-items: center; gap: 12px; padding: 12px 18px 6px; }
+    .breaks-col-labels .who { flex: 1 1 220px; min-width: 0; }
+    .breaks-col-labels .b {
+      flex: 1; min-width: 96px; display: flex; align-items: center; justify-content: center; gap: 5px;
+      font-size: 10.5px; font-weight: 800; color: var(--slate-soft); letter-spacing: .2px;
+    }
+    .breaks-col-labels .b .ic { font-size: 13px; }
+
+    .breaks-roster { display: flex; flex-direction: column; gap: 8px; padding: 6px 12px 14px; }
+
+    .breaks-row {
+      display: flex; align-items: center; gap: 12px; background: var(--card);
+      border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .breaks-row.me { background: color-mix(in srgb, var(--brand-blue) 6%, var(--card)); }
+    .breaks-roster.edit-mode .breaks-row { cursor: pointer; }
+    .breaks-roster.edit-mode .breaks-row:hover { border-color: var(--brand-teal); }
+    .breaks-row.picked { border-color: var(--brand-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-blue) 18%, transparent); }
+
+    .breaks-identity { display: flex; align-items: center; gap: 10px; flex: 1 1 220px; min-width: 0; }
     .breaks-avatar {
-      width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 800;
+      width: 40px; height: 40px; border-radius: 50%; color: #fff; font-size: 13.5px; font-weight: 800;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .breaks-who b { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .breaks-who .me-tag { font-size: 9.5px; color: var(--brand-teal); font-weight: 800; }
+    .breaks-name { font-size: 14.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .breaks-you-tag {
+      font-size: 10px; font-weight: 800; color: var(--brand-blue); background: color-mix(in srgb, var(--brand-blue) 12%, var(--card));
+      padding: 2px 8px; border-radius: 6px; margin-inline-start: 7px; white-space: nowrap;
+    }
+
     .breaks-remove-btn {
-      width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-soft);
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-soft);
       color: var(--slate-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
       margin-inline-start: auto; transition: background .15s ease, border-color .15s ease, color .15s ease;
     }
     .breaks-remove-btn:hover { background: rgba(185,28,28,.1); border-color: #B91C1C; color: #B91C1C; }
-    .breaks-remove-btn svg { width: 13px; height: 13px; }
+    .breaks-remove-btn svg { width: 14px; height: 14px; }
 
-    .break-cell { text-align: center; }
-    .break-block {
-      position: relative; display: block; margin: 0 3px; padding: 8px 8px 8px 12px; border-radius: 7px;
-      background: color-mix(in srgb, var(--brand-blue) 13%, var(--card)); border-inline-start: 3px solid var(--brand-blue);
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; color: var(--text-main);
+    .breaks-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 2 1 320px; }
+    .breaks-chip {
+      display: flex; align-items: center; gap: 6px; border-radius: 10px; padding: 8px 11px;
+      font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+      font-size: 13px; font-weight: 700; color: var(--text-main); flex: 1; min-width: 92px; justify-content: center;
     }
-    .break-block.empty-slot { background: var(--surface-soft); border-inline-start-color: var(--border); color: var(--slate-soft); font-weight: 700; }
+    .breaks-chip.b1 { background: color-mix(in srgb, var(--brand-teal) 15%, var(--card)); }
+    .breaks-chip.b2 { background: color-mix(in srgb, #D6572B 14%, var(--card)); }
+    .breaks-chip.b3 { background: color-mix(in srgb, #7C6FE0 15%, var(--card)); }
+    .breaks-chip .ic { font-size: 14px; }
+    .breaks-chip .t { white-space: nowrap; }
+    .breaks-chip.editing { background: var(--card); border: 1.5px solid var(--brand-blue); }
 
-    .break-swap-btn {
-      position: absolute; top: -6px; inset-inline-end: -6px; width: 19px; height: 19px; border-radius: 50%; border: 2px solid var(--bg);
-      background: var(--brand-teal); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
-      opacity: 0; transform: scale(.7); transition: opacity .12s ease, transform .12s ease; padding: 0;
+    .breaks-chip .breaks-time-edit-btn, .breaks-chip .break-swap-btn {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; border: none; padding: 0;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      opacity: 0; transition: opacity .12s ease, background .12s ease, color .12s ease;
     }
-    .break-block:hover .break-swap-btn { opacity: 1; transform: scale(1); }
-    .break-swap-btn:hover { background: var(--brand-blue); }
-    .break-swap-btn svg { width: 10px; height: 10px; }
+    .breaks-row:hover .breaks-chip .breaks-time-edit-btn,
+    .breaks-row:hover .breaks-chip .break-swap-btn { opacity: .8; }
+    .breaks-chip .breaks-time-edit-btn:hover, .breaks-chip .break-swap-btn:hover { opacity: 1 !important; }
+    .breaks-chip .breaks-time-edit-btn { background: none; color: var(--slate-soft); }
+    .breaks-chip .breaks-time-edit-btn:hover { color: var(--brand-blue); }
+    .breaks-chip .break-swap-btn { background: var(--brand-teal); color: #fff; }
+    .breaks-chip .break-swap-btn:hover { background: var(--brand-blue); }
+    .breaks-chip .breaks-time-edit-btn svg { width: 10.5px; height: 10.5px; }
+    .breaks-chip .break-swap-btn svg { width: 10px; height: 10px; }
 
-    body.breaks-admin-edit .break-block[data-editable="1"] { cursor: pointer; }
-    body.breaks-admin-edit .break-block[data-editable="1"]:hover { filter: brightness(1.12); }
-    body.breaks-admin-edit .break-block[data-editable="1"]::after {
-      content: '✎'; position: absolute; top: -5px; inset-inline-end: -5px; width: 16px; height: 16px; border-radius: 50%;
-      background: var(--card); border: 1px solid var(--border); color: var(--slate-soft); font-size: 8px;
-      display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .12s ease;
-    }
-    body.breaks-admin-edit .break-block[data-editable="1"]:hover::after { opacity: 1; }
-    .break-block.editing { background: var(--card); border: 1.5px solid var(--brand-blue); border-inline-start-width: 3px; padding: 5px 8px; }
-    .break-block.editing input {
+    .breaks-chip input[type="time"] {
       width: 100%; border: none; background: none; outline: none; font: inherit; color: inherit; text-align: center; padding: 0;
     }
-    .break-block.editing::after { display: none; }
 
     .break-req-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 12px; }
     .break-req-row:last-child { border-bottom: none; }
@@ -1363,6 +1394,10 @@
 
     @media (max-width: 620px) {
       .breaks-page-inner { padding: 14px 12px 90px; }
+      .breaks-col-labels { display: none; }
+      .breaks-row { flex-wrap: wrap; }
+      .breaks-chips { flex: 1 1 100%; }
+      .breaks-chip { min-width: 0; }
     }
 
     /* Mission-control layout: full-width report banner on top, stats + live board stacked below, edge to edge */

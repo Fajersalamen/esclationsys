@@ -134,3 +134,50 @@ $$;
 drop trigger if exists trg_audit_break_schedule on public.break_schedule;
 create trigger trg_audit_break_schedule after insert or update or delete on public.break_schedule
   for each row execute function public.audit_log_generic();
+
+-- Admin/lead "seat swap": reassigns which employee sits in two existing
+-- schedule rows without touching either row's break times. The two rows
+-- keep their own break1/2/3_time values exactly as they were — only the
+-- employee_email (and updated_by/updated_at) moves between them.
+--
+-- Done as a 3-step update through a placeholder value rather than a single
+-- CASE-based UPDATE, since employee_email is part of a unique constraint
+-- with work_date and a same-statement two-row swap of a unique column can
+-- collide with itself mid-statement. Row locks (for update) keep two
+-- concurrent swaps from interleaving.
+create or replace function public.swap_break_seats(row_id_a bigint, row_id_b bigint)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  email_a text;
+  email_b text;
+  date_a date;
+  date_b date;
+  caller_email text;
+begin
+  if not public.is_admin_or_lead() then
+    raise exception 'Only an admin or team lead can reassign break seats';
+  end if;
+
+  caller_email := auth.jwt() ->> 'email';
+
+  select employee_email, work_date into email_a, date_a from public.break_schedule where id = row_id_a for update;
+  select employee_email, work_date into email_b, date_b from public.break_schedule where id = row_id_b for update;
+
+  if email_a is null or email_b is null then
+    raise exception 'One of these seats no longer exists';
+  end if;
+  if date_a is distinct from date_b then
+    raise exception 'Seats must be on the same day';
+  end if;
+
+  update public.break_schedule set employee_email = '__swap_tmp__' || row_id_a::text, updated_by = caller_email, updated_at = now() where id = row_id_a;
+  update public.break_schedule set employee_email = email_a, updated_by = caller_email, updated_at = now() where id = row_id_b;
+  update public.break_schedule set employee_email = email_b, updated_by = caller_email, updated_at = now() where id = row_id_a;
+end;
+$$;
+
+grant execute on function public.swap_break_seats(bigint, bigint) to authenticated;

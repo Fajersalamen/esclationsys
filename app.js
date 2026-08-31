@@ -926,7 +926,9 @@
     const dateLabel = document.getElementById('breaksDateLabel');
     if (dateLabel) dateLabel.textContent = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
 
-    document.body.classList.toggle('breaks-admin-edit', !!isAdmin);
+    const editToggleBtn = document.getElementById('breaksEditToggle');
+    if (editToggleBtn) editToggleBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (!isAdmin && breaksEditMode) { breaksEditMode = false; breaksPickedSeatId = null; }
 
     const addPanel = document.getElementById('breaksAddPanel');
     if (addPanel) {
@@ -957,29 +959,38 @@
 
     const swapIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`;
     const removeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"></path><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M7 7l1 12.5A2 2 0 0 0 10 21h4a2 2 0 0 0 2-1.5L17 7"></path></svg>`;
+    const pencilIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+    const breakChipIcons = { 1: '☕', 2: '🍽️', 3: '🎧' };
 
-    const body = document.getElementById('breaksTableBody');
-    if (body) {
-      body.innerHTML = rows.map(r => {
+    const roster = document.getElementById('breaksTableBody');
+    if (roster) {
+      roster.classList.toggle('edit-mode', breaksEditMode);
+      roster.innerHTML = rows.map(r => {
         const isMe = r.employeeEmail === currentUserEmail;
-        const cells = [1, 2, 3].map(slot => {
+        const picked = breaksEditMode && r.id === breaksPickedSeatId;
+        const chips = [1, 2, 3].map(slot => {
           const raw = r['break' + slot];
           const formatted = formatBreakTime(raw);
-          const editable = isAdmin;
-          const canSwap = isMe && !!raw;
-          const blockClass = 'break-block' + (formatted ? '' : ' empty-slot');
-          const swapBtn = canSwap
+          const canRequestSwap = isMe && !!raw;
+          const editBtn = isAdmin
+            ? `<button type="button" class="breaks-time-edit-btn" data-edit-row="${r.id}" data-edit-slot="${slot}" title="${isAr ? 'تعديل الوقت يدويًا' : 'Edit time manually'}">${pencilIcon}</button>`
+            : '';
+          const swapBtn = canRequestSwap
             ? `<button type="button" class="break-swap-btn" data-swap-slot="${slot}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
             : '';
-          return `<td class="break-cell"><span class="${blockClass}" data-editable="${editable ? '1' : '0'}" data-email="${escapeHtml(r.employeeEmail)}" data-slot="${slot}" data-time="${raw ? raw.slice(0, 5) : ''}">${formatted ? escapeHtml(formatted) : '—'}${swapBtn}</span></td>`;
+          return `<span class="breaks-chip b${slot}"><span class="ic">${breakChipIcons[slot]}</span><span class="t">${formatted ? escapeHtml(formatted) : '—'}</span>${editBtn}${swapBtn}</span>`;
         }).join('');
         const removeBtn = isAdmin
           ? `<button type="button" class="breaks-remove-btn" data-remove-email="${escapeHtml(r.employeeEmail)}" title="${isAr ? 'إزالة من الجدول' : 'Remove from schedule'}">${removeIcon}</button>`
           : '';
-        return `<tr class="${isMe ? 'me-row' : ''}">
-          <td><div class="breaks-who"><span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span><div><b>${escapeHtml(breakDisplayName(r.employeeEmail))}</b>${isMe ? `<div class="me-tag">${isAr ? 'هذا صفك' : 'This is you'}</div>` : ''}</div>${removeBtn}</div></td>
-          ${cells}
-        </tr>`;
+        return `<div class="breaks-row${isMe ? ' me' : ''}${picked ? ' picked' : ''}" data-row-id="${r.id}">
+          <span class="breaks-identity">
+            <span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span>
+            <span class="breaks-name">${escapeHtml(breakDisplayName(r.employeeEmail))}${isMe ? `<span class="breaks-you-tag">${isAr ? 'هذا صفك' : 'This is you'}</span>` : ''}</span>
+          </span>
+          <span class="breaks-chips">${chips}</span>
+          ${removeBtn}
+        </div>`;
       }).join('');
     }
 
@@ -1031,32 +1042,83 @@
     return row ? row['break' + slot] : null;
   }
 
-  // ----- Admin inline edit: click a block, it turns into a native time input in place -----
-  function handleBreakBlockClick(e) {
-    const block = e.target.closest('.break-block');
-    if (!block || !isAdmin || block.dataset.editable !== '1' || block.classList.contains('editing')) return;
-    const email = block.dataset.email;
-    const slot = block.dataset.slot;
-    const current = block.dataset.time;
-    block.classList.add('editing');
-    block.textContent = '';
+  // ----- Admin inline edit: click a chip's pencil icon, it turns into a native time input in place -----
+  function handleBreakTimeEditClick(btn) {
+    const chip = btn.closest('.breaks-chip');
+    if (!chip || chip.classList.contains('editing')) return;
+    const rowId = parseInt(btn.dataset.editRow, 10);
+    const slot = btn.dataset.editSlot;
+    const row = BREAK_SCHEDULE.find(r => r.id === rowId);
+    if (!row) return;
+    const raw = row['break' + slot];
+    chip.classList.add('editing');
+    const icon = chip.querySelector('.ic').outerHTML;
+    chip.innerHTML = icon;
     const input = document.createElement('input');
     input.type = 'time';
-    input.value = current;
-    block.appendChild(input);
+    input.value = raw ? raw.slice(0, 5) : '';
+    chip.appendChild(input);
     input.focus();
     function commit() {
       const val = input.value;
-      block.classList.remove('editing');
+      chip.classList.remove('editing');
       // A native time input reports '' whenever any of its segments (hour/minute/AM-PM)
       // isn't fully filled in yet — extremely easy to hit by typing and pressing Enter
       // before finishing every segment. Treat that as "no change" and just redraw the
       // existing value instead of wiping it out with an empty save.
       if (!val) { renderBreaksPage(); return; }
-      saveBreakTime(email, slot, val);
+      saveBreakTime(row.employeeEmail, slot, val);
     }
     input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') input.blur(); });
     input.addEventListener('blur', commit);
+  }
+
+  // ----- Admin/lead "Edit" mode: pick two employees to swap which seat (and therefore
+  // which fixed break times) each one holds. The times never move — only the employee_email
+  // on the two underlying rows is exchanged, via the swap_break_seats() RPC so it's atomic. -----
+  let breaksEditMode = false;
+  let breaksPickedSeatId = null;
+  function toggleBreaksEditMode() {
+    if (!isAdmin) return;
+    breaksEditMode = !breaksEditMode;
+    breaksPickedSeatId = null;
+    const isAr = currentLang === 'ar';
+    const btn = document.getElementById('breaksEditToggle');
+    const label = document.getElementById('breaksEditToggleLabel');
+    const hint = document.getElementById('breaksEditHint');
+    if (btn) btn.classList.toggle('active', breaksEditMode);
+    if (label) label.textContent = breaksEditMode ? (isAr ? 'تم' : 'Done') : (isAr ? 'تعديل' : 'Edit');
+    if (hint) hint.classList.toggle('show', breaksEditMode);
+    renderBreaksPage();
+  }
+  function handleSeatSwapClick(rowId) {
+    if (breaksPickedSeatId === null) {
+      breaksPickedSeatId = rowId;
+      renderBreaksPage();
+    } else if (breaksPickedSeatId === rowId) {
+      breaksPickedSeatId = null;
+      renderBreaksPage();
+    } else {
+      performSeatSwap(breaksPickedSeatId, rowId);
+    }
+  }
+  async function performSeatSwap(idA, idB) {
+    const isAr = currentLang === 'ar';
+    const rowA = BREAK_SCHEDULE.find(r => r.id === idA);
+    const rowB = BREAK_SCHEDULE.find(r => r.id === idB);
+    breaksPickedSeatId = null;
+    const { error } = await sb.rpc('swap_break_seats', { row_id_a: idA, row_id_b: idB });
+    if (error) { showToast(isAr ? 'تعذّر التبديل.' : 'Could not swap.', 'error'); renderBreaksPage(); return; }
+    await reloadBreakData();
+    renderBreaksPage();
+    if (rowA && rowB) {
+      showToast(
+        isAr
+          ? `تم تبديل ${breakDisplayName(rowA.employeeEmail)} و${breakDisplayName(rowB.employeeEmail)}`
+          : `Swapped ${breakDisplayName(rowA.employeeEmail)} and ${breakDisplayName(rowB.employeeEmail)}`,
+        'success'
+      );
+    }
   }
 
   async function saveBreakTime(email, slot, val) {
@@ -2370,10 +2432,13 @@
       ? 'اختر الموظفين المداومين اليوم، ثم دوس إضافة — تقدر تحدد أكثر من موظف مرة وحدة:'
       : "Pick today's employees on shift, then click add — you can select more than one at once:";
     document.getElementById('breaksTodayLabel').textContent = isAr ? '👥 جدول اليوم' : "👥 Today's Schedule";
-    document.getElementById('breaksColEmployee').textContent = isAr ? 'الموظف' : 'Employee';
-    document.getElementById('breaksColBreak1').textContent = isAr ? '☕ بريك ١' : '☕ Break 1';
-    document.getElementById('breaksColBreak2').textContent = isAr ? '🍽️ بريك ٢' : '🍽️ Break 2';
-    document.getElementById('breaksColBreak3').textContent = isAr ? '☕ بريك ٣' : '☕ Break 3';
+    document.getElementById('breaksEditToggleLabel').textContent = breaksEditMode ? (isAr ? 'تم' : 'Done') : (isAr ? 'تعديل' : 'Edit');
+    document.getElementById('breaksEditHint').textContent = isAr
+      ? 'اختر اسم، بعدين اختر اسم تاني عشان تبدلهم بمكانهم'
+      : 'Pick a name, then pick another to swap their places';
+    document.getElementById('breaksColBreak1').textContent = isAr ? 'بريك ١' : 'Break 1';
+    document.getElementById('breaksColBreak2').textContent = isAr ? 'بريك ٢' : 'Break 2';
+    document.getElementById('breaksColBreak3').textContent = isAr ? 'بريك ٣' : 'Break 3';
     document.getElementById('breaksIncomingLabel').textContent = isAr ? '📥 طلبات سواب واردة' : '📥 Incoming Swap Requests';
     document.getElementById('breaksOutgoingLabel').textContent = isAr ? '📤 طلباتي المرسلة' : '📤 My Sent Requests';
     document.getElementById('breakSwapTitle').textContent = isAr ? 'طلب سواب بريك' : 'Request a Break Swap';
@@ -4511,12 +4576,17 @@
       const chip = e.target.closest('[data-add-email]');
       if (chip) toggleBreaksAddSelection(chip.dataset.addEmail);
     });
+    on('breaksEditToggle', 'click', toggleBreaksEditMode);
     document.getElementById('breaksTableBody').addEventListener('click', (e) => {
+      const editBtn = e.target.closest('.breaks-time-edit-btn');
+      if (editBtn) { e.stopPropagation(); handleBreakTimeEditClick(editBtn); return; }
       const swapBtn = e.target.closest('.break-swap-btn');
       if (swapBtn) { e.stopPropagation(); openBreakSwapPicker(parseInt(swapBtn.dataset.swapSlot, 10)); return; }
       const removeBtn = e.target.closest('[data-remove-email]');
       if (removeBtn) { e.stopPropagation(); removeBreaksEmployee(removeBtn.dataset.removeEmail); return; }
-      handleBreakBlockClick(e);
+      if (!breaksEditMode) return;
+      const row = e.target.closest('.breaks-row');
+      if (row) handleSeatSwapClick(parseInt(row.dataset.rowId, 10));
     });
     document.getElementById('breaksIncomingList').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-respond-swap]');
