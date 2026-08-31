@@ -263,24 +263,25 @@
     <div class="breaks-page-head">
       <button class="tech-back-btn" id="breaksBackBtn" aria-label="Back" title="Back">×</button>
       <div class="breaks-head-copy">
-        <h2>🕐 جدول البريكات</h2>
+        <h2 id="breaksPageTitle">🕐 جدول البريكات</h2>
         <p id="breaksDateLabel">—</p>
       </div>
     </div>
 
     <div class="breaks-notice">
       <span>🔔</span>
-      <span>رح توصلك رسالة تنبيه بصوت عند وصول موعد أي بريك من بريكاتك.</span>
+      <span id="breaksNoticeText">رح توصلك رسالة تنبيه بصوت عند وصول موعد أي بريك من بريكاتك.</span>
     </div>
 
-    <div class="breaks-add-row" id="breaksAddRow" style="display:none;">
-      <select id="breaksAddEmployeeSelect"></select>
-      <button type="button" id="breaksAddEmployeeBtn">+ إضافة موظف للجدول</button>
+    <div class="breaks-add-panel" id="breaksAddPanel" style="display:none;">
+      <p class="breaks-add-label" id="breaksAddLabel">اختر الموظفين المداومين اليوم، ثم دوس إضافة — تقدر تحدد أكثر من موظف مرة وحدة:</p>
+      <div class="chip-row" id="breaksAddChips"></div>
+      <button type="button" id="breaksAddSelectedBtn" class="breaks-add-selected-btn" disabled>+ إضافة المحددين للجدول</button>
     </div>
 
     <div class="breaks-card">
       <div class="breaks-card-head">
-        <span>👥 جدول اليوم</span>
+        <span id="breaksTodayLabel">👥 جدول اليوم</span>
         <span class="breaks-count" id="breaksEmployeeCount">0</span>
       </div>
       <div class="breaks-table-scroll">
@@ -288,9 +289,9 @@
           <thead>
             <tr>
               <th id="breaksColEmployee">الموظف</th>
-              <th class="center">☕ بريك ١</th>
-              <th class="center">🍽️ بريك ٢</th>
-              <th class="center">☕ بريك ٣</th>
+              <th class="center" id="breaksColBreak1">☕ بريك ١</th>
+              <th class="center" id="breaksColBreak2">🍽️ بريك ٢</th>
+              <th class="center" id="breaksColBreak3">☕ بريك ٣</th>
             </tr>
           </thead>
           <tbody id="breaksTableBody"></tbody>
@@ -300,14 +301,14 @@
 
     <div class="breaks-card" id="breaksIncomingCard" style="display:none;">
       <div class="breaks-card-head">
-        <span>📥 طلبات سواب واردة</span>
+        <span id="breaksIncomingLabel">📥 طلبات سواب واردة</span>
         <span class="breaks-count" id="breaksIncomingCount">0</span>
       </div>
       <div id="breaksIncomingList"></div>
     </div>
 
     <div class="breaks-card" id="breaksOutgoingCard" style="display:none;">
-      <div class="breaks-card-head"><span>📤 طلباتي المرسلة</span></div>
+      <div class="breaks-card-head"><span id="breaksOutgoingLabel">📤 طلباتي المرسلة</span></div>
       <div id="breaksOutgoingList"></div>
     </div>
   </div>
@@ -316,11 +317,11 @@
 <!-- Break swap request picker -->
 <div class="picker-overlay" id="breakSwapOverlay">
   <div class="picker">
-    <h3>طلب سواب بريك</h3>
+    <h3 id="breakSwapTitle">طلب سواب بريك</h3>
     <p class="sub" id="breakSwapSub"></p>
-    <label>الزميل</label>
+    <label id="breakSwapColleagueLabel">الزميل</label>
     <select id="breakSwapColleague"></select>
-    <label>بريكه اللي بدك تاخذه</label>
+    <label id="breakSwapTargetLabel">بريكه اللي بدك تاخذه</label>
     <select id="breakSwapTargetSlot"></select>
     <div class="picker-actions">
       <button type="button" class="picker-cancel" id="breakSwapCancel">إلغاء</button>
@@ -749,7 +750,7 @@
 
         <div class="profile-dropdown-sep"></div>
         <button class="profile-dropdown-item" id="breaksMenuBtn">
-          <span>🕐</span> <span>جدول البريكات</span>
+          <span>🕐</span> <span id="breaksMenuBtnText">جدول البريكات</span>
         </button>
         <div class="profile-dropdown-sep"></div>
         <button class="profile-dropdown-item profile-dropdown-danger" id="logoutBtn">
