@@ -2038,6 +2038,24 @@
       animation: cmdDriftB 30s ease-in-out infinite alternate;
     }
 
+    /* Every one of these pages stays mounted off-screen (transform + opacity, not
+       display:none) even while closed, so any CSS animation inside one — including
+       the blob glow above, and each page's own hero-banner "comet" blur decorations
+       (.tech-hero::before/::after, .training-page-head::before, etc.) — kept running
+       every frame, on every page, all the time, from the moment the app loaded,
+       whether that page was ever opened or not. With 7 pages each doing this at
+       once, that's the main source of the site-wide slowness: stop every animation
+       inside a page the instant it's not .open, and let it resume seamlessly
+       (mid-loop, no visual jump) the moment it opens again. */
+    .app-page-bg:not(.open),
+    .app-page-bg:not(.open) *,
+    .app-page-bg:not(.open)::before,
+    .app-page-bg:not(.open)::after,
+    .app-page-bg:not(.open) *::before,
+    .app-page-bg:not(.open) *::after {
+      animation-play-state: paused !important;
+    }
+
     .onboarding-top { display: flex; justify-content: flex-end; margin-bottom: 6px; }
     .onboarding-skip {
       display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--slate-soft);
