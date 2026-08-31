@@ -63,10 +63,7 @@
     .nova-text .nova-logo { height: 1.4em; width: auto; display: block; overflow: visible; }
     @keyframes novaORingSpin { to { transform: rotate(360deg); } }
     .nova-sub { font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #55697A; margin-top: 2px; text-transform: uppercase; }
-    .brand-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.3); display: none; }
-    .brand-tagline { color: rgba(255,255,255,0.9); margin: 0; font-size: 13px; font-weight: 600; }
-    @media (min-width: 560px){ .brand-divider { display: block; } }
-    
+
     .project-seal { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 8px 16px; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; background: rgba(255,255,255,0.06); }
     .project-seal .eyebrow { font-size: 9.5px; letter-spacing: 0.12em; color: rgba(255,255,255,0.55); text-transform: uppercase; font-weight: 600; }
     .project-seal .name { font-size: 13px; color: #fff; font-weight: 700; }
@@ -76,9 +73,6 @@
     input[type=text], input[type=password], select, textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 14px; background: var(--bg); color: var(--text-main); font-size: 13.5px; font-family: inherit; }
     input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand-blue); }
     
-    .action-pill { background: var(--bg); border: 1.5px solid var(--border); border-radius: 9px; padding: 9px 14px; font-size: 12.5px; font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .action-pill:hover { border-color: var(--brand-blue); color: var(--brand-blue); }
-
     .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
     .tab { display: flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; color: var(--slate); cursor: pointer; white-space: nowrap; border: 1px solid transparent; }
     .tab.active { background: var(--brand-blue); color: #fff; }
@@ -128,7 +122,6 @@
     .admin-limited .delete-btn, .admin-limited .danger-btn { display: none !important; }
 
     footer { text-align: center; padding: 20px; color: var(--slate-soft); font-size: 11.5px; border-top: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .admin-trigger, .lang-btn-foot { background: none; border: none; color: var(--slate-soft); cursor: pointer; font-size: 11px; font-weight: 700; text-decoration: underline; }
 
     /* Side Panels */
     
@@ -157,15 +150,8 @@
       animation: cardEnter .4s cubic-bezier(.2,.75,.25,1) both;
     }
     .update-card .update-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
-    .update-card .update-title { font-weight: 700; font-size: 13px; color: #6E5A9E; }
     .update-card .update-date { font-size: 10px; color: var(--slate-soft); white-space: nowrap; }
     .update-card .update-text { font-size: 12.5px; line-height: 1.65; color: var(--text-main); white-space: pre-line; }
-    .update-archive { margin-top: 6px; }
-    .update-archive summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--slate); padding: 8px 4px; list-style: none; }
-    .update-archive summary::-webkit-details-marker { display: none; }
-    .update-archive summary::before { content: '▸ '; }
-    .update-archive[open] summary::before { content: '▾ '; }
-    .update-archive .update-card { opacity: 0.75; }
 
     /* Premium redesign — indigo/gold, glass + glow */
     :root {
@@ -213,10 +199,6 @@
     .brand { flex-wrap: nowrap; gap: 14px; cursor: default; }
     .nova-wordmark { min-width: 104px; border-radius: 6px; padding: 7px 16px 8px; box-shadow: none; }
     .nova-text { font-size: 25px; }
-    .brand-divider { height: 34px; display: block; }
-    .brand-copy { display: grid; gap: 2px; }
-    .brand-title { margin: 0; color: #fff; font-size: 16px; font-weight: 800; line-height: 1.3; }
-    .brand-tagline { font-size: 11px; color: rgba(255,255,255,0.82); }
     .project-seal { padding: 0; border: 0; background: transparent; border-radius: 0; gap: 3px; }
     .project-seal .eyebrow { color: rgba(255,255,255,0.65); font-size: 9px; }
     .project-seal .name { font-size: 12px; }
@@ -228,8 +210,6 @@
     .search-icon { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--slate-soft); font-size: 18px; pointer-events: none; }
     input[type=text], input[type=password], select, textarea { background: var(--surface-soft); border: 1px solid var(--border); border-radius: 6px; }
     #searchInput { width: 100%; min-height: 43px; padding-inline-start: 42px; font-size: 13px; }
-    .action-pill { min-height: 43px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px 13px; }
-    .action-pill:hover { background: var(--surface-soft); }
     .tabs { gap: 2px; padding: 0 0 4px; scrollbar-width: thin; }
     .tab { min-height: 36px; padding: 7px 12px; border-radius: 5px; border: 1px solid transparent; font-size: 11.5px; }
     .tab:hover { background: var(--surface-soft); color: var(--text-main); }
@@ -297,8 +277,8 @@
     .card { animation: cardEnter .48s cubic-bezier(.2,.75,.25,1) both; animation-delay: var(--enter-delay, 0ms); }
     .card:hover .badge { transform: translateY(-1px); }
     .badge { transition: transform .2s ease, background-color .2s ease; }
-    .copy-btn, .edit-btn, .delete-btn, .action-pill, .admin-tab-btn, .panel-close { transition: transform .16s ease, background-color .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
-    .copy-btn:active, .edit-btn:active, .delete-btn:active, .action-pill:active, .admin-tab-btn:active, .panel-close:active { transform: scale(.94); }
+    .copy-btn, .edit-btn, .delete-btn, .admin-tab-btn, .panel-close { transition: transform .16s ease, background-color .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
+    .copy-btn:active, .edit-btn:active, .delete-btn:active, .admin-tab-btn:active, .panel-close:active { transform: scale(.94); }
     .copy-btn.copied { animation: copiedPulse .38s ease; }
     .tab { position: relative; transition: color .2s ease, background-color .2s ease, border-color .2s ease, transform .18s ease; }
     .tab:active { transform: scale(.96); }
@@ -424,12 +404,10 @@
       .nova-wordmark { min-width: 80px; padding: 6px 11px; }
       .nova-text { font-size: 21px; }
       .nova-sub { font-size: 5.5px; }
-      .brand-divider, .brand-tagline, .project-seal .eyebrow { display: none; }
-      .brand-title { font-size: 13px; }
+      .project-seal .eyebrow { display: none; }
       .project-seal .name { font-size: 9.5px; max-width: 82px; text-align: end; }
       .controls { padding: 10px 14px 7px; }
       .search-row { gap: 7px; }
-      .action-pill { width: 43px; padding: 0; justify-content: center; }
       main { padding: 22px 14px 78px; }
       .workspace-head { align-items: center; }
       .workspace-head h1 { font-size: 18px; }
@@ -458,7 +436,7 @@
     body.dark-mode .ambient-grain { opacity: .045; }
 
     /* Editorial mono meta labels — small tracked labels feel intentional, not generic */
-    .project-seal .eyebrow, .badge, .dash-chip, .training-head-chip, .tech-page-head-meta,
+    .project-seal .eyebrow, .badge, .dash-chip, .training-head-chip,
     .section-head .idx, .presence-stat span, .library-count span {
       font-family: 'JetBrains Mono', 'Cairo', monospace; letter-spacing: .04em;
     }
@@ -485,7 +463,6 @@
     .card { background: linear-gradient(180deg, color-mix(in srgb, var(--card-accent, var(--navy)) 5%, var(--card)) 0%, var(--card) 60%); }
 
     body.dark-mode .card-text { color: var(--slate); }
-    body.dark-mode .action-pill:hover { color: var(--brand-blue); }
 
     .login-gate {
       position: fixed; inset: 0; z-index: 10000;
@@ -499,16 +476,6 @@
       position: relative; overflow: hidden;
     }
     .login-moon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-    .login-image-panel .login-float-card {
-      position: absolute; z-index: 2; background: rgba(20,20,26,.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; gap: 9px;
-      box-shadow: 0 20px 50px -18px rgba(0,0,0,.7); animation: loginFloaty 6s ease-in-out infinite; color: #fff;
-      font-family: 'Cairo', sans-serif; font-size: 12px; will-change: transform;
-    }
-    .login-image-panel .login-float-card .dot { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(11,132,255,.25); flex-shrink: 0; }
-    .login-image-panel .login-float-card b { display: block; font-size: 12px; }
-    .login-image-panel .login-float-card span { font-size: 10px; color: rgba(255,255,255,.6); }
-    @keyframes loginFloaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .login-form-panel {
       flex: 0 0 460px; max-width: 100%; display: flex; flex-direction: column;
       justify-content: center; padding: 48px 56px; overflow-y: auto;
@@ -702,7 +669,6 @@
     .profile-info { min-width: 0; }
     .profile-email { font-size: 12px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .profile-role { font-size: 10.5px; color: var(--slate); margin-top: 1px; }
-    .profile-dropdown-label { font-size: 10px; font-weight: 800; color: var(--slate-soft); text-transform: uppercase; letter-spacing: .06em; padding: 6px 8px 4px; }
     .profile-dropdown-item {
       display: flex; align-items: center; gap: 9px; width: 100%; box-sizing: border-box; padding: 9px 8px;
       background: none; border: none; border-radius: 7px; cursor: pointer; text-align: start;
@@ -716,7 +682,7 @@
     /* ===== Premium touches: gold accents, glass, elegant type, refined motion ===== */
 
     /* Elegant Arabic display face for headings, used sparingly */
-    .workspace-head h1, .section-head h2, .brand-title, .login-card h2, .panel-head h2 {
+    .workspace-head h1, .section-head h2, .login-card h2, .panel-head h2 {
       font-family: 'Fraunces', 'Amiri', 'Cairo', serif; font-weight: 700; letter-spacing: -0.005em;
     }
     .workspace-head h1 { font-size: 24px; }
@@ -773,7 +739,7 @@
     .usage-badge { color: var(--gold); background: color-mix(in srgb, var(--gold) 14%, transparent); }
 
     /* Softer, slower easing across interactive elements for a more composed feel */
-    .copy-btn, .edit-btn, .delete-btn, .action-pill, .admin-tab-btn, .panel-close, .tab {
+    .copy-btn, .edit-btn, .delete-btn, .admin-tab-btn, .panel-close, .tab {
       transition-duration: .26s; transition-timing-function: cubic-bezier(.2,.8,.2,1);
     }
 
@@ -964,40 +930,11 @@
       0% { transform: scale(.6); opacity: .9; border-color: rgba(16,185,129,.8); }
       100% { transform: scale(2.2); opacity: 0; border-color: rgba(11,132,255,0); }
     }
-    /* Side nav buttons: frosted glass tile with a hairline gradient border, matching
-       the Nova brand gradient (blue for tech, teal/green for training) */
-    .bb-tech { color: #3BB4F5; }
-    .bb-tech .bb-icon {
-      border-radius: 12px; position: relative; background: rgba(11,132,255,.07);
-    }
-    .bb-tech .bb-icon::before {
-      content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px;
-      background: linear-gradient(140deg, #0B84FF, #22D3EE);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
-    }
-    .bb-tech:hover { background: color-mix(in srgb, #0B84FF 8%, transparent); }
-    .bb-tech:hover .bb-icon { background: rgba(11,132,255,.16); }
-
-    .bb-training { color: #2ED8A7; }
-    .bb-training .bb-icon {
-      border-radius: 12px; position: relative; background: rgba(16,185,129,.07);
-    }
-    .bb-training .bb-icon::before {
-      content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px;
-      background: linear-gradient(140deg, #10B981, #14B8A6);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
-    }
-    .bb-training:hover { background: color-mix(in srgb, #10B981 8%, transparent); }
-    .bb-training:hover .bb-icon { background: rgba(16,185,129,.16); }
-    .bb-divider { width: 1px; align-self: center; height: 30px; background: var(--border); flex-shrink: 0; }
     @media (max-width: 560px) {
       .bottom-bar-inner { height: 62px; gap: 4px; padding: 5px; }
       .bb-btn { flex-direction: column; gap: 3px; font-size: 9.5px; }
       .bb-icon { width: 28px; height: 28px; border-radius: 9px; }
       .bb-btn svg { width: 15px; height: 15px; }
-      .bb-divider { display: none; }
       .bb-home { flex: 0 0 58px; margin-top: -22px; }
       .bb-home .bb-icon { width: 46px; height: 46px; }
       .bb-home svg { width: 19px; height: 19px; }
@@ -2054,14 +1991,12 @@
       font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
     }
 
-    .mentorship-field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); }
     .mentorship-primary-btn {
       width: 100%; background: #0B84FF; color: #fff; border: none; padding: 10px; border-radius: 8px;
       font-weight: 700; cursor: pointer; transition: opacity .18s ease, transform .15s ease;
     }
     .mentorship-primary-btn:hover { opacity: .92; }
     .mentorship-primary-btn:active { transform: scale(.98); }
-    .mentorship-section-label { font-size: 11.5px; font-weight: 800; color: var(--slate); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
 
     .mentor-request-card {
       border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
