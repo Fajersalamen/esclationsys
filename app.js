@@ -237,7 +237,7 @@
     stopUpdatesPolling();
     stopMentorChatPoll();
     stopBreakWatcher();
-    stopMentorRequestsRealtime();
+    stopMentorRequestsPolling();
     sb.auth.signOut().then(({ error }) => {
       if (error) console.error('Supabase signOut error:', error);
       // Force the login gate open immediately — don't rely solely on the
@@ -347,7 +347,7 @@
       stopUpdatesPolling();
       stopMentorChatPoll();
       stopBreakWatcher();
-      stopMentorRequestsRealtime();
+      stopMentorRequestsPolling();
       // Only re-render if this is a real sign-out after a real login
       // (hasEverLoggedIn) - the very first page load also fires this branch
       // with no session yet, and at that point the widget either hasn't
@@ -3643,55 +3643,61 @@
     });
   }
 
-  // ----- Live mentor_requests updates, so a new incoming request, an accepted/declined
-  // outcome, or a colleague becoming unavailable all show up without a manual refresh —
-  // runs from login regardless of whether the Mentorship page is ever opened, same as
-  // the break-time watcher. Requires mentor_requests to be added to the supabase_realtime
-  // publication (see supabase_mentorship.sql). -----
+  // ----- Live-ish mentor_requests updates, so a new incoming request, an
+  // accepted/declined outcome, or a colleague becoming unavailable all show up
+  // without a manual refresh. Polls on the same proven interval as the Updates
+  // watcher (startUpdatesPolling) instead of Supabase Realtime — a WebSocket
+  // subscription depends on the table being added to the supabase_realtime
+  // publication and on Realtime being reachable at all, neither of which this
+  // session can verify against the live project, whereas polling only needs a
+  // plain REST call that's already known to work everywhere else in this app.
+  // Runs from login regardless of whether the Mentorship page is ever opened,
+  // same as the break-time watcher. -----
   function mapMentorRequestRow(r) {
     return {
       id: r.id, traineeEmail: r.trainee_email, mentorEmail: r.mentor_email, note: r.note,
       status: r.status, createdAt: new Date(r.created_at).getTime()
     };
   }
-  let mentorRequestsChannel = null;
-  function startMentorRequestsRealtime() {
-    stopMentorRequestsRealtime();
+  const MENTOR_REQUESTS_POLL_MS = 15000;
+  let mentorRequestsPollTimer = null;
+  function startMentorRequestsPolling() {
+    stopMentorRequestsPolling();
+    mentorRequestsPollTimer = setInterval(pollMentorRequests, MENTOR_REQUESTS_POLL_MS);
+  }
+  function stopMentorRequestsPolling() {
+    if (mentorRequestsPollTimer) { clearInterval(mentorRequestsPollTimer); mentorRequestsPollTimer = null; }
+  }
+  async function pollMentorRequests() {
     if (!currentUserEmail) return;
-    mentorRequestsChannel = sb.channel('mentor_requests_' + currentUserEmail)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_requests' }, handleMentorRequestRealtimeChange)
-      .subscribe();
+    const { data, error } = await sb.from('mentor_requests').select('*').order('id', { ascending: false });
+    if (error) return;
+    applyMentorRequestsSnapshot((data || []).map(mapMentorRequestRow));
   }
-  function stopMentorRequestsRealtime() {
-    if (mentorRequestsChannel) { sb.removeChannel(mentorRequestsChannel); mentorRequestsChannel = null; }
-  }
-  function handleMentorRequestRealtimeChange(payload) {
+  // Diffs a freshly-fetched list against the current MENTOR_REQUESTS to fire the
+  // right toast for what actually changed, then swaps in the new list and
+  // re-renders whatever's currently on screen.
+  function applyMentorRequestsSnapshot(freshList) {
     const isAr = currentLang === 'ar';
-    if (payload.eventType === 'INSERT') {
-      const row = payload.new;
-      if (!MENTOR_REQUESTS.some(r => r.id === row.id)) MENTOR_REQUESTS.unshift(mapMentorRequestRow(row));
-      if (row.mentor_email === currentUserEmail) {
-        showToast(isAr ? `📥 ${row.trainee_email} أرسل لك طلب رعاية!` : `📥 ${row.trainee_email} sent you a mentorship request!`, 'success');
-      }
-    } else if (payload.eventType === 'UPDATE') {
-      const row = payload.new;
-      const idx = MENTOR_REQUESTS.findIndex(r => r.id === row.id);
-      const prevStatus = idx >= 0 ? MENTOR_REQUESTS[idx].status : null;
-      if (idx >= 0) MENTOR_REQUESTS[idx] = mapMentorRequestRow(row);
-      else MENTOR_REQUESTS.unshift(mapMentorRequestRow(row));
-      if (row.trainee_email === currentUserEmail && prevStatus === 'pending' && row.status !== 'pending') {
+    const prevById = new Map(MENTOR_REQUESTS.map(r => [r.id, r]));
+    freshList.forEach(row => {
+      const prev = prevById.get(row.id);
+      if (!prev) {
+        if (row.mentorEmail === currentUserEmail) {
+          showToast(isAr ? `📥 ${row.traineeEmail} أرسل لك طلب رعاية!` : `📥 ${row.traineeEmail} sent you a mentorship request!`, 'success');
+        }
+      } else if (prev.status === 'pending' && row.status !== 'pending' && row.traineeEmail === currentUserEmail) {
         const accepted = row.status === 'accepted';
         showToast(
           isAr
-            ? (accepted ? `✅ ${row.mentor_email} قبل طلب رعايتك!` : `${row.mentor_email} رفض طلب رعايتك.`)
-            : (accepted ? `✅ ${row.mentor_email} accepted your mentorship request!` : `${row.mentor_email} declined your mentorship request.`),
+            ? (accepted ? `✅ ${row.mentorEmail} قبل طلب رعايتك!` : `${row.mentorEmail} رفض طلب رعايتك.`)
+            : (accepted ? `✅ ${row.mentorEmail} accepted your mentorship request!` : `${row.mentorEmail} declined your mentorship request.`),
           accepted ? 'success' : 'error'
         );
       }
-    } else if (payload.eventType === 'DELETE') {
-      MENTOR_REQUESTS = MENTOR_REQUESTS.filter(r => r.id !== payload.old.id);
-    }
+    });
 
+    MENTOR_REQUESTS = freshList;
     updateMentorBadge();
     refreshHeroCounts();
     renderMentorEmailOptions();
@@ -5029,7 +5035,7 @@
     startPresenceHeartbeat();
     startUpdatesPolling();
     startBreakWatcher();
-    startMentorRequestsRealtime();
+    startMentorRequestsPolling();
     loadDirectoryEmails();
     loadCmdTechPreview();
     syncPushSubscriptionIfGranted();
