@@ -2622,7 +2622,18 @@
   }
   ['orbitCanvasHome', 'orbitCanvasTech', 'orbitCanvasTraining'].forEach(initOrbitField);
   function pauseAllOrbits() { Object.values(orbitControllers).forEach(c => c.stop()); }
-  orbitControllers.orbitCanvasHome.start();
+  // Deferred past the first real paint (double rAF: the callback queued in the
+  // second frame is guaranteed to run only after the browser has painted at
+  // least once) instead of starting synchronously during initial script
+  // execution — keeps the canvas's first seed+draw pass from landing inside
+  // the same startup frame as the rest of the page's initial layout/paint,
+  // without any visible delay (opacity is 0 in light mode anyway, and dark
+  // mode has no first-load transition to miss).
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      orbitControllers.orbitCanvasHome.start();
+    });
+  });
 
   // The Command Center hero keeps its animations running even while a full-page
   // overlay (Tech Issues, Training, Mentorship, Updates) is open on top of it, since
