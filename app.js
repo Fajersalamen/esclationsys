@@ -468,7 +468,7 @@
     GENERAL_INFO = genRes.error ? DEFAULT_GENERAL_INFO : (genRes.data || []).map(g => ({ id: g.id, label: g.label, labelAr: g.label_ar, val: g.val, valAr: g.val_ar }));
     CRITICAL_ITEMS = critRes.error ? DEFAULT_CRITICAL_ITEMS.map(t => ({ text: t })) : (critRes.data || []).map(c => ({ id: c.id, text: c.text, textAr: c.text_ar }));
     ETIQUETTE_ITEMS = etiqRes.error ? DEFAULT_ETIQUETTE_ITEMS.map(t => ({ text: t })) : (etiqRes.data || []).map(e => ({ id: e.id, text: e.text, textAr: e.text_ar }));
-    UPDATES = updRes.error ? [] : (updRes.data || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
+    UPDATES = updRes.error ? [] : (updRes.data || []).map(u => ({ id: u.id, text: u.text, imageUrl: u.image_url, createdAt: new Date(u.created_at).getTime() }));
     SUGGESTIONS = sugRes.error ? [] : (sugRes.data || []).map(s => ({ id: s.id, name: s.name, text: s.text, createdAt: new Date(s.created_at).getTime() }));
     SCRIPT_SUBMISSIONS = subRes.error ? [] : (subRes.data || []).map(s => ({
       id: s.id, cat: s.cat, title: s.title, titleAr: s.title_ar, text: s.text, textAr: s.text_ar,
@@ -713,7 +713,7 @@
     lastKnownUpdateId = latestId;
     const { data: fullData, error: fullError } = await sb.from('updates').select('*').order('id', { ascending: false });
     if (fullError) return;
-    UPDATES = (fullData || []).map(u => ({ id: u.id, text: u.text, createdAt: new Date(u.created_at).getTime() }));
+    UPDATES = (fullData || []).map(u => ({ id: u.id, text: u.text, imageUrl: u.image_url, createdAt: new Date(u.created_at).getTime() }));
     updateNotificationBadge();
     refreshHeroCounts();
     if (document.getElementById('updatesPage').classList.contains('open')) renderUpdatesPage();
@@ -2991,7 +2991,9 @@
       const timeStr = new Date(u.createdAt).toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
       const isNew = updatesUnseenAtOpen.has(u.id);
       const chip = isNew ? `<span class="update-new-chip">${isAr ? 'جديد' : 'New'}</span>` : '';
-      html += `<div class="tl-item"><div class="update-card${isNew ? ' is-new' : ''}"><div class="update-top"><span class="update-date">${timeStr}</span>${chip}</div><div class="update-text">${escapeHtml(u.text)}</div></div></div>`;
+      const image = u.imageUrl ? `<img src="${escapeHtml(u.imageUrl)}" class="update-image" alt="" loading="lazy">` : '';
+      const textEl = u.text ? `<div class="update-text">${escapeHtml(u.text)}</div>` : '';
+      html += `<div class="tl-item"><div class="update-card${isNew ? ' is-new' : ''}"><div class="update-top"><span class="update-date">${timeStr}</span>${chip}</div>${image}${textEl}</div></div>`;
     });
     return html;
   }
@@ -3100,17 +3102,84 @@
     }
   }
 
+  // ----- Shared image-attachment upload (Updates composer + mentor chat paste).
+  // Screenshots straight out of the OS clipboard can be several MB, so every
+  // image is downscaled/re-encoded on the client first, then uploaded into the
+  // public "attachments" Storage bucket and its public URL returned. Requires
+  // supabase_attachments.sql to have been applied - the bucket and image_url
+  // columns don't exist until that migration runs.
+  const MAX_ATTACHMENT_DIMENSION = 1600;
+  const MAX_ATTACHMENT_RAW_BYTES = 20 * 1024 * 1024;
+  function downscaleImageFile(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, MAX_ATTACHMENT_DIMENSION / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale)), h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
+  }
+  async function uploadAttachmentImage(file, folder) {
+    if (!file || file.size > MAX_ATTACHMENT_RAW_BYTES) return null;
+    const blob = await downscaleImageFile(file);
+    const ext = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await sb.storage.from('attachments').upload(path, blob, { contentType: blob.type || 'image/jpeg' });
+    if (error) return null;
+    const { data } = sb.storage.from('attachments').getPublicUrl(path);
+    return data?.publicUrl || null;
+  }
+
+  let newUpdateImageFile = null;
+  function pickNewUpdateImage(file) {
+    if (!file) return;
+    newUpdateImageFile = file;
+    const preview = document.getElementById('newUpdImagePreview');
+    const wrap = document.getElementById('newUpdImagePreviewWrap');
+    preview.src = URL.createObjectURL(file);
+    wrap.style.display = 'block';
+  }
+  function clearNewUpdateImage() {
+    newUpdateImageFile = null;
+    document.getElementById('newUpdImageInput').value = '';
+    document.getElementById('newUpdImagePreviewWrap').style.display = 'none';
+  }
+
   async function addUpdate() {
     const isAr = currentLang === 'ar';
     const text = document.getElementById('newUpdText').value.trim();
-    if (!text) return;
-    const { data, error } = await sb.from('updates').insert({ text }).select().single();
+    const imageFile = newUpdateImageFile;
+    if (!text && !imageFile) return;
+    const btn = document.getElementById('btnAddUpd');
+    const btnLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = isAr ? 'جارٍ النشر...' : 'Publishing...';
+    let imageUrl = null;
+    if (imageFile) {
+      imageUrl = await uploadAttachmentImage(imageFile, 'updates');
+      if (!imageUrl) {
+        showToast(isAr ? 'تعذّر رفع الصورة.' : 'Could not upload the image.', 'error');
+        btn.disabled = false; btn.textContent = btnLabel;
+        return;
+      }
+    }
+    const { data, error } = await sb.from('updates').insert({ text, image_url: imageUrl }).select().single();
+    btn.disabled = false; btn.textContent = btnLabel;
     if (error) {
       showToast(isAr ? 'تعذّر نشر التحديث.' : 'Could not publish the update.', 'error');
       return;
     }
-    UPDATES.push({ id: data.id, text: data.text, createdAt: new Date(data.created_at).getTime() });
+    UPDATES.push({ id: data.id, text: data.text, imageUrl: data.image_url, createdAt: new Date(data.created_at).getTime() });
     document.getElementById('newUpdText').value = '';
+    clearNewUpdateImage();
     render();
     renderAdminLists();
     showToast(isAr ? 'تم نشر التحديث! سيظهر إشعار للفريق.' : 'Update published! The team will see a notification.', 'success');
@@ -3648,7 +3717,9 @@
     wrap.innerHTML = (data || []).map(m => {
       const mine = m.sender_email === currentUserEmail;
       const timeStr = new Date(m.created_at).toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-      return `<div class="mentor-msg ${mine ? 'mine' : 'theirs'}">${escapeHtml(m.text)}<span class="mentor-msg-time">${timeStr}</span></div>`;
+      const image = m.image_url ? `<img src="${escapeHtml(m.image_url)}" class="mentor-msg-image" alt="" loading="lazy">` : '';
+      const textEl = m.text ? escapeHtml(m.text) : '';
+      return `<div class="mentor-msg ${mine ? 'mine' : 'theirs'}${image ? ' has-image' : ''}">${image}${textEl}<span class="mentor-msg-time">${timeStr}</span></div>`;
     }).join('') || `<div class="mentorship-empty">${isAr ? 'ابدأ المحادثة...' : 'Start the conversation...'}</div>`;
     if (wasNearBottom) wrap.scrollTop = wrap.scrollHeight;
     updateMentorThreadSideStats(openMentorThreadId, data || []);
@@ -3665,6 +3736,42 @@
       return;
     }
     await loadAndRenderMentorMessages();
+  }
+
+  // Sends a pasted/attached screenshot as its own message (any text already
+  // typed in the box is left alone - the image goes out immediately as a
+  // separate bubble, same as pasting an image into any chat app).
+  async function sendMentorImageMessage(file) {
+    if (!openMentorThreadId) return;
+    const isAr = currentLang === 'ar';
+    const imageUrl = await uploadAttachmentImage(file, 'mentor-chat');
+    if (!imageUrl) {
+      showToast(isAr ? 'تعذّر رفع الصورة.' : 'Could not upload the image.', 'error');
+      return;
+    }
+    const { error } = await sb.from('mentor_messages').insert({ request_id: openMentorThreadId, sender_email: currentUserEmail, text: '', image_url: imageUrl });
+    if (error) {
+      showToast(isAr ? 'تعذّر إرسال الصورة.' : 'Could not send the image.', 'error');
+      return;
+    }
+    await loadAndRenderMentorMessages();
+  }
+
+  // A pasted screenshot (Ctrl/Cmd+V while the chat input is focused) sends
+  // immediately as an image message instead of being dropped or pasted as
+  // filename text - the common case this exists for is "take a screenshot,
+  // paste it straight into the chat."
+  function handleMentorChatPaste(e) {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) sendMentorImageMessage(file);
+        return;
+      }
+    }
   }
 
   function startMentorChatPoll() {
@@ -4469,9 +4576,9 @@
     ).join('');
 
     const sortedUpdates = [...UPDATES].sort((a, b) => b.id - a.id);
-    document.getElementById('updatesAdminList').innerHTML = sortedUpdates.length ? sortedUpdates.map(u => 
+    document.getElementById('updatesAdminList').innerHTML = sortedUpdates.length ? sortedUpdates.map(u =>
       `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:11.5px; margin-bottom:5px;">
-        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(u.text)}</span>
+        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.imageUrl ? '📷 ' : ''}${escapeHtml(u.text || (u.imageUrl ? '(صورة بدون نص)' : ''))}</span>
         <button class="danger-btn" data-del-update="${u.id}" style="background:none; border:none; color:#B91C1C; cursor:pointer; flex-shrink:0;">🗑️</button>
       </div>`
     ).join('') : `<div style="font-size:11.5px; color:var(--slate-soft);">لا توجد تحديثات بعد.</div>`;
@@ -4627,6 +4734,7 @@
     on('mentorChatBackBtn', 'click', closeMentorThread);
     on('mentorChatSendBtn', 'click', sendMentorMessage);
     on('mentorChatInput', 'keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMentorMessage(); } });
+    on('mentorChatInput', 'paste', handleMentorChatPaste);
 
     document.querySelectorAll('.admin-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchAdminTab(btn.dataset.adminTab));
@@ -4638,6 +4746,9 @@
     on('btnAddEtiq', 'click', addEtiquette);
     on('btnAddCrit', 'click', addCritical);
     on('btnAddUpd', 'click', addUpdate);
+    on('newUpdAttachBtn', 'click', () => document.getElementById('newUpdImageInput').click());
+    on('newUpdImageInput', 'change', (e) => pickNewUpdateImage(e.target.files[0]));
+    on('newUpdImageRemoveBtn', 'click', clearNewUpdateImage);
     on('btnCloseAdmin', 'click', closeAdminModal);
 
     on('novaWordmark', 'dblclick', openAdminModal);
