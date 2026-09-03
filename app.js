@@ -3153,6 +3153,22 @@
     document.getElementById('newUpdImagePreviewWrap').style.display = 'none';
   }
 
+  // Pasting a screenshot (Ctrl/Cmd+V) straight into the update text box attaches
+  // it the same as picking it via the file button - no need to save it
+  // somewhere first and browse for it.
+  function handleNewUpdateTextPaste(e) {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) pickNewUpdateImage(file);
+        return;
+      }
+    }
+  }
+
   async function addUpdate() {
     const isAr = currentLang === 'ar';
     const text = document.getElementById('newUpdText').value.trim();
@@ -4749,6 +4765,7 @@
     on('newUpdAttachBtn', 'click', () => document.getElementById('newUpdImageInput').click());
     on('newUpdImageInput', 'change', (e) => pickNewUpdateImage(e.target.files[0]));
     on('newUpdImageRemoveBtn', 'click', clearNewUpdateImage);
+    on('newUpdText', 'paste', handleNewUpdateTextPaste);
     on('btnCloseAdmin', 'click', closeAdminModal);
 
     on('novaWordmark', 'dblclick', openAdminModal);
