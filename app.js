@@ -902,7 +902,10 @@
     document.getElementById('breaksPage').classList.add('open');
     pauseAllOrbits();
     pauseCmdHero();
-    Promise.all([loadDirectoryEmails(), reloadBreakData()]).then(renderBreaksPage);
+    Promise.all([loadDirectoryEmails(), reloadBreakData()]).then(() => {
+      renderBreaksPage();
+      startBreaksPagePoll();
+    });
   }
   function closeBreaksPage() {
     const el = document.getElementById('breaksPage');
@@ -910,6 +913,36 @@
     el.classList.remove('open');
     orbitControllers.orbitCanvasHome.start();
     resumeCmdHero();
+    stopBreaksPagePoll();
+  }
+
+  // ----- Keeps the schedule live while the page is open, so an admin's edit (a
+  // retimed slot, a swap, an added/removed employee) shows up for everyone else
+  // already looking at it instead of requiring a manual refresh. Same polling
+  // approach used for mentor_requests and the break-time watcher — a plain
+  // re-select on an interval, diffed so an unchanged poll doesn't re-render and
+  // reset the admin's Edit-mode selection or scroll position. -----
+  const BREAKS_PAGE_POLL_MS = 15000;
+  let breaksPagePollTimer = null;
+  let breaksPageLastSignature = null;
+  function startBreaksPagePoll() {
+    stopBreaksPagePoll();
+    breaksPageLastSignature = JSON.stringify(BREAK_SCHEDULE) + '|' + JSON.stringify(BREAK_SWAP_REQUESTS);
+    breaksPagePollTimer = setInterval(pollBreaksPageData, BREAKS_PAGE_POLL_MS);
+  }
+  function stopBreaksPagePoll() {
+    if (breaksPagePollTimer) { clearInterval(breaksPagePollTimer); breaksPagePollTimer = null; }
+  }
+  async function pollBreaksPageData() {
+    // Never clobber a time chip the admin is mid-edit on - the fetch still
+    // happens so the very next tick (once they commit or blur away) picks up
+    // the latest data immediately instead of waiting a full poll cycle behind.
+    if (document.querySelector('.breaks-chip.editing')) return;
+    await reloadBreakData();
+    const signature = JSON.stringify(BREAK_SCHEDULE) + '|' + JSON.stringify(BREAK_SWAP_REQUESTS);
+    if (signature === breaksPageLastSignature) return;
+    breaksPageLastSignature = signature;
+    renderBreaksPage();
   }
 
   async function reloadBreakData() {
