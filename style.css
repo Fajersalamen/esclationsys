@@ -1962,15 +1962,38 @@
     .mentorship-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
     #mentorIncomingList { display: flex; flex-direction: column; gap: 10px; }
 
-    /* Tab 1 "Request a Mentor": a compact request bar on top, full width, edge to edge */
-    .mentor-request-bar {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 22px;
+    /* Tab 1 "Request a Mentor": browse-and-pick grid, then a note+send row that
+       reveals once a colleague is picked - fka a compact select+input bar. */
+    .mentor-browse-label { font-size: 15px; font-weight: 800; margin: 0 0 12px; color: var(--text-main); }
+    .mentor-browse-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .mentor-browse-card {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;
+      transition: border-color .15s ease, transform .15s ease;
     }
-    .mentor-request-bar-lbl { font-size: 12.5px; font-weight: 700; color: var(--slate); white-space: nowrap; flex-shrink: 0; }
-    .mentor-request-bar select#mentorRequestEmail { flex: 1 1 220px; min-width: 0; }
-    .mentor-request-bar input#mentorRequestNote { flex: 1.4 1 260px; min-width: 0; }
-    .mentor-request-bar .mentorship-primary-btn { width: auto; flex-shrink: 0; padding: 10px 22px; }
+    .mentor-browse-card:hover { transform: translateY(-2px); }
+    .mentor-browse-card.picked { border-color: var(--brand-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-blue) 18%, transparent); }
+    .mentor-browse-name { font-weight: 700; font-size: 13px; }
+    .mentor-browse-ask-btn {
+      font: inherit; font-weight: 800; font-size: 11.5px; color: var(--text-main); background: var(--surface-soft);
+      border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; cursor: pointer; width: 100%;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .mentor-browse-ask-btn:hover { background: var(--brand-blue); border-color: var(--brand-blue); color: #fff; }
+
+    .mentor-request-note-row {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--brand-blue); border-radius: 14px; padding: 14px 16px; margin-bottom: 22px;
+    }
+    .mentor-request-note-who { font-size: 12.5px; font-weight: 800; color: var(--brand-blue); white-space: nowrap; flex-shrink: 0; }
+    .mentor-request-note-row input#mentorRequestNote { flex: 1 1 220px; min-width: 0; }
+    .mentor-request-note-row .mentorship-primary-btn { width: auto; flex-shrink: 0; padding: 10px 22px; }
+
+    .mp-avatar {
+      width: 42px; height: 42px; border-radius: 50%; color: #fff; font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .mp-avatar.sm { width: 34px; height: 34px; font-size: 11.5px; }
 
     /* Status table: same visual language as the Technical Issues log */
     .mentor-table-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
@@ -2002,8 +2025,8 @@
       background: color-mix(in srgb, var(--brand-blue) 10%, transparent); color: var(--brand-blue); font-size: 21px;
     }
     @media (max-width: 620px) {
-      .mentor-request-bar select#mentorRequestEmail, .mentor-request-bar input#mentorRequestNote { flex: 1 1 100%; }
-      .mentor-request-bar .mentorship-primary-btn { flex: 1 1 100%; }
+      .mentor-request-note-row input#mentorRequestNote { flex: 1 1 100%; }
+      .mentor-request-note-row .mentorship-primary-btn { flex: 1 1 100%; }
       .mentor-reason-cell { max-width: 160px; }
     }
 
@@ -2121,51 +2144,35 @@
       .onboarding-ring { margin-top: 14px; }
     }
 
-    /* Inbox layout for the Chats tab: conversation list pinned on the side, thread fills the rest */
-    .mentor-inbox {
-      display: grid; grid-template-columns: 320px 1fr; border: 1px solid var(--border); border-radius: 16px;
-      overflow: hidden; min-height: 560px; background: var(--card);
-    }
-    .mentor-inbox.thread-open { grid-template-columns: 320px 1fr 240px; }
-    .mentor-inbox-list { border-inline-end: 1px solid var(--border); overflow-y: auto; padding: 10px; }
-    .mentor-inbox-thread { display: flex; flex-direction: column; min-width: 0; }
-    .mentor-inbox-empty {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-      color: var(--slate-soft); font-size: 13px; font-weight: 700;
-    }
-    .mentor-inbox-empty-icon { font-size: 30px; opacity: .6; }
-    #mentorChatThread { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 16px 18px 0; }
-    .mentorship-chat-messages { flex: 1; max-height: none; }
+    /* Chats tab: a growth-path list (one real progress track for the most
+       recently active mentorship, a simpler roster below it for the rest) -
+       opening one slides up a chat sheet from the bottom of the screen. */
+    .mentor-path-list { display: flex; flex-direction: column; gap: 10px; }
 
-    /* Side panel: other party's profile + mentorship summary stats, shown while a thread is open */
-    .mentor-inbox-side { border-inline-start: 1px solid var(--border); padding: 18px; background: var(--surface-soft); flex-direction: column; }
-    .mentor-inbox-side .m-profile { text-align: center; margin-bottom: 18px; }
-    .mentor-inbox-side .profile-avatar-lg { margin: 0 auto 8px; }
-    .mentor-inbox-side .m-name { font-size: 13px; font-weight: 800; color: var(--text-main); }
-    .mentor-inbox-side .m-role { font-size: 10.5px; color: var(--slate-soft); margin-top: 2px; }
-    .mentor-inbox-side h4 { margin: 0 0 10px; font-size: 12px; font-weight: 800; color: var(--slate); }
-    .mentor-inbox-side .m-stat-row {
-      display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--slate);
-      padding: 9px 0; border-bottom: 1px solid var(--border);
+    .mentor-path-hero {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 18px; padding: 20px; cursor: pointer;
+      transition: border-color .15s ease;
     }
-    .mentor-inbox-side .m-stat-row:last-child { border-bottom: none; }
-    .mentor-inbox-side .m-stat-row .mono { font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+    .mentor-path-hero:hover, .mentor-path-hero.on { border-color: var(--brand-blue); }
+    .mp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .mp-head b { font-size: 14.5px; display: block; }
+    .mp-role { font-size: 11.5px; color: var(--slate-soft); }
+    .mp-since { margin-inline-start: auto; font-size: 11px; color: var(--slate-soft); flex-shrink: 0; }
 
-    @media (max-width: 1100px) {
-      .mentor-inbox-side { display: none !important; }
-      .mentor-inbox.thread-open { grid-template-columns: 320px 1fr; }
+    .mp-track { position: relative; padding: 0 4px; }
+    .mp-line { position: absolute; top: 13px; inset-inline-start: 4px; inset-inline-end: 4px; height: 2px; background: linear-gradient(90deg, var(--brand-teal), #8B7CF6); border-radius: 2px; opacity: .8; }
+    .mp-waypoints { position: relative; display: flex; justify-content: space-between; }
+    .mp-wp { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; flex: 1; }
+    .mp-wp .mp-node {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; background: var(--card); border: 2px solid var(--border); z-index: 1;
     }
-    @media (max-width: 860px) {
-      .mentor-inbox { grid-template-columns: 1fr; min-height: 0; }
-      .mentor-inbox-list { border-inline-end: none; border-bottom: 1px solid var(--border); max-height: 260px; }
-      .mentor-inbox.thread-open { grid-template-columns: 1fr; }
-      .mentor-inbox.thread-open .mentor-inbox-list { display: none; }
-      .mentor-inbox:not(.thread-open) .mentor-inbox-thread { display: none; }
-      .mentorship-back-link { display: inline-block; }
-    }
-    @media (min-width: 861px) {
-      .mentorship-back-link { display: none; }
-    }
+    .mp-wp.done .mp-node { background: var(--brand-teal); border-color: var(--brand-teal); color: #fff; }
+    .mp-wp.current .mp-node { border-color: #8B7CF6; color: #8B7CF6; box-shadow: 0 0 0 4px color-mix(in srgb, #8B7CF6 16%, transparent); }
+    .mp-wp .mp-label { font-size: 10.5px; color: var(--slate-soft); }
+    .mp-wp.done .mp-label { color: var(--text-main); }
+
+    @media (max-width: 460px) { .mp-since { display: none; } }
 
     .mentorship-page-head {
       display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
@@ -2262,9 +2269,36 @@
     }
     .mentorship-empty { font-size: 11.5px; color: var(--slate-soft); text-align: center; padding: 20px 10px; }
 
+    /* Chat sheet: slides up from the bottom of the screen over everything else
+       when a mentorship from the growth-path list is opened. */
+    .mentor-chat-sheet { position: fixed; inset: 0; z-index: 110; pointer-events: none; }
+    .mentor-chat-sheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .25s ease; }
+    .mentor-chat-sheet-panel {
+      position: absolute; inset-inline: 0; bottom: 0; max-width: 640px; margin: 0 auto;
+      max-height: 82vh; background: var(--card); border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.35);
+      display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.22,.8,.25,1);
+    }
+    .mentor-chat-sheet.open { pointer-events: auto; }
+    .mentor-chat-sheet.open .mentor-chat-sheet-backdrop { opacity: 1; }
+    .mentor-chat-sheet.open .mentor-chat-sheet-panel { transform: translateY(0); }
+
+    .mentor-chat-sheet-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .mentor-chat-sheet-close {
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-soft);
+      color: var(--slate); cursor: pointer; flex-shrink: 0; order: 99;
+    }
+    .mentor-chat-sheet-who { min-width: 0; }
+    .mentor-chat-sheet-who .m-name { font-size: 13.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mentor-chat-sheet-who .m-role { font-size: 10.5px; color: var(--slate-soft); }
+    .mentor-chat-sheet-stats { margin-inline-start: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 10.5px; color: var(--slate-soft); flex-shrink: 0; }
+    .mentor-chat-sheet-stats b { color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+    .mentor-chat-sheet-panel .mentorship-chat-messages { flex: 1; max-height: none; padding: 14px 18px; }
+    .mentor-chat-sheet-panel .mentorship-chat-input-row { padding: 10px 18px 16px; background: var(--card); }
+
     @media (max-width: 620px) {
       .mentorship-page-inner { padding: 14px 12px 90px; }
       .mentorship-page-head { margin: -14px -12px 18px; padding: 26px 16px 28px; }
+      .mentor-chat-sheet-panel { max-height: 92vh; }
     }
 
     /* ===== Admin: Training Center management (Tree Builder) ===== */

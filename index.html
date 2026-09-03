@@ -346,11 +346,14 @@
       <button class="mentorship-tab-btn" id="mtabChats" data-mentor-tab="chats">💬 <span id="lblMtabChats">محادثاتي</span></button>
     </div>
 
-    <!-- Tab 1: Request a mentor — compact request bar on top, full-width status table below -->
+    <!-- Tab 1: Request a mentor — browse-and-pick grid on top, full-width status table below -->
     <div id="mentorPaneRequest">
-      <div class="mentor-request-bar">
-        <span class="mentor-request-bar-lbl" id="lblMentorEmail">اطلب راعي:</span>
-        <select id="mentorRequestEmail"></select>
+      <p class="mentor-browse-label" id="lblMentorEmail">دوّر على راعي:</p>
+      <select id="mentorRequestEmail" style="display:none;"></select>
+      <div class="mentor-browse-grid" id="mentorBrowseGrid"></div>
+
+      <div class="mentor-request-note-row" id="mentorRequestNoteRow" style="display:none;">
+        <span class="mentor-request-note-who" id="mentorRequestNoteWho"></span>
         <input type="text" id="mentorRequestNote" maxlength="500" placeholder="ليش بدك ياه راعي؟ (اختياري)">
         <button id="btnSendMentorRequest" class="mentorship-primary-btn">إرسال الطلب</button>
       </div>
@@ -385,36 +388,30 @@
       <div id="mentorIncomingList"></div>
     </div>
 
-    <!-- Tab 3: My accepted mentorships + chat — inbox layout: list always visible, thread on the side -->
+    <!-- Tab 3: My accepted mentorships as a growth path list; opening one slides up a chat sheet from the bottom -->
     <div id="mentorPaneChats" style="display:none;">
-      <div class="mentor-inbox" id="mentorInbox">
-        <div class="mentor-inbox-list">
-          <div id="mentorChatsList"></div>
-        </div>
-        <div class="mentor-inbox-thread">
-          <div class="mentor-inbox-empty" id="mentorChatEmpty">
-            <span class="mentor-inbox-empty-icon">💬</span>
-            <span id="lblMentorChatEmpty">اختر محادثة من القائمة</span>
-          </div>
-          <div id="mentorChatThread" style="display:none;">
-            <button id="mentorChatBackBtn" class="mentorship-back-link">‹ <span id="lblMentorChatBack">رجوع للمحادثات</span></button>
-            <div id="mentorChatMessages" class="mentorship-chat-messages"></div>
-            <div class="mentorship-chat-input-row">
-              <input type="text" id="mentorChatInput" placeholder="اكتب رسالة...">
-              <button id="mentorChatSendBtn">↑</button>
-            </div>
-          </div>
-        </div>
-        <div class="mentor-inbox-side" id="mentorThreadSide" style="display:none;">
-          <div class="m-profile">
-            <div class="profile-avatar profile-avatar-lg" id="mentorSideAvatar"></div>
+      <div id="mentorChatsList" class="mentor-path-list"></div>
+    </div>
+
+    <div class="mentor-chat-sheet" id="mentorChatSheet">
+      <div class="mentor-chat-sheet-backdrop" id="mentorChatSheetBackdrop"></div>
+      <div class="mentor-chat-sheet-panel">
+        <div class="mentor-chat-sheet-head">
+          <button id="mentorChatBackBtn" class="mentor-chat-sheet-close" title="إغلاق">✕</button>
+          <div class="mp-avatar" id="mentorSideAvatar"></div>
+          <div class="mentor-chat-sheet-who">
             <div class="m-name" id="mentorSideName"></div>
             <div class="m-role" id="mentorSideRole"></div>
           </div>
-          <h4 id="lblMentorSideSummary">ملخص</h4>
-          <div class="m-stat-row"><span id="lblMentorSideStart">بداية الرعاية</span><span class="mono" id="mentorSideStart">—</span></div>
-          <div class="m-stat-row"><span id="lblMentorSideCount">عدد الرسائل</span><span class="mono" id="mentorSideCount">0</span></div>
-          <div class="m-stat-row"><span id="lblMentorSideLast">آخر نشاط</span><span class="mono" id="mentorSideLast">—</span></div>
+          <div class="mentor-chat-sheet-stats">
+            <span><b id="mentorSideCount">0</b> <span id="lblMentorSideCount">رسالة</span></span>
+            <span id="mentorSideLast">—</span>
+          </div>
+        </div>
+        <div id="mentorChatMessages" class="mentorship-chat-messages"></div>
+        <div class="mentorship-chat-input-row">
+          <input type="text" id="mentorChatInput" placeholder="اكتب رسالة...">
+          <button id="mentorChatSendBtn">↑</button>
         </div>
       </div>
     </div>
