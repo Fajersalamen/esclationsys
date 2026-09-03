@@ -24,6 +24,7 @@
 <div class="ambient-grain" aria-hidden="true"></div>
 
 <div class="login-gate" id="loginGate" dir="rtl">
+  <canvas class="login-flow-canvas" id="loginFlowCanvas" aria-hidden="true"></canvas>
   <div class="login-form-panel">
     <div class="login-card">
     <div class="login-brand">
@@ -45,9 +46,6 @@
       <button type="button" class="login-forgot" id="loginForgotBtn">Forgot password?</button>
     </form>
     </div>
-  </div>
-  <div class="login-image-panel" aria-hidden="true">
-    <canvas class="login-moon-canvas" id="loginMoonCanvas"></canvas>
   </div>
 </div>
 
@@ -911,6 +909,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4/dist/umd/supabase.js" integrity="sha384-ysv13JVP3fufiEXfjML9OdCa/rRbMJvUBOWyor82wfuK8INNZAvmbxHgKIHi+oqz" crossorigin="anonymous"></script>
 <script src="app.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileApiLoad" async defer></script>
-<script type="module" src="login-moon.js"></script>
+<script src="login-flow.js"></script>
 </body>
 </html>
