@@ -2243,7 +2243,7 @@
     .mentor-decline-btn { background: none; border: 1px solid #B91C1C; color: #B91C1C; }
 
     .mentor-chat-card {
-      border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
       transition: border-color .18s ease, background .18s ease;
       animation: cardEnter .36s cubic-bezier(.2,.75,.25,1) both;
@@ -2275,7 +2275,7 @@
     .mentor-chat-sheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .25s ease; }
     .mentor-chat-sheet-panel {
       position: absolute; inset-inline: 0; bottom: 0; max-width: 640px; margin: 0 auto;
-      max-height: 82vh; background: var(--card); border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.35);
+      height: 82vh; background: var(--card); border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.35);
       display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.22,.8,.25,1);
     }
     .mentor-chat-sheet.open { pointer-events: auto; }
@@ -2298,7 +2298,7 @@
     @media (max-width: 620px) {
       .mentorship-page-inner { padding: 14px 12px 90px; }
       .mentorship-page-head { margin: -14px -12px 18px; padding: 26px 16px 28px; }
-      .mentor-chat-sheet-panel { max-height: 92vh; }
+      .mentor-chat-sheet-panel { height: 92vh; }
     }
 
     /* ===== Admin: Training Center management (Tree Builder) ===== */
