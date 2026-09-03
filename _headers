@@ -15,7 +15,7 @@
 /style.css
   Cache-Control: no-cache, must-revalidate
 
-/login-moon.js
+/login-flow.js
   Cache-Control: no-cache, must-revalidate
 
 /sw.js
