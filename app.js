@@ -902,7 +902,10 @@
     document.getElementById('breaksPage').classList.add('open');
     pauseAllOrbits();
     pauseCmdHero();
-    Promise.all([loadDirectoryEmails(), reloadBreakData()]).then(renderBreaksPage);
+    Promise.all([loadDirectoryEmails(), reloadBreakData()]).then(() => {
+      renderBreaksPage();
+      startBreaksPagePoll();
+    });
   }
   function closeBreaksPage() {
     const el = document.getElementById('breaksPage');
@@ -910,6 +913,36 @@
     el.classList.remove('open');
     orbitControllers.orbitCanvasHome.start();
     resumeCmdHero();
+    stopBreaksPagePoll();
+  }
+
+  // ----- Keeps the schedule live while the page is open, so an admin's edit (a
+  // retimed slot, a swap, an added/removed employee) shows up for everyone else
+  // already looking at it instead of requiring a manual refresh. Same polling
+  // approach used for mentor_requests and the break-time watcher — a plain
+  // re-select on an interval, diffed so an unchanged poll doesn't re-render and
+  // reset the admin's Edit-mode selection or scroll position. -----
+  const BREAKS_PAGE_POLL_MS = 15000;
+  let breaksPagePollTimer = null;
+  let breaksPageLastSignature = null;
+  function startBreaksPagePoll() {
+    stopBreaksPagePoll();
+    breaksPageLastSignature = JSON.stringify(BREAK_SCHEDULE) + '|' + JSON.stringify(BREAK_SWAP_REQUESTS);
+    breaksPagePollTimer = setInterval(pollBreaksPageData, BREAKS_PAGE_POLL_MS);
+  }
+  function stopBreaksPagePoll() {
+    if (breaksPagePollTimer) { clearInterval(breaksPagePollTimer); breaksPagePollTimer = null; }
+  }
+  async function pollBreaksPageData() {
+    // Never clobber a time chip the admin is mid-edit on - the fetch still
+    // happens so the very next tick (once they commit or blur away) picks up
+    // the latest data immediately instead of waiting a full poll cycle behind.
+    if (document.querySelector('.breaks-chip.editing')) return;
+    await reloadBreakData();
+    const signature = JSON.stringify(BREAK_SCHEDULE) + '|' + JSON.stringify(BREAK_SWAP_REQUESTS);
+    if (signature === breaksPageLastSignature) return;
+    breaksPageLastSignature = signature;
+    renderBreaksPage();
   }
 
   async function reloadBreakData() {
@@ -1156,33 +1189,23 @@
   }
   // Auto-distribute suggested break times instead of leaving them blank for the admin to
   // type one at a time: break 1 is a 15-minute slot starting at 1:00 PM, break 2 a
-  // 30-minute slot, break 3 another 15-minute slot, staggered per employee (round-robin)
-  // so the whole team isn't on the same break at once. Still just a starting point — any
-  // block stays editable.
+  // 30-minute slot starting at 3:00 PM, break 3 another 15-minute slot starting at 7:00 PM,
+  // staggered per employee (round-robin) so the whole team isn't on the same break at once.
+  // Still just a starting point — any block stays editable.
   // Each slot's stagger step must match its own duration, or consecutive employees'
-  // breaks overlap into each other. On top of that, break 2 must not start until every
-  // employee's break 1 has actually finished, and break 3 must not start until every
-  // employee's break 2 has finished — otherwise one employee's later break number lands
-  // during another employee's earlier break number and two people are on break at once.
-  // So each slot's start is derived from the previous slot's start + its full span
-  // (step * count), not a separate hardcoded clock time.
-  // The whole rotation must also fit inside the 1:00 PM - 8:45 PM shift (the shift itself
-  // ends at 9:00 PM). Each employee needs 15+30+15 = 60 minutes of break time total, and
-  // with zero overlap ever allowed, that caps the round-robin at floor(465 / 60) = 7
-  // employees before an auto-suggested time would have to repeat. count is shared across
-  // all three slots so that cap is consistent everywhere.
-  const BREAK1_START_MIN = 13 * 60; // 13:00
+  // breaks overlap into each other. Each slot's start is a fixed clock time (not chained
+  // off the previous slot's end) so the schedule reads as clean round numbers, with a
+  // built-in buffer before it so the last employee's previous break is always well
+  // finished by the time the next slot begins.
+  // With zero overlap ever allowed within a slot, the round-robin caps at 7 employees
+  // (15/30/15-minute slots each covering exactly 7 people) before an auto-suggested time
+  // would have to repeat. count is shared across all three slots so that cap is consistent
+  // everywhere.
   const BREAK_ROTATION_COUNT = 7;
   const BREAK_AUTO_WINDOWS = {
-    1: { startMin: BREAK1_START_MIN, stepMin: 15, count: BREAK_ROTATION_COUNT },
-  };
-  BREAK_AUTO_WINDOWS[2] = {
-    startMin: BREAK_AUTO_WINDOWS[1].startMin + BREAK_AUTO_WINDOWS[1].stepMin * BREAK_AUTO_WINDOWS[1].count,
-    stepMin: 30, count: BREAK_ROTATION_COUNT,
-  };
-  BREAK_AUTO_WINDOWS[3] = {
-    startMin: BREAK_AUTO_WINDOWS[2].startMin + BREAK_AUTO_WINDOWS[2].stepMin * BREAK_AUTO_WINDOWS[2].count,
-    stepMin: 15, count: BREAK_ROTATION_COUNT,
+    1: { startMin: 13 * 60, stepMin: 15, count: BREAK_ROTATION_COUNT }, // 1:00 PM
+    2: { startMin: 15 * 60, stepMin: 30, count: BREAK_ROTATION_COUNT }, // 3:00 PM
+    3: { startMin: 19 * 60, stepMin: 15, count: BREAK_ROTATION_COUNT }, // 7:00 PM
   };
   function computeAutoBreakTime(index, slotNum) {
     const w = BREAK_AUTO_WINDOWS[slotNum];
