@@ -3332,6 +3332,7 @@
         if (input) input.focus();
       }
       if (e.key === 'Escape') {
+        closeImageLightbox();
         closePanels();
         closeAdminModal();
         closeTechPage();
@@ -4313,6 +4314,17 @@
     stopPresenceAdminRefresh();
   }
 
+  // ----- Image lightbox: click any attached photo (update card, chat bubble)
+  // to view it full-size instead of squeezed into its small inline thumbnail. -----
+  function openImageLightbox(src) {
+    document.getElementById('imageLightboxImg').src = src;
+    document.getElementById('imageLightbox').classList.add('active');
+  }
+  function closeImageLightbox() {
+    document.getElementById('imageLightbox').classList.remove('active');
+    document.getElementById('imageLightboxImg').src = '';
+  }
+
   function updateAdminRoleLabel() {
     const isAr = currentLang === 'ar';
     const el = document.getElementById('lblAdminActive');
@@ -4767,6 +4779,14 @@
     on('newUpdImageRemoveBtn', 'click', clearNewUpdateImage);
     on('newUpdText', 'paste', handleNewUpdateTextPaste);
     on('btnCloseAdmin', 'click', closeAdminModal);
+    on('imageLightboxClose', 'click', closeImageLightbox);
+    document.getElementById('imageLightbox').addEventListener('click', (e) => {
+      if (e.target.id === 'imageLightbox') closeImageLightbox();
+    });
+    document.body.addEventListener('click', (e) => {
+      const img = e.target.closest('.update-image, .mentor-msg-image');
+      if (img) openImageLightbox(img.src);
+    });
 
     on('novaWordmark', 'dblclick', openAdminModal);
     on('profileBtn', 'click', toggleProfileMenu);
