@@ -2397,7 +2397,7 @@
     document.getElementById('lblMtabRequest').textContent = isAr ? 'اطلب راعي' : 'Request a Mentor';
     document.getElementById('lblMtabIncoming').textContent = isAr ? 'طلبات واردة' : 'Incoming Requests';
     document.getElementById('lblMtabChats').textContent = isAr ? 'محادثاتي' : 'My Chats';
-    document.getElementById('lblMentorEmail').textContent = isAr ? 'اطلب راعي:' : 'Request a mentor:';
+    document.getElementById('lblMentorEmail').textContent = isAr ? 'دوّر على راعي:' : 'Find a mentor:';
     document.getElementById('mentorRequestNote').placeholder = isAr ? 'ليش بدك ياه راعي؟ (اختياري)' : 'Why do you want them as a mentor? (optional)';
     document.getElementById('btnSendMentorRequest').textContent = isAr ? 'إرسال الطلب' : 'Send Request';
     document.getElementById('lblMyOutgoing').textContent = isAr ? '📨 طلباتي المرسلة' : '📨 My Sent Requests';
@@ -2406,12 +2406,7 @@
     document.getElementById('colOutStatus').textContent = isAr ? 'الحالة' : 'Status';
     document.getElementById('colOutDate').textContent = isAr ? 'التاريخ' : 'Date';
     document.getElementById('mentorOutgoingEmptyText').textContent = isAr ? 'ما أرسلت أي طلب رعاية بعد' : "You haven't sent any mentorship requests yet";
-    document.getElementById('lblMentorChatBack').textContent = isAr ? 'رجوع للمحادثات' : 'Back to chats';
-    document.getElementById('lblMentorChatEmpty').textContent = isAr ? 'اختر محادثة من القائمة' : 'Select a conversation from the list';
-    document.getElementById('lblMentorSideSummary').textContent = isAr ? 'ملخص' : 'Summary';
-    document.getElementById('lblMentorSideStart').textContent = isAr ? 'بداية الرعاية' : 'Started';
-    document.getElementById('lblMentorSideCount').textContent = isAr ? 'عدد الرسائل' : 'Messages';
-    document.getElementById('lblMentorSideLast').textContent = isAr ? 'آخر نشاط' : 'Last activity';
+    document.getElementById('lblMentorSideCount').textContent = isAr ? 'رسالة' : 'messages';
     if (openMentorThreadId) renderMentorThreadSideProfile(openMentorThreadId);
 
     document.getElementById('onboardingHeroTitle').textContent = isAr ? 'أهلاً! 👋' : 'Welcome! 👋';
@@ -3540,6 +3535,32 @@
     const placeholder = `<option value="">${isAr ? '— اختر زميل —' : '— Select a colleague —'}</option>`;
     sel.innerHTML = placeholder + others.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
     if (previous && others.includes(previous)) sel.value = previous;
+
+    const grid = document.getElementById('mentorBrowseGrid');
+    if (grid) {
+      grid.innerHTML = others.length ? others.map(e => `
+        <div class="mentor-browse-card">
+          <span class="mp-avatar" style="background:${breakAvatarColor(e)}">${escapeHtml(breakInitials(e))}</span>
+          <div class="mentor-browse-name">${escapeHtml(breakDisplayName(e))}</div>
+          <button type="button" class="mentor-browse-ask-btn" data-ask-mentor="${escapeHtml(e)}">+ ${isAr ? 'اطلب رعاية' : 'Ask to mentor'}</button>
+        </div>`).join('') : `<div class="mentorship-empty">${isAr ? 'كل الزملاء عندهم طلب منك أصلاً.' : "You've already asked everyone."}</div>`;
+      const noteRow = document.getElementById('mentorRequestNoteRow');
+      if (noteRow && (!sel.value || !others.includes(sel.value))) noteRow.style.display = 'none';
+    }
+  }
+
+  function pickMentorToAsk(email) {
+    const sel = document.getElementById('mentorRequestEmail');
+    if (sel) sel.value = email;
+    document.querySelectorAll('#mentorBrowseGrid .mentor-browse-card').forEach(card => {
+      card.classList.toggle('picked', card.querySelector('[data-ask-mentor]')?.dataset.askMentor === email);
+    });
+    const noteRow = document.getElementById('mentorRequestNoteRow');
+    const who = document.getElementById('mentorRequestNoteWho');
+    const isAr = currentLang === 'ar';
+    if (who) who.textContent = (isAr ? 'طلب رعاية لـ ' : 'Asking ') + breakDisplayName(email);
+    if (noteRow) noteRow.style.display = 'flex';
+    document.getElementById('mentorRequestNote')?.focus();
   }
 
   function mentorStatusLabel(status, isAr) {
@@ -3603,7 +3624,7 @@
     if (empty) empty.style.display = 'none';
     list.innerHTML = mine.map(r => `
       <tr>
-        <td class="mentor-who-cell">${escapeHtml(r.mentorEmail)}</td>
+        <td class="mentor-who-cell">${escapeHtml(breakDisplayName(r.mentorEmail))}</td>
         <td class="mentor-reason-cell">${r.note ? escapeHtml(r.note) : '—'}</td>
         <td><span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span></td>
         <td class="mentor-date-cell">${new Date(r.createdAt).toLocaleDateString(isAr ? 'ar' : 'en', { day: 'numeric', month: 'long' })}</td>
@@ -3622,7 +3643,7 @@
         : `<span class="mentor-status-pill ${r.status}">${mentorStatusLabel(r.status, isAr)}</span>`;
       return `<div class="mentor-request-card">
         <div>
-          <div class="who">${escapeHtml(r.traineeEmail)}</div>
+          <div class="who">${escapeHtml(breakDisplayName(r.traineeEmail))}</div>
           ${r.note ? `<div class="note">${escapeHtml(r.note)}</div>` : ''}
         </div>
         <div class="actions">${actions}</div>
@@ -3657,6 +3678,8 @@
     MENTOR_REQUESTS.unshift({ id: data.id, traineeEmail: data.trainee_email, mentorEmail: data.mentor_email, note: data.note, status: data.status, createdAt: new Date(data.created_at).getTime() });
     document.getElementById('mentorRequestEmail').value = '';
     document.getElementById('mentorRequestNote').value = '';
+    document.getElementById('mentorRequestNoteRow').style.display = 'none';
+    renderMentorEmailOptions();
     renderMentorRequestPane();
     showToast(isAr ? 'تم إرسال طلب الرعاية!' : 'Mentorship request sent!', 'success');
   }
@@ -3676,33 +3699,70 @@
     showToast(accept ? (isAr ? 'تم القبول! فتحت محادثة جديدة.' : 'Accepted! A new chat is open.') : (isAr ? 'تم الرفض.' : 'Declined.'), 'success');
   }
 
+  // The most recently active mentorship gets the full growth-path treatment
+  // (a real 3-stage progress track: sent -> accepted -> ongoing); the rest
+  // just need to be reachable, so they're a simpler roster list underneath.
   function renderMentorChatsList() {
     const isAr = currentLang === 'ar';
     const list = document.getElementById('mentorChatsList');
     if (!list) return;
     const accepted = MENTOR_REQUESTS.filter(r => r.status === 'accepted' && (r.traineeEmail === currentUserEmail || r.mentorEmail === currentUserEmail)).sort((a, b) => b.id - a.id);
-    list.innerHTML = accepted.length ? accepted.map(r => {
+    if (!accepted.length) {
+      list.innerHTML = `<div class="mentorship-empty">${isAr ? 'ما عندك محادثات نشطة بعد.' : "You don't have any active mentorships yet."}</div>`;
+      return;
+    }
+
+    const describe = (r) => {
       const iAmMentor = r.mentorEmail === currentUserEmail;
       const other = iAmMentor ? r.traineeEmail : r.mentorEmail;
-      const roleTag = iAmMentor ? (isAr ? 'انت الراعي' : "You're the mentor") : (isAr ? 'انت المتدرب' : "You're the trainee");
+      const roleTag = iAmMentor ? (isAr ? 'إنت الراعي' : "You're the mentor") : (isAr ? 'إنت المتدرب' : "You're the trainee");
+      return { other, roleTag };
+    };
+
+    const [hero, ...rest] = accepted;
+    const { other: heroOther, roleTag: heroRole } = describe(hero);
+    const stages = [
+      { key: 'sent', label: isAr ? 'الطلب' : 'Request' },
+      { key: 'accepted', label: isAr ? 'الموافقة' : 'Accepted' },
+      { key: 'active', label: isAr ? 'متابعة نشطة' : 'Active' },
+    ];
+    const waypoints = stages.map((s, i) => {
+      const isCurrent = i === stages.length - 1;
+      return `<div class="mp-wp ${isCurrent ? 'current' : 'done'}"><span class="mp-node">${isCurrent ? '●' : '✓'}</span><span class="mp-label">${s.label}</span></div>`;
+    }).join('');
+
+    const heroHtml = `
+      <div class="mentor-path-hero${hero.id === openMentorThreadId ? ' on' : ''}" data-open-thread="${hero.id}">
+        <div class="mp-head">
+          <span class="mp-avatar" style="background:${breakAvatarColor(heroOther)}">${escapeHtml(breakInitials(heroOther))}</span>
+          <div><b>${escapeHtml(breakDisplayName(heroOther))}</b><span class="mp-role">${heroRole}</span></div>
+          <span class="mp-since">${formatRelativeDay(hero.createdAt, isAr)}</span>
+        </div>
+        <div class="mp-track">
+          <div class="mp-line"></div>
+          <div class="mp-waypoints">${waypoints}</div>
+        </div>
+      </div>`;
+
+    const restHtml = rest.map(r => {
+      const { other, roleTag } = describe(r);
       return `<div class="mentor-chat-card${r.id === openMentorThreadId ? ' on' : ''}" data-open-thread="${r.id}">
+        <span class="mp-avatar sm" style="background:${breakAvatarColor(other)}">${escapeHtml(breakInitials(other))}</span>
         <div>
-          <div class="who">${escapeHtml(other)}</div>
+          <div class="who">${escapeHtml(breakDisplayName(other))}</div>
           <div class="role-tag">${roleTag}</div>
         </div>
         <span>›</span>
       </div>`;
-    }).join('') : `<div class="mentorship-empty">${isAr ? 'ما عندك محادثات نشطة بعد.' : "You don't have any active mentorships yet."}</div>`;
+    }).join('');
+
+    list.innerHTML = heroHtml + restHtml;
   }
 
   async function openMentorThread(requestId) {
     openMentorThreadId = requestId;
-    const inbox = document.getElementById('mentorInbox');
-    if (inbox) inbox.classList.add('thread-open');
-    document.getElementById('mentorChatEmpty').style.display = 'none';
-    document.getElementById('mentorChatThread').style.display = 'flex';
-    const side = document.getElementById('mentorThreadSide');
-    if (side) side.style.display = 'flex';
+    const sheet = document.getElementById('mentorChatSheet');
+    if (sheet) sheet.classList.add('open');
     document.querySelectorAll('#mentorChatsList [data-open-thread]').forEach(el => {
       el.classList.toggle('on', parseInt(el.dataset.openThread, 10) === requestId);
     });
@@ -3713,14 +3773,8 @@
   function closeMentorThread() {
     openMentorThreadId = null;
     stopMentorChatPoll();
-    const inbox = document.getElementById('mentorInbox');
-    if (inbox) inbox.classList.remove('thread-open');
-    const empty = document.getElementById('mentorChatEmpty');
-    const thread = document.getElementById('mentorChatThread');
-    const side = document.getElementById('mentorThreadSide');
-    if (empty) empty.style.display = 'flex';
-    if (thread) thread.style.display = 'none';
-    if (side) side.style.display = 'none';
+    const sheet = document.getElementById('mentorChatSheet');
+    if (sheet) sheet.classList.remove('open');
     document.querySelectorAll('#mentorChatsList [data-open-thread].on').forEach(el => el.classList.remove('on'));
   }
 
@@ -3741,11 +3795,11 @@
     if (!r) return;
     const iAmMentor = r.mentorEmail === currentUserEmail;
     const other = iAmMentor ? r.traineeEmail : r.mentorEmail;
-    const roleTag = iAmMentor ? (isAr ? 'انت الراعي' : "You're the mentor") : (isAr ? 'انت المتدرب' : "You're the trainee");
-    document.getElementById('mentorSideAvatar').textContent = (other || '؟').trim().slice(0, 2).toUpperCase();
-    document.getElementById('mentorSideName').textContent = other || '—';
+    const roleTag = iAmMentor ? (isAr ? 'إنت الراعي' : "You're the mentor") : (isAr ? 'إنت المتدرب' : "You're the trainee");
+    document.getElementById('mentorSideAvatar').textContent = breakInitials(other || '');
+    document.getElementById('mentorSideAvatar').style.background = breakAvatarColor(other || '');
+    document.getElementById('mentorSideName').textContent = other ? breakDisplayName(other) : '—';
     document.getElementById('mentorSideRole').textContent = roleTag;
-    document.getElementById('mentorSideStart').textContent = formatRelativeDay(r.createdAt, isAr);
   }
 
   function updateMentorThreadSideStats(requestId, messages) {
@@ -4786,6 +4840,11 @@
       btn.addEventListener('click', () => switchMentorTab(btn.dataset.mentorTab));
     });
     on('btnSendMentorRequest', 'click', sendMentorRequest);
+    document.getElementById('mentorBrowseGrid').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-ask-mentor]');
+      if (btn) pickMentorToAsk(btn.dataset.askMentor);
+    });
+    on('mentorChatSheetBackdrop', 'click', closeMentorThread);
     document.getElementById('mentorIncomingList').addEventListener('click', (e) => {
       const acceptBtn = e.target.closest('[data-accept-mentor]');
       if (acceptBtn) { respondMentorRequest(parseInt(acceptBtn.dataset.acceptMentor, 10), true); return; }
