@@ -969,8 +969,11 @@
 
   function renderBreaksPage() {
     const isAr = currentLang === 'ar';
-    const dateLabel = document.getElementById('breaksDateLabel');
-    if (dateLabel) dateLabel.textContent = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+    const eyebrow = document.getElementById('breaksEyebrow');
+    if (eyebrow) {
+      const dateStr = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+      eyebrow.textContent = (isAr ? 'جدول اليوم — ' : "Today's schedule — ") + dateStr;
+    }
 
     const editToggleBtn = document.getElementById('breaksEditToggle');
     if (editToggleBtn) editToggleBtn.style.display = isAdmin ? 'inline-flex' : 'none';
@@ -1006,11 +1009,44 @@
     const removeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"></path><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M7 7l1 12.5A2 2 0 0 0 10 21h4a2 2 0 0 0 2-1.5L17 7"></path></svg>`;
     const pencilIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
     const breakChipIcons = { 1: '☕', 2: '🍽️', 3: '🎧' };
+    const breakChipLabels = { 1: isAr ? 'قهوة' : 'Coffee', 2: isAr ? 'أكل' : 'Meal', 3: isAr ? 'سماعة' : 'Headset' };
+
+    // ----- Stats strip: real numbers derived from today's schedule, not
+    // decorative placeholders - first/last break across all three slots, and
+    // a genuine conflict count (two employees sharing the exact same slot +
+    // time, which the auto-suggest logic is designed to prevent but a manual
+    // edit could still create). -----
+    const statsRow = document.getElementById('breaksStatsRow');
+    if (statsRow) {
+      const allTimes = [];
+      const seenBySlot = { 1: new Map(), 2: new Map(), 3: new Map() };
+      let conflicts = 0;
+      rows.forEach(r => {
+        [1, 2, 3].forEach(slot => {
+          const raw = r['break' + slot];
+          if (!raw) return;
+          allTimes.push(raw);
+          const bucket = seenBySlot[slot];
+          if (bucket.has(raw)) conflicts++;
+          bucket.set(raw, (bucket.get(raw) || 0) + 1);
+        });
+      });
+      allTimes.sort();
+      const first = allTimes.length ? formatBreakTime(allTimes[0]) : '—';
+      const last = allTimes.length ? formatBreakTime(allTimes[allTimes.length - 1]) : '—';
+      const stat = (value, label) => `<div class="breaks-stat"><div class="v">${escapeHtml(value)}</div><div class="l">${escapeHtml(label)}</div></div>`;
+      statsRow.innerHTML = [
+        stat(String(rows.length), isAr ? 'موظفين اليوم' : 'On schedule today'),
+        stat(first, isAr ? 'أول بريك' : 'First break'),
+        stat(last, isAr ? 'آخر بريك' : 'Last break'),
+        stat(String(conflicts), isAr ? 'تعارض بالمواعيد' : 'Time conflicts'),
+      ].join('');
+    }
 
     const roster = document.getElementById('breaksTableBody');
     if (roster) {
       roster.classList.toggle('edit-mode', breaksEditMode);
-      roster.innerHTML = rows.map(r => {
+      roster.innerHTML = rows.map((r, idx) => {
         const isMe = r.employeeEmail === currentUserEmail;
         const picked = breaksEditMode && r.id === breaksPickedSeatId;
         const hasAnyTime = [1, 2, 3].some(slot => !!r['break' + slot]);
@@ -1020,7 +1056,7 @@
           const editBtn = isAdmin
             ? `<button type="button" class="breaks-time-edit-btn" data-edit-row="${r.id}" data-edit-slot="${slot}" title="${isAr ? 'تعديل الوقت يدويًا' : 'Edit time manually'}">${pencilIcon}</button>`
             : '';
-          return `<span class="breaks-chip b${slot}"><span class="ic">${breakChipIcons[slot]}</span><span class="t">${formatted ? escapeHtml(formatted) : '—'}</span>${editBtn}</span>`;
+          return `<span class="breaks-chip b${slot}"><span class="k"><span class="ic">${breakChipIcons[slot]}</span>${breakChipLabels[slot]}</span><span class="t">${formatted ? escapeHtml(formatted) : '—'}</span>${editBtn}</span>`;
         }).join('');
         const swapBtn = (isMe && hasAnyTime)
           ? `<button type="button" class="breaks-swap-request-btn" data-swap-row="${r.id}" title="${isAr ? 'طلب سواب' : 'Request swap'}">${swapIcon}</button>`
@@ -1029,12 +1065,17 @@
           ? `<button type="button" class="breaks-remove-btn" data-remove-email="${escapeHtml(r.employeeEmail)}" title="${isAr ? 'إزالة من الجدول' : 'Remove from schedule'}">${removeIcon}</button>`
           : '';
         return `<div class="breaks-row${isMe ? ' me' : ''}${picked ? ' picked' : ''}" data-row-id="${r.id}">
-          <span class="breaks-identity">
-            <span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span>
-            <span class="breaks-name">${escapeHtml(breakDisplayName(r.employeeEmail))}${isMe ? `<span class="breaks-you-tag">${isAr ? 'هذا صفك' : 'This is you'}</span>` : ''}</span>
-          </span>
+          <div class="breaks-card-top">
+            <span class="breaks-identity">
+              <span class="breaks-avatar" style="background:${breakAvatarColor(r.employeeEmail)}">${escapeHtml(breakInitials(r.employeeEmail))}</span>
+              <span class="breaks-who">
+                <span class="breaks-name">${escapeHtml(breakDisplayName(r.employeeEmail))}${isMe ? `<span class="breaks-you-tag">${isAr ? 'هذا صفك' : 'This is you'}</span>` : ''}</span>
+                <span class="breaks-seat">${isAr ? 'مقعد' : 'Seat'} ${idx + 1}</span>
+              </span>
+            </span>
+            <span class="breaks-row-actions">${swapBtn}${removeBtn}</span>
+          </div>
           <span class="breaks-chips">${chips}</span>
-          <span class="breaks-row-actions">${swapBtn}${removeBtn}</span>
         </div>`;
       }).join('');
     }
@@ -2487,7 +2528,6 @@
     }
 
     document.getElementById('breaksMenuBtnText').textContent = isAr ? 'جدول البريكات' : 'Break Schedule';
-    document.getElementById('breaksPageTitle').textContent = isAr ? '🕐 جدول البريكات' : '🕐 Break Schedule';
     document.getElementById('breaksNoticeText').textContent = isAr
       ? 'رح توصلك رسالة تنبيه بصوت عند وصول موعد أي بريك من بريكاتك.'
       : "You'll get a sound alert the moment any of your breaks starts.";
@@ -2499,9 +2539,6 @@
     document.getElementById('breaksEditHint').textContent = isAr
       ? 'اختر اسم، بعدين اختر اسم تاني عشان تبدلهم بمكانهم'
       : 'Pick a name, then pick another to swap their places';
-    document.getElementById('breaksColBreak1').textContent = isAr ? 'بريك ١' : 'Break 1';
-    document.getElementById('breaksColBreak2').textContent = isAr ? 'بريك ٢' : 'Break 2';
-    document.getElementById('breaksColBreak3').textContent = isAr ? 'بريك ٣' : 'Break 3';
     document.getElementById('breaksIncomingLabel').textContent = isAr ? '📥 طلبات سواب واردة' : '📥 Incoming Swap Requests';
     document.getElementById('breaksOutgoingLabel').textContent = isAr ? '📤 طلباتي المرسلة' : '📤 My Sent Requests';
     document.getElementById('breakSwapTitle').textContent = isAr ? 'طلب سواب بريك' : 'Request a Break Swap';
