@@ -1248,7 +1248,7 @@
       transition: transform .3s cubic-bezier(.22,.8,.25,1), opacity .3s ease; overflow-y: auto; overflow-x: hidden;
     }
     .breaks-page.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .breaks-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; max-width: 760px; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
+    .breaks-page-inner { position: relative; z-index: 1; margin: 0 auto; width: 100%; max-width: 1200px; padding: 18px clamp(16px,4vw,56px) 90px; flex: 1; }
     .breaks-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; position: sticky; top: 0; z-index: 3; padding: 6px 0; }
     .breaks-eyebrow { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .02em; color: var(--brand-teal); }
 
